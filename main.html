@@ -1,0 +1,302 @@
+<html>
+
+<head>
+
+<script>
+	var dkc2ldd = {};
+	var dkc2debug = {};
+</script>
+
+<script src="./decompressor_debug.js"></script>
+
+<script src="./img.js"></script>
+
+<script src="./lib.js"></script>
+
+<script src="./interface.js"></script>
+
+<script src="./events.js"></script>
+<script src="./gfx.js"></script>
+<script src="./ref.js"></script>
+
+<script src="./write.js"></script>
+<script src="./features.js"></script>
+
+
+<script>
+
+
+
+
+
+// REF
+
+
+// WRITE
+
+
+// FEATURES
+
+
+
+/*
+create_arrayFunction = function(a){
+	return function(i){
+		let o = {};
+		o[i] = a[i];
+		o[undefined] = a.length;
+		return o[i];
+	};
+};
+
+a = create_arrayFunction([0,-1,-2,-3]);
+
+b = create_arrayFunction(["4","5","6"]);
+
+c = create_arrayFunction(["a","b","c"]);
+
+f = function(a, b){
+	let ab = [a, b];
+	return function(i){
+		let aLen = a();
+		let bLen = b();
+		
+		let o = {};
+		
+		o[i] = function(){
+			let t = Math.floor(i/aLen)
+			i = ([i, i-aLen])[t];
+			return ab[t](i);
+		};
+		o[undefined] = function(){
+			return aLen + bLen;
+		};
+
+		return o[i]();
+	};
+};
+
+ab = f(a,b);
+abc = f(ab,c);
+*/
+
+
+
+/*
+// WORKS
+create_arrayFunction = function(a){
+	return function(i){
+		let o = {};
+		o[i] = a[i];
+		o[undefined] = a.length;
+		return [o[i], a, i];
+	};
+};
+
+concat_arrayFunction = function(a, b){
+	let ab = [a, b];
+	return function(i){
+		let aLen = a()[0];
+		let bLen = b()[0];
+		
+		let o = {};
+		
+		o[i] = function(){
+			let t = Math.floor(i/aLen);
+			t = ( {0:0,1:1,undefined:1} )[ ([0,1])[t] ];
+			i = ([i, i-aLen])[t];
+			return ab[t](i);
+		};
+		o[undefined] = function(){
+			return [aLen+bLen];
+		};
+
+		return o[i]();
+	};
+};
+*/
+
+
+
+
+create_arrayFunction = function(a){
+	return function(i,v){
+		let _o = {};
+		_o[0] = function(){ return a.length; };
+		_o[1] = function(){ return [a[i], a, i]; };
+		_o[2] = function(){ a[i] = v; };
+
+		let arg = arguments.length;
+		arg = ( {0:0,1:1,2:2,undefined:2} )[ ([0,1,2])[arg] ];
+		return _o[arg]();
+	};
+};
+
+concat_arrayFunction = function(a, b){
+	let ab = [a, b];
+	return function(i,v){
+		let aLen = a();
+		let bLen = b();
+		
+		let _o = {};
+		_o[0] = function(){
+			return aLen+bLen;
+		};
+		_o[1] = function(){
+			let t = Math.floor(i/aLen);
+			t = ( {0:0,1:1,undefined:1} )[ ([0,1])[t] ];
+			i = ([i, i-aLen])[t];
+			return ab[t](i);
+		};
+		_o[2] = function(){
+			let t = Math.floor(i/aLen);
+			t = ( {0:0,1:1,undefined:1} )[ ([0,1])[t] ];
+			i = ([i, i-aLen])[t];
+			ab[t](i,v);
+		};
+
+		let arg = arguments.length;
+		arg = ( {0:0,1:1,2:2,undefined:2} )[ ([0,1,2])[arg] ];
+		return _o[arg]();
+	};
+};
+
+
+
+make_syntaxArray = function(arrayFunction){
+
+	let o = {};
+
+	// existing array cell access
+	let len = arrayFunction();
+	for(let i=0; i<len; i++){
+		Object.defineProperty(o, i, {
+			get: function () { return arrayFunction(i)[0]; },
+			set: function (value) { arrayFunction(i, value); }
+		});
+	}
+
+	// push method
+	o.push = function(value){
+		let len = arrayFunction();
+		let jsArray = arrayFunction(len-1)[1];
+		jsArray.push(value);
+		Object.defineProperty(o, len, {
+			get: function () { return arrayFunction(len)[0] },
+			set: function (value) { arrayFunction(len, value); }
+		});
+		o[len] = value;
+	};
+
+	// pop method
+	o.pop = function(value){
+		let len = arrayFunction();
+		let jsArray = arrayFunction(len-1)[1];
+		let ret = jsArray.pop(value);
+		delete o[len-1];
+		return ret;
+	}
+
+	// length property
+	Object.defineProperty(o, 'length', {
+		get: function () { return arrayFunction() }
+	});
+
+	return o;
+};
+
+
+
+/*
+create_arrayFunction = function(a){
+	
+	let arrFunc = function(i){
+		let o = {};
+		o[i] = a[i];
+		o[undefined] = a.length;
+		return [o[i], a, i];
+	};
+
+	arrFunc.make = function(){
+		let len = a.length;
+		for(let i=0; i<len; i++){
+			Object.defineProperty(arrFunc, i, {
+				get: function () { return arrFunc(i)[0] },
+				set: function (value) { a[i] = value }
+			});
+		}
+	};
+
+	return arrFunc;
+};
+*/
+
+
+
+
+
+
+
+// make demo
+
+g = create_arrayFunction(['gg','hh','ii']);
+h = create_arrayFunction(['jj','kk','ll']);
+
+e = create_arrayFunction(['aa','bb','cc']);
+
+a = create_arrayFunction(['a0','b1','c2']);
+b = create_arrayFunction(['d3','e4','f5']);
+c = create_arrayFunction(['g6','h7','i8']);
+d = create_arrayFunction(['j9','k.','l_']);
+
+f = create_arrayFunction(['dd','ee','ff']);
+
+ab = concat_arrayFunction(a,b);
+cd = concat_arrayFunction(c,d);
+abcd = concat_arrayFunction(ab,cd);
+eabcd = concat_arrayFunction(e, abcd);
+eabcdf = concat_arrayFunction(eabcd, f);
+gh = concat_arrayFunction(g,h);
+gheabcdf = concat_arrayFunction(gh,eabcdf);
+
+// display demo
+
+/*
+test = gheabcdf;
+console.log( test() );
+for(let i=0; i<test(); i++)
+	console.log( i, test(i) );
+*/
+	
+	
+</script>
+</head>
+
+<body>
+	palette
+	tileset
+	bgtilemap
+	mapchip
+	lvltilemap
+	level
+</body>
+
+	<script>
+
+		dkc2ldd.interface.create_userInterface();
+		dkc2ldd.interface.start_workspace();
+		
+		dkc2ldd.event.setEvent_srcFilePanel();
+		dkc2ldd.event.setEvent_editModePanel();
+
+	</script>
+
+	<script src="./preload.js"></script>
+	<script src="./debug.js"></script>
+	
+</html>
+
+
+
+
+

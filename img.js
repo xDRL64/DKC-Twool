@@ -1,0 +1,19 @@
+
+
+dkc2ldd.imgPack = (function(){
+
+	let o = {};
+
+	// <- left
+
+	o.left = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAAAY0lEQVRIidXQMRIAIQgEQf7/aYwuUZGFMfA2n64Csz/PadwG3ADgBoA5LgG7WAaiWAJOcQpk8RFQ4hBQ4y1QiRegGjuN7wL4hCtP7CDhMKAi6TCQIfIwECHlYWBG2sPAhzywAbWe0S9/4dVbAAAAAElFTkSuQmCC"
+
+
+	// -> right
+
+	o.right = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAgCAYAAAAbifjMAAAAYklEQVRIidXSORLAIAxDUd//0k5FA14klIHk93qFx2Zfyd8AJMRNRNxEZAZoJAIoJANgpAIgpANaBAFKBAVShAFChAUWZAfw68C9I4YdeaQyadwBUNI4A6ik8QxsJY0H8NMe4DjRL6h2qQkAAAAASUVORK5CYII="
+
+
+	return o;
+	
+})();
