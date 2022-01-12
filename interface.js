@@ -527,7 +527,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			return elem;
 		};
 		
-		let create_preview = function(w,h, s, wCur, hCur, border=0, secCur){
+		let create_preview = function(w,h, s, cursors, /*wCur, hCur,*/ border=0, /*secCur*/){
 		
 			let wSize = w * s;
 			let hSize = h * s;
@@ -546,16 +546,22 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			elem.appendChild(view);
 			
 			// add cursor as last child
-			let cursorBorder = 1;
+			let cursor = {};
+			if(cursors !== undefined){
+				for(let i=0; i<cursors.length; i++){
+					cursor[ cursors[i][0] ] = create_cursor(elem, cursors[i][1],cursors[i][2], s, cursors[i][3]);
+				}
+			}
+			/*let cursorBorder = 1;
 			let cursor = {
 				main : create_cursor(elem, wCur,hCur, s, cursorBorder),
 				scnd : secCur ? create_cursor(elem, secCur[0],secCur[1], s, cursorBorder) : undefined
-			};
+			};*/
 			
 			return {elem:elem, view:view, ctx:ctx, cursor:cursor};
 		};
 	
-		let create_4previewPanel = function(wPrev, hPrev, scale, wPrevCur, hPrevCur, secondCursor){
+		let create_4previewPanel = function(wPrev, hPrev, scale, cursors/*wPrevCur, hPrevCur, secondCursor*/){
 		
 			let o = {};
 		
@@ -576,10 +582,10 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			o.elem.style.border = "1px solid black";
 		
 			// preview
-			o.nFlip = create_preview(wPrev, hPrev, scale, wPrevCur, hPrevCur, prevBordSize, secondCursor);
-			o.hFlip = create_preview(wPrev, hPrev, scale, wPrevCur, hPrevCur, prevBordSize, secondCursor);
-			o.vFlip = create_preview(wPrev, hPrev, scale, wPrevCur, hPrevCur, prevBordSize, secondCursor);
-			o.aFlip = create_preview(wPrev, hPrev, scale, wPrevCur, hPrevCur, prevBordSize, secondCursor);
+			o.nFlip = create_preview(wPrev, hPrev, scale, cursors, /*wPrevCur, hPrevCur,*/ prevBordSize/*, secondCursor*/);
+			o.hFlip = create_preview(wPrev, hPrev, scale, cursors, /*wPrevCur, hPrevCur,*/ prevBordSize/*, secondCursor*/);
+			o.vFlip = create_preview(wPrev, hPrev, scale, cursors, /*wPrevCur, hPrevCur,*/ prevBordSize/*, secondCursor*/);
+			o.aFlip = create_preview(wPrev, hPrev, scale, cursors, /*wPrevCur, hPrevCur,*/ prevBordSize/*, secondCursor*/);
 		
 			// add
 			o.elem.appendChild(o.nFlip.elem);
@@ -598,7 +604,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				o.vFlip.cursor.main.setVisible(v);
 				o.aFlip.cursor.main.setVisible(a);
 			
-				if(secondCursor){
+				if(o.nFlip.cursor.scnd){
 					o.nFlip.cursor.scnd.setVisible(n);
 					o.hFlip.cursor.scnd.setVisible(h);
 					o.vFlip.cursor.scnd.setVisible(v);
@@ -652,9 +658,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		};
 	
 
-		let create_hoverPreview = function(w,h, scale, wCur,hCur, border, secCur, hoverPadding=1){
+		let create_hoverPreview = function(w,h, scale, cursors, /*wCur,hCur,*/ border, /*secCur,*/ hoverPadding=1){
 		
-			let o =  create_preview(w, h, scale, wCur,hCur, border, secCur);
+			let o =  create_preview(w, h, scale, cursors, /*wCur,hCur,*/ border, /*secCur*/);
 			
 			o.view.style.pointerEvents = "none";
 			
@@ -739,7 +745,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 			let o = {};
 		
-			o.viewport = create_preview(16,64, 16, 0, 0);
+			o.viewport = create_preview(16,64, 16);
 
 			workspace.elem.appendChild(o.viewport.view);
 			
@@ -817,7 +823,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 						// params : ddt/dft x   f/s o/w
 					if(_p[0]==='d4t' || _p[0]==='dt' || _p[0]==='ddt' || _p[0]==='ft' || _p[0]==='dft'){
 						
-						o.viewport = create_preview(8*2,8*2, 10, 0, 0);
+						o.viewport = create_preview(8*2,8*2, 10);
 						
 						let ctx = o.viewport.ctx;
 						let pal = app.gfx.defaultPalettes[0];
@@ -842,7 +848,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 						let w     = sttObj.w     = xtmax * 8;
 						let _     = sttObj._     = 1;
 
-						o.viewport = create_preview(w*2+_,h*2+_, 2, 0, 0);
+						o.viewport = create_preview(w*2+_,h*2+_, 2);
 
 						let ctx = o.viewport.ctx;
 
@@ -863,7 +869,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 						let h = Math.ceil( (data.length/32) /xtmax ) * 8;
 						let w = xtmax * 8;
 					
-						o.viewport = create_preview(w,h, 2, 0, 0);
+						o.viewport = create_preview(w,h, 2);
 						let ctx = o.viewport.ctx;
 
 						let pal = app.gfx.defaultPalettes[1];
@@ -990,7 +996,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			
 				
 			
-			o.viewport = create_hoverPreview(512, 512, 1, 32,32, 0, [8,8]);
+			o.viewport = create_hoverPreview(512, 512, 1, [['main',32,32, 1],['scnd',8,8, 1]], 0);
 			o.viewport.init(workspace.elem);
 			
 			
@@ -1008,26 +1014,26 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			workspace.elem.appendChild(o.previewPanel);
 			
 			// 4 tiles preview panel
-			o.tilePrevPan = create_4previewPanel(32, 32, 2, 8,8, [1,1]);
+			o.tilePrevPan = create_4previewPanel(32, 32, 2, [['main',8,8, 1],['scnd',1,1, 1]]);
 			o.previewPanel.appendChild(o.tilePrevPan.elem);
 			o.tilePrevPan.elem.style.flex = "none";
 			//o.tilePrevPan.nFlip.cursor.main.setBorderSize(2);
 			
 			
 			// 4 8x8 tiles preview panel
-			o.t8x8PrevPan = create_4previewPanel(8, 8, 8, 1,1);
+			o.t8x8PrevPan = create_4previewPanel(8, 8, 8, [['main',1,1, 1]]);
 			o.t8x8PrevPan.elem.style.flex = "none";
 			o.previewPanel.appendChild(o.t8x8PrevPan.elem);
 		
 		
 			// flipped 8x8 tile preview
-			o.f8x8Prev = create_hoverPreview(8,8, 16, 1,1, 3, undefined, 0);
+			o.f8x8Prev = create_hoverPreview(8,8, 16, [['main',1,1, 1]], 3, 0);
 			o.f8x8Prev.elem.style.flex = "none";
 			o.f8x8Prev.init(o.previewPanel);
 		
 		
 			// pal preview
-			o.palPreview = create_preview(16,8, 16, 0,0, 3);
+			o.palPreview = create_preview(16,8, 16, undefined, 3);
 			o.previewPanel.appendChild(o.palPreview.elem);
 			let ctx_palPrev = o.palPreview.view.getContext("2d");
 			
