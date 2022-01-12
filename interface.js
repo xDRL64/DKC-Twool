@@ -527,17 +527,14 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			return elem;
 		};
 		
-		let create_preview = function(w,h, s, cursors, /*wCur, hCur,*/ border=0, /*secCur*/){
+		let create_preview = function(w,h, s, cursors, border=0){
 		
 			let wSize = w * s;
 			let hSize = h * s;
 		
 			let elem = document.createElement("div");
-			
 			elem.style.position = "relative";
 			elem.style.display = "inline-block";
-			//elem.style.width = wSize;
-			//elem.style.height = hSize;
 			elem.style.border = border + "px solid black";
 			
 			let view = create_canvas(w,h, wSize,hSize);
@@ -552,16 +549,11 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 					cursor[ cursors[i][0] ] = create_cursor(elem, cursors[i][1],cursors[i][2], s, cursors[i][3]);
 				}
 			}
-			/*let cursorBorder = 1;
-			let cursor = {
-				main : create_cursor(elem, wCur,hCur, s, cursorBorder),
-				scnd : secCur ? create_cursor(elem, secCur[0],secCur[1], s, cursorBorder) : undefined
-			};*/
 			
 			return {elem:elem, view:view, ctx:ctx, cursor:cursor};
 		};
 	
-		let create_4previewPanel = function(wPrev, hPrev, scale, cursors/*wPrevCur, hPrevCur, secondCursor*/){
+		let create_4previewPanel = function(wPrev, hPrev, scale, cursors){
 		
 			let o = {};
 		
@@ -582,10 +574,10 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			o.elem.style.border = "1px solid black";
 		
 			// preview
-			o.nFlip = create_preview(wPrev, hPrev, scale, cursors, /*wPrevCur, hPrevCur,*/ prevBordSize/*, secondCursor*/);
-			o.hFlip = create_preview(wPrev, hPrev, scale, cursors, /*wPrevCur, hPrevCur,*/ prevBordSize/*, secondCursor*/);
-			o.vFlip = create_preview(wPrev, hPrev, scale, cursors, /*wPrevCur, hPrevCur,*/ prevBordSize/*, secondCursor*/);
-			o.aFlip = create_preview(wPrev, hPrev, scale, cursors, /*wPrevCur, hPrevCur,*/ prevBordSize/*, secondCursor*/);
+			o.nFlip = create_preview(wPrev, hPrev, scale, cursors, prevBordSize);
+			o.hFlip = create_preview(wPrev, hPrev, scale, cursors, prevBordSize);
+			o.vFlip = create_preview(wPrev, hPrev, scale, cursors, prevBordSize);
+			o.aFlip = create_preview(wPrev, hPrev, scale, cursors, prevBordSize);
 		
 			// add
 			o.elem.appendChild(o.nFlip.elem);
@@ -598,17 +590,14 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			o.cursor = create_cursor(o.elem, wPrev,hPrev, scale, cursorBorder, prevBordSize);
 		
 			o.set_prevCurVisible = function(n, h, v, a){
-			
-				o.nFlip.cursor.main.setVisible(n);
-				o.hFlip.cursor.main.setVisible(h);
-				o.vFlip.cursor.main.setVisible(v);
-				o.aFlip.cursor.main.setVisible(a);
-			
-				if(o.nFlip.cursor.scnd){
-					o.nFlip.cursor.scnd.setVisible(n);
-					o.hFlip.cursor.scnd.setVisible(h);
-					o.vFlip.cursor.scnd.setVisible(v);
-					o.aFlip.cursor.scnd.setVisible(a);
+				let names = Object.getOwnPropertyNames(o.nFlip.cursor);
+				let name;
+				for(let i=0; i<names.length; i++){
+					name =  names[i];
+					o.nFlip.cursor[ name ].setVisible(n);
+					o.hFlip.cursor[ name ].setVisible(h);
+					o.vFlip.cursor[ name ].setVisible(v);
+					o.aFlip.cursor[ name ].setVisible(a);
 				}
 			};
 			
@@ -619,48 +608,45 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		let _get_offsetXY = function(event, area){
 
 			let elem = area.elem;
-			//let hoverBox = area.hoverBox;
-			
-			//if(event.target === hoverBox){
-				let s = getComputedStyle(elem);
-				let rect = elem.getBoundingClientRect();
-				
-				let left = Math.floor(rect.left);
-				let top = Math.floor(rect.top);
 
-				let mLeft = parseInt(s.marginLeft);
-				let bLeft = parseInt(s.borderLeftWidth);
-				let pLeft = parseInt(s.paddingLeft);
-				let _left = bLeft + pLeft;
-				
-				let mTop = parseInt(s.marginTop);
-				let bTop = parseInt(s.borderTopWidth);
-				let pTop = parseInt(s.paddingTop);
-				let _top = bTop + pTop;
-				
-				let x = event.clientX;
-				let y = event.clientY;
-				
-				x = x - left - _left;
-				y = y - top - _top;
-				
-				let w = area.W * area.S;
-				let h = area.H * area.S;
-				
-				area.xPos = x<0 ? 0 : x<w? x : w-1;
-				area.yPos = y<0 ? 0 : y<h? y : h-1;
-				
-				area._left = mLeft + bLeft + pLeft;
-				area._top = mTop + bTop + pTop;
-			//}
+			let s = getComputedStyle(elem);
+			let rect = elem.getBoundingClientRect();
+			
+			let left = Math.floor(rect.left);
+			let top = Math.floor(rect.top);
+
+			let mLeft = parseInt(s.marginLeft);
+			let bLeft = parseInt(s.borderLeftWidth);
+			let pLeft = parseInt(s.paddingLeft);
+			let _left = bLeft + pLeft;
+			
+			let mTop = parseInt(s.marginTop);
+			let bTop = parseInt(s.borderTopWidth);
+			let pTop = parseInt(s.paddingTop);
+			let _top = bTop + pTop;
+			
+			let x = event.clientX;
+			let y = event.clientY;
+			
+			x = x - left - _left;
+			y = y - top - _top;
+			
+			let w = area.W * area.S;
+			let h = area.H * area.S;
+			
+			area.xPos = x<0 ? 0 : x<w? x : w-1;
+			area.yPos = y<0 ? 0 : y<h? y : h-1;
+			
+			area._left = mLeft + bLeft + pLeft;
+			area._top = mTop + bTop + pTop;
 			
 			return {x: area.xPos, y: area.yPos};
 		};
 	
 
-		let create_hoverPreview = function(w,h, scale, cursors, /*wCur,hCur,*/ border, /*secCur,*/ hoverPadding=1){
+		let create_hoverPreview = function(w,h, scale, cursors, border, hoverPadding=1){
 		
-			let o =  create_preview(w, h, scale, cursors, /*wCur,hCur,*/ border, /*secCur*/);
+			let o =  create_preview(w, h, scale, cursors, border);
 			
 			o.view.style.pointerEvents = "none";
 			
@@ -691,43 +677,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			return o;
 		};
 		
-		let create_hoverPreview_withBoard = function(w,h, scale, wCur,hCur, border, secCur){
-		
-			let o =  create_preview(w, h, scale, 32,32, 0, [8,8]);
-			
-			// get offset function properties
-				o.W = w;
-				o.H = h;
-				o._left = 0;
-				o._top = 0;
-				o.xPos = 0;
-				o.yPos = 0;
-			
-			let board = document.createElement("div");
-			board.style.width = o.W;
-			board.style.height = o.H;
-			board.style.margin = 1;
-			
-			o.hoverBox = document.createElement("div");
-			o.hoverBox.style.position = "absolute";
-			o.hoverBox.style.width = o.W + 1;
-			o.hoverBox.style.height = o.H + 1;
-			o.hoverBox.style.left = 0;
-			o.hoverBox.style.top = 0;
-			
-			board.appendChild(o.elem);
-			board.appendChild(o.hoverBox);
-		
-			o.get_mousePos = function(mouseEvent){
-				return _get_offsetXY(mouseEvent, o);
-			};
-		
-			o.init = function(parent){
-				parent.appendChild(board);
-			};
-			
-			return o;
-		};
+
 	
 	
 		let mainArea = this.mainArea;
@@ -1033,9 +983,17 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 		
 			// pal preview
-			o.palPreview = create_preview(16,8, 16, undefined, 3);
+			o.palPreview = create_preview(16,8, 16, [['main',16,1, 1],['scnd',1,1, 1],['third',1,8, 1]], 3);
 			o.previewPanel.appendChild(o.palPreview.elem);
 			let ctx_palPrev = o.palPreview.view.getContext("2d");
+
+			// pal prev cursors
+			o.palPreview.cursor.main.setColor('#ff0000');
+			o.palPreview.cursor.main.setBorderSize(3);
+			o.palPreview.cursor.scnd.setColor('#00ff00');
+			o.palPreview.cursor.scnd.setBorderSize(3);
+			o.palPreview.cursor.third.setColor('#ffff00');
+			o.palPreview.cursor.third.setBorderSize(3);
 			
 			
 			
@@ -1044,68 +1002,8 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			let currentColorIndex = 0;
 
 			
-			// line rect drawing function
-			let draw_line = function(s, x,y, w,h, c="#ff0000"){
-				s.strokeStyle = c;
-				s.lineWidth = 1;
-				s.beginPath();
-				s.moveTo(x,y);
-				s.lineTo(x+w, y+h);
-				s.stroke();
-			};
-			let draw_lineRect = function(s, x,y, w,h, c="#ff0000"){
-				draw_line(s, x,      y+0.5,   w,0, c);
-				draw_line(s, x,      y+h-0.5, w,0, c);
-				draw_line(s, x+0.5,  y,       0,h, c);
-				draw_line(s, x+w-0.5,y,       0,h, c);
-			};
-			let draw_pix = function(r,g,b, ctx, x,y){
-				let pix = ctx.createImageData(1,1);
-				pix.data[0]=r; pix.data[1]=g; pix.data[2]=b; pix.data[3]=255;
-				ctx.putImageData(pix, x, y);
-			};
-			
-			let get_offsetXY = function(event, area){
-
-				let elem = area.elem;
-				let hoverBox = area.hoverBox;
-				
-				if(event.target === hoverBox){
-					let s = getComputedStyle(elem);
-					let rect = elem.getBoundingClientRect();
-					
-					let left = Math.floor(rect.left);
-					let top = Math.floor(rect.top);
-
-					let mLeft = parseInt(s.marginLeft);
-					let bLeft = parseInt(s.borderLeftWidth);
-					let pLeft = parseInt(s.paddingLeft);
-					let _left = bLeft + pLeft;
-					
-					let mTop = parseInt(s.marginTop);
-					let bTop = parseInt(s.borderTopWidth);
-					let pTop = parseInt(s.paddingTop);
-					let _top = bTop + pTop;
-					
-					let x = event.clientX;
-					let y = event.clientY;
-					
-					x = x - left - _left;
-					y = y - top - _top;
-					
-					let w = area.W;
-					let h = area.H;
-					
-					area.xPos = x<0 ? 0 : x<w? x : w-1;
-					area.yPos = y<0 ? 0 : y<h? y : h-1;
-					
-					area._left = mLeft + bLeft + pLeft;
-					area._top = mTop + bTop + pTop;
-				}
-				
-				return {x: area.xPos, y: area.yPos};
-			};
-	
+			// prototype editor
+			///////////////////
 	
 			o.f8x8Prev.hoverBox.onmousemove = function(e){
 				let pos = o.f8x8Prev.get_mousePos(e);
@@ -1150,34 +1048,16 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			
 	
 			o.viewport.hoverBox.onmousemove = function(e){
-		//o.viewport.hoverBox.addEventListener("mousemove", hoverBoxMousemouve, false);
-		//function hoverBoxMousemouve(e){
-			
-		//e.stopPropagation();
-		//e.preventDefault();
-			
-			//console.log("eee");
-			
-				//let pos = get_offsetXY(e, o.viewport);
-				
+
+				// get hover preview position (precise e.offsetXY)
 				let pos = o.viewport.get_mousePos(e);
-				
-				//let pos = {x:e.offsetX, y:e.offsetY};
-			
-			
-				//console.log(e.offsetX, e.offsetY);
+		
 
 				
 				if(e.buttons)
 					drawMousePos(pos);
 				
-			
-				//let wSize = o.viewport.width;
-				//let hSize = o.viewport.height;
-				//let xPos = e.offsetX<0 ? 0 : e.offsetX<wSize? e.offsetX : wSize-1;
-				//let yPos = e.offsetY<0 ? 0 : e.offsetY<hSize? e.offsetY : hSize-1;
-			
-				//console.log(pos.x, pos.y);
+				
 			
 				let tileObj = app.ref.hTilemapPixpos_to_tile(
 					pos.x, pos.y, yTileMax, tilemap);
@@ -1197,17 +1077,8 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				let _vFlip = tileObj.vFlip ^ chipObj.vFlip;
 				let f8x8Obj = app.ref.t8x8PixPos_to_4bppData(
 					chipObj.x8p, chipObj.y8p, chipObj.tile8x8Index, tileset, _hFlip,_vFlip);
-				
-				//if(e.buttons) console.log(tileObj);
-				//o.ctx.strokeStyle = "#ff0000";
-				//o.ctx.strokeRect(tileObj.xt*32, tileObj.yt*32, 32,32);
-				
 
-				
-				/*
-				o.tilemapCursor.style.left = o.viewport._left + (tileObj.xt*32);
-				o.tilemapCursor.style.top = o.viewport._top + (tileObj.yt*32);
-				*/
+			
 				o.viewport.cursor.main.gridMove(tileObj.xt, tileObj.yt);
 				o.viewport.cursor.scnd.gridMove(tileObj.xtf, tileObj.ytf);
 				
@@ -1237,10 +1108,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				
 				// flipped 8x8 tile prev draw update
 				app.gfx[_gfx].draw_4bppTile(tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], _hFlip,_vFlip, o.f8x8Prev.ctx);
-				//o.f8x8Prev.cursor.main.gridMove(f8x8Obj.)
-				//console.log("row : ", cf8x8Obj.iRow, f8x8Obj.iRow);
-				//console.log("pix : ", cf8x8Obj.iPix, f8x8Obj.iPix);
-				//console.log("--------------------------");
+				
 				
 				
 				// 4 tile prev panel cursors update
@@ -1324,25 +1192,15 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				o.f8x8Prev.cursor.main.gridMove(chipObj.x8p, chipObj.y8p);
 				
 				
-				
 				// palette
-				let pbs = 16; // Pal Block Size
 				app.gfx.fast.draw_snespal(snespal, ctx_palPrev);
-				
 				// current pen color index
-				ctx_palPrev.strokeStyle = "#ffff00";
-				ctx_palPrev.lineWidth = 2;
-				ctx_palPrev.strokeRect(currentColorIndex*pbs, 0, pbs,pbs*8);
-				
+				o.palPreview.cursor.third.gridMove(currentColorIndex,0);
 				// mouse palette index
-				ctx_palPrev.strokeStyle = "#ff0000";
-				ctx_palPrev.lineWidth = 2;
-				ctx_palPrev.strokeRect(0, chipObj.paletteIndex*pbs, pbs*pbs,pbs);
-				
+				o.palPreview.cursor.main.gridMove(0,chipObj.paletteIndex);
 				// mouse color index
-				ctx_palPrev.strokeStyle = "#ff0000";
-				ctx_palPrev.lineWidth = 2;
-				ctx_palPrev.strokeRect(f8x8Obj.iCol*pbs, chipObj.paletteIndex*pbs, pbs,pbs);
+				o.palPreview.cursor.scnd.gridMove(f8x8Obj.iCol,chipObj.paletteIndex);
+			
 				
 				o.previewPanel.style.left = workspace.elem.scrollLeft;
 				o.previewPanel.style.bottom = -workspace.elem.scrollTop;
