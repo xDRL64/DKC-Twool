@@ -463,130 +463,15 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		// palette
 		workspace.list_generator['mode0'] = app.mode[0];
 		
-		
+
 		// tileset
-		workspace.list_generator['mode1'] = function(params){
-		
-			let _gfx = 'fast';
-
-			workspace.elem.textContent = ""; // to empty html child elements
-		
-			let o = {};
-			
-			let slot = srcFilePanel.tileset;
-
-			slot.parameters.onkeydown = function(e){
-				if(e.code === 'Enter') o.update();
-			};
-
-			o.update = function(){
-
-				if(slot.multi > 0){
-	
-					let data = slot.get_data();
-
-					//let wrong = (new Array(32)).fill(0xf).concat(new Array(32*62));
-					let testTile = [
-						0x80,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x80,
-						0x01,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x00, 0x00,0x01
-					];
-					let overflowTile = [0x81,0x81,0x81,0x81,0x81];
-					let testDecodedTile = [
-						0xF,0x0,0xC,0x0,0x0,0x6,0x0,0x5,
-						0x0,0x1,0x0,0x0,0x0,0x0,0xF,0x0,
-						0xD,0x0,0xE,0x0,0x0,0x7,0x0,0x4,
-						0x0,0x0,0x0,0x1,0x0,0x0,0x0,0x0,
-						0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,
-						0xA,0x0,0x9,0x0,0x0,0x1,0x0,0xC,
-						0x0,0x2,0x0,0x0,0x0,0x0,0xE,0x0,
-						0xB,0x0,0x8,0x0,0x0,0x2,0x0,0x3,
-					];
-					let overflowDecodedTile = [1,2,3,4,5,6,7];
-	
-					let parameters = slot.parameters.value.match(/\w{1,}/g);
-					let _p = parameters;
-
-					let viewportUpdate = false;
-
-					// TEST : draw_4bppTile()
-						// params : d4t f/s iTile(1024)
-						// params : d4t f/s o/w
-					// TEST : decode_4bppTile() and draw_decodedTile() and format_4bppTile() and draw_formatedTile()
-						// params : dt/ddt/ft/dft f/s f/s iTile(1024)
-						// params : dt/ft   f/s f/s o/w
-						// params : ddt/dft x   f/s o/w
-					if(_p[0]==='d4t' || _p[0]==='dt' || _p[0]==='ddt' || _p[0]==='ft' || _p[0]==='dft'){
-						
-						o.viewport = wLib.create_preview(8*2,8*2, 10);
-						
-						let ctx = o.viewport.ctx;
-						let pal = app.gfx.defaultPalettes[0];
-						pal = app.gfx.debugpal;
-
-						dkc2debug.gfxTest.TILESET.do(parameters, data, pal, ctx);
-
-						viewportUpdate = true;
-					}
-
-					// TEST : draw_4bppTileset()
-						// params : d4ts f/s O:bool W:bool
-					// TEST : decode_4bppTileset() and draw_decodedTileset() and format_4bppTileset() and draw_formatedTileset()
-						// params : dts/ddts/fts/dfts f/s f/s O:bool W:bool
-						// params : dts/fts   f/s f/s O:bool W:bool
-						// params : ddts/dfts any f/s O:bool W:bool
-					if(_p[0]==='d4ts' || _p[0]==='dts' || _p[0]==='ddts' || _p[0]==='fts' || _p[0]==='dfts'){
-
-						let sttObj = {};
-						let xtmax = sttObj.xtmax = 16;
-						let h     = sttObj.h     = Math.ceil( (data.length/32) /xtmax ) * 8;
-						let w     = sttObj.w     = xtmax * 8;
-						let _     = sttObj._     = 1;
-
-						o.viewport = wLib.create_preview(w*2+_,h*2+_, 2);
-
-						let ctx = o.viewport.ctx;
-
-						let pal = app.gfx.defaultPalettes[0];
-						pal = app.gfx.debugpal;
-
-						let AaF = app.lib.arrayAsFunction;
-						let arrFunc = slot.multi < 2 ? AaF.make_arraySyntax(AaF.create(data)) : data;
-						let _data = arrFunc.jsArray();
-
-						dkc2debug.gfxTest.TILESET.do(parameters, _data, pal, ctx, sttObj);
-
-						viewportUpdate = true;
-					}
-
-					if(_p[0]==='parameters' || _p[0]==='default' || _p[0]===undefined){
-						let xtmax  = 16;
-						let h = Math.ceil( (data.length/32) /xtmax ) * 8;
-						let w = xtmax * 8;
-					
-						o.viewport = wLib.create_preview(w,h, 2);
-						let ctx = o.viewport.ctx;
-
-						let pal = app.gfx.defaultPalettes[1];
-						app.gfx[_gfx].draw_4bppTileset(data, pal, 0,0, 16, ctx);
-
-						viewportUpdate = true;
-					}
-
-
-					if(viewportUpdate){
-						workspace.elem.textContent = ""; // to empty html child elements
-						workspace.elem.appendChild(o.viewport.view);
-					}
-					
-				}
-
-			};
-			workspace.current = o;
-		};
+		workspace.list_generator['mode1'] = app.mode[1];
 		
 
 		// mapchip
-		workspace.list_generator['mode2'] = function(id){
+		workspace.list_generator['mode2'] = app.mode[2];
+		
+		let foooooooooo = function(id){
 		
 			workspace.elem.textContent = ""; // to empty html child elements
 		

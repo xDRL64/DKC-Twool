@@ -2068,7 +2068,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
-	o.draw_mapchip = function(tileset, mapchips, palettes, ctx){
+	o.draw_mapchip = function(tileset, mapchips, palettes, xcmax, ctx){
 
 		let tiles = o.fast.format_4bppTileset(tileset);
 		
@@ -2080,7 +2080,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		let iPal, iCol;
 		let hFlip,vFlip, hF,vF;
 		
-		let xcmax = 16;
+		//let xcmax = 16;
 		
 		let pix;
 		let pixels = ctx.createImageData(xcmax*32, Math.ceil(len/xcmax)*32);
