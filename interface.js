@@ -17,6 +17,23 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 
 	o.create_userInterface = function(){
 		
+		// create CSS sheet
+		this.create_styleManager = function(){
+
+			let elem = document.createElement("style");
+			document.head.appendChild(elem);
+			let sheet = elem.sheet;
+
+			this.addCSS = function(selector, propList){
+				let rule = selector + ' {\n';
+				for(let i=0, len=propList.length; i<len; i++)
+					rule += '\t' + propList[i] + ';\n';
+				rule += '}\n\n';
+				sheet.insertRule(rule);
+			};
+
+		};
+
 		// main area
 		
 		this.make_mainArea = function(){
@@ -228,7 +245,6 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			label.style.backgroundColor = "#ddbbdd";
 			label.textContent = labelName;
 			
-			
 			let fileIndex = document.createElement("input");
 			fileIndex.type = "number";
 			fileIndex.min = 0;
@@ -236,17 +252,14 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			fileIndex.disabled = true;
 			fileIndex.style.position = "relative";
 			fileIndex.style.width = "20%";
-			//fileIndex.style.height = height+"em";
 			fileIndex.style.whiteSpace = "nowrap";
 			fileIndex.style.backgroundColor = "#ffaaaa";
 			fileIndex.style.border = "none";
 			fileIndex.placeholder = "index (multi files)";
 			
-			
 			let fileArea = document.createElement("div");
 			fileArea.style.position = "relative";
 			fileArea.style.width = "80%";
-			//fileArea.style.height = height+"em";
 			fileArea.style.whiteSpace = "nowrap";
 			fileArea.style.backgroundColor = "#ddddff";
 			fileArea.textContent = "file name";
@@ -254,7 +267,6 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			let importButton = document.createElement("div");
 			importButton.style.position = "relative";
 			importButton.style.width = "10%";
-			//importButton.style.height = height+"em";
 			importButton.style.whiteSpace = "nowrap";
 			importButton.style.backgroundColor = "#ffeecc";
 			importButton.textContent = "Imp";
@@ -262,7 +274,6 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			let exportButton = document.createElement("div");
 			exportButton.style.position = "relative";
 			exportButton.style.width = "10%";
-			//exportButton.style.height = height+"em";
 			exportButton.style.whiteSpace = "nowrap";
 			exportButton.style.backgroundColor = "#bbffcc";
 			exportButton.textContent = "Exp";
@@ -270,7 +281,6 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			let fileInfo = document.createElement("div");
 			fileInfo.style.position = "relative";
 			fileInfo.style.width = "100%";
-			//fileInfo.style.height = height+"em";
 			fileInfo.style.whiteSpace = "nowrap";
 			fileInfo.style.backgroundColor = "#aaddff";
 			fileInfo.textContent = "file info";
@@ -278,7 +288,6 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			let decompressionState = document.createElement("div");
 			decompressionState.style.position = "relative";
 			decompressionState.style.width = "100%";
-			//decompressionState.style.height = height+"em";
 			decompressionState.style.whiteSpace = "pre";
 			decompressionState.style.backgroundColor = "#eeffcc";
 			decompressionState.textContent = "[ ] use decompression";
@@ -287,13 +296,10 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			parameters.type = "text";
 			parameters.style.position = "relative";
 			parameters.style.width = "100%";
-			//parameters.style.height = height+"em";
 			parameters.style.whiteSpace = "pre";
 			parameters.style.backgroundColor = "#ffddaa";
-			//parameters.textContent = "parameters";
-			//parameters.contentEditable = true;
 			parameters.style.border = "none";
-			parameters.value = "parameters";
+			parameters.placeholder = "parameters";
 			
 			let htmlInput = document.createElement("input");
 			htmlInput.type = "file";
@@ -442,6 +448,8 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 		// start
 		
+		this.create_styleManager(); // at first
+
 		this.make_mainArea();
 		this.init_mainArea();
 	
