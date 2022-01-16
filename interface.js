@@ -180,33 +180,24 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			let menu = this.create_slideMenu(width, "right");
 		
 			// file slots
+
+			let slots = {
+				palette    : "PALETTE :",
+				tileset    : "TILESET :",
+				bgtileset  : "BG TILESET :",
+				background : "BG TILEMAP :",
+				mapchip    : "MAPCHIP (8x8 TILEMAP) :",
+				tilemap    : "LEVEL TILEMAP (32x32) :"
+			};
 		
 			let list_dkc2FileSlot = [];
-		
-			this.srcFilePanel.palette = this.create_srcFileSlot("PALETTE :");
-			this.srcFilePanel.palette.add(this.srcFilePanel.elem);
-			list_dkc2FileSlot[list_dkc2FileSlot.length] = this.srcFilePanel.palette;
-			
-			this.srcFilePanel.tileset = this.create_srcFileSlot("TILESET :");
-			this.srcFilePanel.tileset.add(this.srcFilePanel.elem);
-			list_dkc2FileSlot[list_dkc2FileSlot.length] = this.srcFilePanel.tileset;
-			
-			this.srcFilePanel.bgtileset = this.create_srcFileSlot("BG TILESET :");
-			this.srcFilePanel.bgtileset.add(this.srcFilePanel.elem);
-			list_dkc2FileSlot[list_dkc2FileSlot.length] = this.srcFilePanel.bgtileset;
-			
-			this.srcFilePanel.background = this.create_srcFileSlot("BG TILEMAP :");
-			this.srcFilePanel.background.add(this.srcFilePanel.elem);
-			list_dkc2FileSlot[list_dkc2FileSlot.length] = this.srcFilePanel.background;
-			
-			this.srcFilePanel.mapchip = this.create_srcFileSlot("MAPCHIP (8x8 TILEMAP) :");
-			this.srcFilePanel.mapchip.add(this.srcFilePanel.elem);
-			list_dkc2FileSlot[list_dkc2FileSlot.length] = this.srcFilePanel.mapchip;
-			
-			this.srcFilePanel.tilemap = this.create_srcFileSlot("LEVEL TILEMAP (32x32) :");
-			this.srcFilePanel.tilemap.add(this.srcFilePanel.elem);
-			list_dkc2FileSlot[list_dkc2FileSlot.length] = this.srcFilePanel.tilemap;
-		
+
+			for(slotName in slots){
+				this.srcFilePanel[slotName] = this.create_srcFileSlot(slotName, slots[slotName]);
+				this.srcFilePanel[slotName].add(this.srcFilePanel.elem);
+				list_dkc2FileSlot.push(this.srcFilePanel[slotName]);
+			}
+
 			this.srcFilePanel.list_dkc2FileSlot = list_dkc2FileSlot;
 		
 			// methods
@@ -233,7 +224,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			
 		};
 		
-		this.create_srcFileSlot = function(labelName){
+		this.create_srcFileSlot = function(name, labelText){
 		
 			let height = 1.5;
 		
@@ -254,7 +245,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			label.style.height = height+"em";
 			label.style.whiteSpace = "nowrap";
 			label.style.backgroundColor = "#ddbbdd";
-			label.textContent = labelName;
+			label.textContent = labelText;
 			
 			let fileIndex = document.createElement("input");
 			fileIndex.type = "number";
@@ -336,6 +327,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			o.decompressionState = decompressionState;
 			o.parameters = parameters;
 			
+			o.name = name;
 			o.multi = 0;
 			o.index = 0;
 			o.useDec = [false];
@@ -357,8 +349,6 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 					return app.lib.arrayAsFunction.make_arraySyntax(all);
 				}
 			};
-
-			o.debug_label = labelName;
 		
 			o.add = function(htmlParentElem){
 				htmlParentElem.appendChild(slotArea);

@@ -19,7 +19,7 @@
         };
 
         // update
-        o.update = function(){
+        o.update = function(trigger){
             if(srcFilePanel.palette.multi > 0)
             if(srcFilePanel.bgtileset.multi > 0)
             if(srcFilePanel.background.multi > 0){

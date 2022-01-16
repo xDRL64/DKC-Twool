@@ -99,7 +99,7 @@ dkc2ldd.event = (function(app=dkc2ldd){
 					
 					setText_decompressionState(slot);
 					
-					check_forUpdate();
+					check_forUpdate(slot.name);
 				}
 			
 			}
@@ -198,15 +198,15 @@ dkc2ldd.event = (function(app=dkc2ldd){
 			if(slot.multi > 0)
 				slot.fileIndex.focus();
 
-			check_forUpdate();
+			check_forUpdate(slot.name);
 		}
 	};
 	
-	let check_forUpdate = function(){
+	let check_forUpdate = function(slotName){
 		
 		// check update for workspace
 		if(app.interface.workspace.current !== undefined)
-			app.interface.workspace.current.update();
+			app.interface.workspace.current.update(slotName);
 	};
 	
 	o.setEvent_srcFilePanel = function(){

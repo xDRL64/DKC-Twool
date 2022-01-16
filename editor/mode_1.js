@@ -26,7 +26,7 @@
         };
 
         // update
-        o.update = function(){
+        o.update = function(trigger){
 
             if(slot.multi > 0){
 

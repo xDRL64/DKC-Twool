@@ -19,7 +19,7 @@
         // code ...
 
         // update
-        o.update = function(){
+        o.update = function(trigger){
 
         };
 

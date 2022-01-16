@@ -20,7 +20,7 @@
 
         workspace.elem.appendChild(o.viewport.view);
         
-        o.update = function(){
+        o.update = function(trigger){
             if(srcFilePanel.palette.multi > 0){
             
                 let snespal = srcFilePanel.palette.get_data();

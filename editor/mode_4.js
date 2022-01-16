@@ -290,7 +290,7 @@
         };
 
         // update
-        o.update = function(){
+        o.update = function(trigger){
 
             if(srcFilePanel.check_slot('palette', 'tileset', 'mapchip', 'tilemap')){
 
