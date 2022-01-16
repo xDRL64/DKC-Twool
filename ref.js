@@ -57,7 +57,7 @@ dkc2ldd.ref = (function(){
 	o.get_8bitsMaskTable = get_8bitsMaskTable;
 	
 	
-	o.hTilemapPixpos_to_tile = function(xp,yp, ytmax, hLvlTilemap){
+	o.tilemapPixpos_to_tile = function(xp,yp, /*ytmax,*/ tilemap, lvlDir, tilemax){
 		
 		let o = {};
 		
@@ -73,20 +73,26 @@ dkc2ldd.ref = (function(){
 		o.xtf = Math.floor(xp / 8);
 		o.ytf = Math.floor(yp / 8);
 		
+		
 		// tile index in tilemap data
-		o.iT = (o.xt*ytmax) + o.yt;
+		//o.iT = (o.xt*ytmax) + o.yt;
+		o.iT = ({
+			h: lvlDir==='h' ? (o.xt*tilemax)+o.yt : null,
+			v: lvlDir==='v' ? (o.yt*tilemax)+o.xt : null
+		})[lvlDir];
 		
 		// first byte position of tile in tilemap data
 		let offset = o.iT * 2;
-		
-		let A = hLvlTilemap[offset];
-		let B = hLvlTilemap[offset+1];
+	
+
+
+		let A = tilemap[offset];
+		let B = tilemap[offset+1];
 		
 		let highByte = B;
 		let lowByte = A;
 		
 		o.chipIndex = ((highByte&0x0F)<<8) + lowByte;
-		//chipOffset = iChip * 32;
 		
 		o.hFlip = (highByte & 0x40) >> 6;
 		o.vFlip = (highByte & 0x80) >> 7;

@@ -23,6 +23,7 @@
 
         // editor memory  
         let _gfx = 'fast';
+        let lvlDirection;
         let tileMax;
         let currentColorIndex = 0;
         let snespal;
@@ -107,8 +108,8 @@
 			
 			let drawMousePos = function(pos){
 			
-				let processRef = app.features.write_hTilemap_to_4bppPix(
-					tilemap, tileMax, mapchip, tileset, pos.x,pos.y, currentColorIndex);
+				let processRef = app.features.write_tilemap_to_4bppPix(
+					tilemap, lvlDirection, tileMax, mapchip, tileset, pos.x,pos.y, currentColorIndex);
 
 				let tileObj = processRef.tile;
 				let chipObj = processRef.chip;
@@ -139,8 +140,8 @@
 				
 				
 			
-				let tileObj = app.ref.hTilemapPixpos_to_tile(
-					pos.x, pos.y, tileMax, tilemap);
+				let tileObj = app.ref.tilemapPixpos_to_tile(
+					pos.x, pos.y, tilemap, lvlDirection, tileMax);
 					
 					
 				let chipObj = app.ref.chipPixpos_to_chipFrag(
@@ -305,7 +306,7 @@
 
                 let tilemapParams = srcFilePanel.tilemap.parameters.value.match(/\w{1,}/g) || [];
 
-                let lvlDirection = tilemapParams[0] || 'h';
+                lvlDirection = tilemapParams[0] || 'h';
 
                 tileMax = parseInt(tilemapParams[1]) || 16; //h 16 , v 32
 
@@ -332,6 +333,7 @@
                 if(lvlDirection === 'v')
                     app.gfx.draw_vLvlTilemap(tileset, tileMax, mapchip, tilemap, palettes, o.viewport.ctx);
             
+                console.log('mode4-update()')
             }
             
         };
