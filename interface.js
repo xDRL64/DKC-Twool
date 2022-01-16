@@ -209,6 +209,17 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 			this.srcFilePanel.list_dkc2FileSlot = list_dkc2FileSlot;
 		
+			// methods
+
+			this.srcFilePanel.check_slot = function(){
+				let o = true;
+				for(let i=0, len=arguments.length; i<len; i++){
+					o &= this[arguments[i]].multi > 0;
+				}
+				return o;
+			};
+			
+
 			// BUILD
 			
 			this.srcFilePanel.handle = menu.handle;
@@ -384,23 +395,23 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 			let list_editModeSlot = [];
 		
-			this.editModePanel.test0 = this.create_editModeSlot("test0 (palette displayer)", 'mode0');
+			this.editModePanel.test0 = this.create_editModeSlot("palette displayer", 'mode0');
 			this.editModePanel.test0.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test0;
 			
-			this.editModePanel.test1 = this.create_editModeSlot("test1 (tileset displayer)", 'mode1');
+			this.editModePanel.test1 = this.create_editModeSlot("tileset displayer", 'mode1');
 			this.editModePanel.test1.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test1;
 		
-			this.editModePanel.test2 = this.create_editModeSlot("test2 (mapchip displayer)", 'mode2');
+			this.editModePanel.test2 = this.create_editModeSlot("mapchip displayer", 'mode2');
 			this.editModePanel.test2.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test2;
 			
-			this.editModePanel.test3 = this.create_editModeSlot("test3 (background displayer)", 'mode3');
+			this.editModePanel.test3 = this.create_editModeSlot("background displayer", 'mode3');
 			this.editModePanel.test3.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test3;
 			
-			this.editModePanel.test4 = this.create_editModeSlot("test4 (level tilemap displayer)", 'mode4', ["p0",2,[3.4,"5"]]);
+			this.editModePanel.test4 = this.create_editModeSlot("level tilemap displayer", 'mode4', ["p0",2,[3.4,"5"]]);
 			this.editModePanel.test4.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test4;
 		
@@ -421,16 +432,14 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 		this.create_editModeSlot = function(editModeName, workspaceRef, params){
 		
-			let height = "1.5em";
-		
 			let elem = document.createElement("div");
 			elem.style.position = "relative";
 			elem.style.width = "100%";
-			elem.style.height = height;
 			elem.style.whiteSpace = "nowrap";
 			elem.style.margin = "0 0 8 0";
 			elem.style.backgroundColor = "#cceeff";
 			elem.style.border = "1px solid black";
+			elem.style.padding = "4 0 4 4";
 			elem.textContent = editModeName;
 			
 			let o = {};
@@ -458,7 +467,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 	o.start_workspace = function(){
 	
 	
-		let wLib = app.workspace;
+		let wLib = app.editor;
 	
 		let mainArea = this.mainArea;
 	
@@ -479,86 +488,15 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		// mapchip
 		workspace.list_generator['mode2'] = app.mode[2];
 		
-		let foooooooooo = function(id){
-		
-			workspace.elem.textContent = ""; // to empty html child elements
-		
-			let o = {};
-		
-			let W = defconst.cW; let H = defconst.cH*2;
-			o.viewport = document.createElement("canvas");
-			o.viewport.width = W;
-			o.viewport.style.width = W;
-			o.viewport.height = H;
-			o.viewport.style.height = H;
-			o.ctx = o.viewport.getContext("2d");
-			
-			workspace.elem.appendChild(o.viewport);
-			
-			o.update = function(){
-				if(srcFilePanel.palette.multi > 0)
-				if(srcFilePanel.tileset.multi > 0)
-				if(srcFilePanel.mapchip.multi > 0){
-				
-					let tileset, mapchip, palettes;
-					
-					palettes = srcFilePanel.palette.get_data();
-					palettes = app.gfx.fast.snespalTo24bits(palettes);
-					
-					tileset = srcFilePanel.tileset.get_data();
-
-					mapchip = srcFilePanel.mapchip.get_data();
-					
-					//app.gfx.draw_oneChip(tileset, mapchip, 120, palettes, o.ctx);	
-					app.gfx.draw_mapchip(tileset, mapchip, palettes, o.ctx);	
-				}
-			};
-			workspace.current = o;
-		};
-		
 
 		// bg tilemap
-		workspace.list_generator['mode3'] = function(id){
-		
-			workspace.elem.textContent = ""; // to empty html child elements
-		
-			let o = {};
-		
-			let W = defconst.cW; let H = defconst.cH;
-			o.viewport = document.createElement("canvas");
-			o.viewport.width = W;
-			o.viewport.style.width = W;
-			o.viewport.height = H;
-			o.viewport.style.height = H;
-			o.ctx = o.viewport.getContext("2d");
-			
-			workspace.elem.appendChild(o.viewport);
-			
-			o.update = function(){
-				if(srcFilePanel.palette.multi > 0)
-				if(srcFilePanel.bgtileset.multi > 0)
-				if(srcFilePanel.background.multi > 0){
-				
-					let palettes;
-					let bgtileset;
-					let background;
-					
-					palettes = srcFilePanel.palette.get_data();
-					palettes = app.gfx.fast.snespalTo24bits(palettes);
-					
-					bgtileset = srcFilePanel.bgtileset.get_data();
-
-					background = srcFilePanel.background.get_data();
-
-					app.gfx.draw_background(bgtileset, background, palettes, o.ctx);
-				}
-			};
-			workspace.current = o;
-		};
+		workspace.list_generator['mode3'] = app.mode[3];
 		
 		
 		// level tilemap
-		workspace.list_generator['mode4'] = function(params){
+		workspace.list_generator['mode4'] = app.mode[4];
+		
+		let foooooooooooooo = function(params){
 		//console.log(...params);
 
 		console.log();

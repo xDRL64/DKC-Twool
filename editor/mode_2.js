@@ -8,7 +8,7 @@
         // default interface API
 		let workspace = app.interface.workspace;
 		let srcFilePanel = app.interface.srcFilePanel;
-        let wLib = app.workspace;
+        let wLib = app.editor;
 
         // current workspace object
         let o = {};
@@ -28,7 +28,7 @@
                 workspace.elem.textContent = "";
 
                 // get source file slot parameters (mapchip)
-                let parameters = srcFilePanel.mapchip.parameters.value.match(/\w{1,}/g);
+                let parameters = srcFilePanel.mapchip.parameters.value.match(/\w{1,}/g) || [];
 
                 let xcmax = parseInt(parameters[0]) || 16;
                 let scale = parseInt(parameters[1]) || 1;

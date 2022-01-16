@@ -1,4 +1,4 @@
-dkc2ldd.workspace = (function(app=dkc2ldd){
+dkc2ldd.editor = (function(app=dkc2ldd){
 
     let o = {};
 

@@ -8,7 +8,7 @@
         // default interface API
 		let workspace = app.interface.workspace;
 		let srcFilePanel = app.interface.srcFilePanel;
-        let wLib = app.workspace;
+        let wLib = app.editor;
 
         // empty workspace (to empty html child elements)
         workspace.elem.textContent = "";
@@ -32,7 +32,7 @@
 
                 let data = slot.get_data();
 
-                let parameters = slot.parameters.value.match(/\w{1,}/g);
+                let parameters = slot.parameters.value.match(/\w{1,}/g) || [];
                 let _p = parameters;
 
                 let viewportUpdate = false;

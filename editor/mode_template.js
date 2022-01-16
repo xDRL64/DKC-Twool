@@ -8,7 +8,7 @@
         // default interface API
 		let workspace = app.interface.workspace;
 		let srcFilePanel = app.interface.srcFilePanel;
-        let wLib = app.workspace;
+        let wLib = app.editor;
 
         // empty workspace (to empty html child elements)
         workspace.elem.textContent = "";

@@ -2155,13 +2155,13 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 	
-	o.draw_background = function(tileset, bgtilemap, palettes, ctx){
+	o.draw_background = function(tileset, bgtilemap, palettes, xtmax, ctx){
 	
 		let tiles = o.fast.format_4bppTileset(tileset);
 	
 		let len = bgtilemap.length / 2;
 		
-		let xtmax = 32;
+		//let xtmax = 32;
 		
 		let pix;
 		let pixels = ctx.createImageData(xtmax*8, Math.ceil(len/xtmax)*8);
