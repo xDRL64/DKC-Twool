@@ -85,10 +85,14 @@ dkc2ldd.lib = (function(app=dkc2ldd){
 	o.arrayAsFunction.make_arraySyntax = function(arrayFunction){
 
 		let o = {};
+		let _o = o;
+
+		o.buffer = []; // read only (uses jsArray or updateBuffer)
 
 		// existing array cell access
 		let len = arrayFunction();
 		for(let i=0; i<len; i++){
+			o.buffer.push( arrayFunction(i)[0] ); // update buffer
 			Object.defineProperty(o, i, {
 				get: function () { return arrayFunction(i)[0]; },
 				set: function (value) { arrayFunction(i, value); }
@@ -117,12 +121,29 @@ dkc2ldd.lib = (function(app=dkc2ldd){
 		};
 
 		// jsArray (get true js Array)
-		o.jsArray = function(){
+		o.jsArray = function(updateBuffer=true){
 			let o = [];
 			let len = arrayFunction();
-			for(let i=0; i<len; i++)
-				o[i] = arrayFunction(i)[0];
+			if(updateBuffer){
+				let val;
+				_o.buffer = [];
+				for(let i=0; i<len; i++){
+					val = arrayFunction(i)[0];
+					o.push(val);
+					_o.buffer.push(val);
+				}
+			}else
+				for(let i=0; i<len; i++)
+					o.push(arrayFunction(i)[0]);
 			return o;
+		};
+
+		// update buffer
+		o.updateBuffer = function(){
+			let len = arrayFunction();
+			o.buffer = [];
+			for(let i=0; i<len; i++)
+				o.buffer.push(arrayFunction(i)[0]);
 		};
 
 		// length property

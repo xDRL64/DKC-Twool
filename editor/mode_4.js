@@ -29,8 +29,12 @@
         let snespal;
         let palettes;
         let tileset;
-        let tilemap;
         let mapchip;
+        let tilemap;
+
+        let _tileset;
+        let _mapchip;
+        let _tilemap;
 
         let make_editor = function(wViewport, hViewport){
 
@@ -170,10 +174,10 @@
 				let vCtx = o.tilePrevPan.vFlip.ctx;
 				let aCtx = o.tilePrevPan.aFlip.ctx;
 				
-				app.gfx.draw_oneChip(tileset, mapchip, tileObj.chipIndex, palettes, nCtx, 0,0);
-				app.gfx.draw_oneChip(tileset, mapchip, tileObj.chipIndex, palettes, hCtx, 1,0);
-				app.gfx.draw_oneChip(tileset, mapchip, tileObj.chipIndex, palettes, vCtx, 0,1);
-				app.gfx.draw_oneChip(tileset, mapchip, tileObj.chipIndex, palettes, aCtx, 1,1);
+				app.gfx.draw_oneChip(_tileset, _mapchip, tileObj.chipIndex, palettes, nCtx, 0,0);
+				app.gfx.draw_oneChip(_tileset, _mapchip, tileObj.chipIndex, palettes, hCtx, 1,0);
+				app.gfx.draw_oneChip(_tileset, _mapchip, tileObj.chipIndex, palettes, vCtx, 0,1);
+				app.gfx.draw_oneChip(_tileset, _mapchip, tileObj.chipIndex, palettes, aCtx, 1,1);
 				
 				nCtx = o.t8x8PrevPan.nFlip.ctx;
 				hCtx = o.t8x8PrevPan.hFlip.ctx;
@@ -181,10 +185,10 @@
 				aCtx = o.t8x8PrevPan.aFlip.ctx;
 				
 				// 8x8 tile prev draw update
-				app.gfx[_gfx].draw_4bppTile(tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], 0,0, nCtx);
-				app.gfx[_gfx].draw_4bppTile(tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], 1,0, hCtx);
-				app.gfx[_gfx].draw_4bppTile(tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], 0,1, vCtx);
-				app.gfx[_gfx].draw_4bppTile(tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], 1,1, aCtx);
+				app.gfx[_gfx].draw_4bppTile(_tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], 0,0, nCtx);
+				app.gfx[_gfx].draw_4bppTile(_tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], 1,0, hCtx);
+				app.gfx[_gfx].draw_4bppTile(_tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], 0,1, vCtx);
+				app.gfx[_gfx].draw_4bppTile(_tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], 1,1, aCtx);
 				
 				
 				// flipped 8x8 tile prev draw update
@@ -297,12 +301,16 @@
                 // empty workspace (to empty html child elements)
                 workspace.elem.textContent = "";
 
-                snespal = srcFilePanel.palette.get_data();;
+                snespal = srcFilePanel.palette.get_data();
                 palettes = app.gfx.fast.snespalTo24bits(snespal);
 
                 tileset = srcFilePanel.tileset.get_data();
-                tilemap = srcFilePanel.tilemap.get_data();
                 mapchip = srcFilePanel.mapchip.get_data();
+                tilemap = srcFilePanel.tilemap.get_data();
+
+                _tileset = srcFilePanel.tileset.multi<2 ? tileset : tileset.buffer;
+                _mapchip = srcFilePanel.mapchip.multi<2 ? mapchip : mapchip.buffer;
+                _tilemap = srcFilePanel.tilemap.multi<2 ? tilemap : tilemap.buffer;
 
                 let tilemapParams = srcFilePanel.tilemap.parameters.value.match(/\w{1,}/g) || [];
 
@@ -329,9 +337,9 @@
                 set_event();
 
                 if(lvlDirection === 'h')
-                    app.gfx.draw_hLvlTilemap(tileset, tileMax, mapchip, tilemap, palettes, o.viewport.ctx);
+                    app.gfx.draw_hLvlTilemap(_tileset, tileMax, _mapchip, _tilemap, palettes, o.viewport.ctx);
                 if(lvlDirection === 'v')
-                    app.gfx.draw_vLvlTilemap(tileset, tileMax, mapchip, tilemap, palettes, o.viewport.ctx);
+                    app.gfx.draw_vLvlTilemap(_tileset, tileMax, _mapchip, _tilemap, palettes, o.viewport.ctx);
             
                 console.log('mode4-update()')
             }

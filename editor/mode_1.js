@@ -79,8 +79,9 @@
                     pal = app.gfx.debugpal;
 
                     let AaF = app.lib.arrayAsFunction;
-                    let arrFunc = slot.multi < 2 ? AaF.make_arraySyntax(AaF.create(data)) : data;
-                    let _data = arrFunc.jsArray();
+                    //let arrFunc = slot.multi < 2 ? AaF.make_arraySyntax(AaF.create(data)) : data;
+                    //let _data = arrFunc.jsArray();
+                    let _data = slot.multi < 2 ? data : data.buffer;
 
                     dkc2debug.gfxTest.TILESET.do(parameters, _data, pal, ctx, sttObj);
 
