@@ -25,7 +25,10 @@
         let _gfx = 'fast';
         let lvlDirection;
         let tileMax;
+
         let currentColorIndex = 0;
+        let currentChipfragPos = [0,0];
+
         let snespal;
         let palettes;
         let tileset;
@@ -91,22 +94,40 @@
 
 
         let set_event = function(){
-			// prototype editor
-			///////////////////
+			// prototype editor version
+			////////////////////////////
 	
 			o.f8x8Prev.hoverBox.onmousemove = function(e){
 				let pos = o.f8x8Prev.get_mousePos(e);
-				console.log(pos);
+                let scale = o.f8x8Prev.S;
+                let xt = Math.floor(pos.x/scale);
+                let yt = Math.floor(pos.y/scale);
+
+                let x = xt + (currentChipfragPos[0]*8);
+                let y = yt + (currentChipfragPos[1]*8);
+                let _pos = {x,y};
+
+                o.f8x8Prev.cursor.main.gridMove(xt,yt);
+
+                if(e.buttons)
+                    drawMousePos(_pos);
+
+                // quick draw update
+                o.f8x8Prev.lastDrawReq();
+                
+				console.log(xt,yt);
 			};
 	
 	
 			o.palPreview.view.onclick = function(e){
-			
 				let pos = {x:e.offsetX, y:e.offsetY};
-				
-				currentColorIndex = Math.floor(pos.x/16);
-				console.log(currentColorIndex)
-				o.viewport.hoverBox.onmousemove(e);
+				currentColorIndex = Math.floor(pos.x/16); // replace 16 by scale system value
+
+				//console.log(currentColorIndex)
+				//o.viewport.hoverBox.onmousemove(e);
+
+                // update current pen color index
+				o.palPreview.cursor.third.gridMove(currentColorIndex,0);
 			};
 
 			
@@ -138,10 +159,14 @@
 				let pos = o.viewport.get_mousePos(e);
 		
 
-				
+				// test draw mouse
 				if(e.buttons)
 					drawMousePos(pos);
 				
+                // hold shift to keep last prev panel
+                if(e.shiftKey)
+                    return;
+                //console.log(e)
 				
 			
 				let tileObj = app.ref.tilemapPixpos_to_tile(
@@ -163,7 +188,7 @@
 				let f8x8Obj = app.ref.t8x8PixPos_to_4bppData(
 					chipObj.x8p, chipObj.y8p, chipObj.tile8x8Index, tileset, _hFlip,_vFlip);
 
-			
+                // viewport cursors update
 				o.viewport.cursor.main.gridMove(tileObj.xt, tileObj.yt);
 				o.viewport.cursor.scnd.gridMove(tileObj.xtf, tileObj.ytf);
 				
@@ -192,11 +217,13 @@
 				
 				
 				// flipped 8x8 tile prev draw update
-				app.gfx[_gfx].draw_4bppTile(tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], _hFlip,_vFlip, o.f8x8Prev.ctx);
+                o.f8x8Prev.lastDrawReq = function(){
+                    app.gfx[_gfx].draw_4bppTile(tileset, chipObj.tile8x8Index, palettes[chipObj.paletteIndex], _hFlip,_vFlip, o.f8x8Prev.ctx);
+                };
+				o.f8x8Prev.lastDrawReq();
 				
 				
-				
-				// 4 tile prev panel cursors update
+				// 4 chip tile prev panel cursors update
 				/////////////////////////////////
 				
 				// no flip
@@ -275,7 +302,7 @@
 				
 				// final flipped (tilemap+mapchip) 8x8 tile prev cursors update
 				o.f8x8Prev.cursor.main.gridMove(chipObj.x8p, chipObj.y8p);
-				
+				currentChipfragPos = [tileObj.xtf, tileObj.ytf];
 				
 				// palette
 				app.gfx.fast.draw_snespal(snespal, o.palPreview.ctx);
@@ -340,8 +367,6 @@
                     app.gfx.draw_hLvlTilemap(_tileset, tileMax, _mapchip, _tilemap, palettes, o.viewport.ctx);
                 if(lvlDirection === 'v')
                     app.gfx.draw_vLvlTilemap(_tileset, tileMax, _mapchip, _tilemap, palettes, o.viewport.ctx);
-            
-                console.log('mode4-update()')
             }
             
         };

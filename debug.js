@@ -63,7 +63,7 @@ dkc2debug.simul_loadedData = function(){
 	data.decopressedLvlTilemap[16*2+3] = 0xc0
 };
 
-//dkc2debug.simul_loadedData();
+dkc2debug.simul_loadedData();
 
 
 
