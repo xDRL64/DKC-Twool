@@ -41,18 +41,160 @@
 	DKC TWOOL PROTOTYPE VERSION
 </body>
 
-	<script>
+<script>
 
-		dkc2ldd.interface.create_userInterface();
-		dkc2ldd.interface.start_workspace();
+	dkc2ldd.interface.create_userInterface();
+	dkc2ldd.interface.start_workspace();
+	
+	dkc2ldd.event.setEvent_srcFilePanel();
+	dkc2ldd.event.setEvent_editModePanel();
+
+</script>
+
+<script src="./preload.js"></script>
+<script src="./debug.js"></script>
+
+
+<script>
+
+
+	arrayList = [
+		[0,1,2,3],
+		[4,5,6,7],
+		[8,9,10,11],
+		[12,13,14,15],
+	];
+
+	get_loopList = function(start, length, arrayList){
+
+		let listLen = arrayList.length;
+
+		let end = start + length - 1;
+
+		let totalLen = 0;
+		let lastLen;
+		let arrayLen;
+
+		let startNotFound = true;
+
+		let loopList = [];
+		let iList = 0;
+
+		loopList.start = start;
+		loopList.d = start;
+
+		for(let i=0; i<listLen; i++){
+
+			arraySrc = arrayList[i];
+			arrayLen = arraySrc.length;
+			lastLen = totalLen;
+			totalLen += arrayLen;
+
+			// debug
+			//arraySrc = arraySrc.join();
+
+			if(startNotFound){
+				if(start < totalLen){
+					// start found
+					loopList.push( [] );
+					loopList[iList].push( start - lastLen );
+					if(end < totalLen){ // end is in this current array
+						loopList[iList].push( end - lastLen + 1 );
+						loopList[iList].push( arraySrc );
+						return loopList;
+					} // end is in another array
+					loopList[iList].push( arrayLen );
+					loopList[iList].push( arraySrc );
+					startNotFound = !startNotFound;
+					iList++;
+				}
+			}else{
+				loopList.push( [] );
+				loopList[iList].push( 0 );
+				if(end < totalLen){ // end is in this current array
+					loopList[iList].push( end - lastLen + 1 );
+					loopList[iList].push( arraySrc );
+					return loopList;
+				}
+				loopList[iList].push( arrayLen );
+				loopList[iList].push( arraySrc );
+				iList++;
+			}
+		}
+
+		return loopList;
+	};
+
+	// Using :
+
+	demo_loopList = function(loopList){
 		
-		dkc2ldd.event.setEvent_srcFilePanel();
-		dkc2ldd.event.setEvent_editModePanel();
+		let listLen = loopList.length;
+		let loop, start, length, source;
+	
+		let _i = 0;
+		let index = loopList.start;
+	
+		for(let i=0; i<listLen; i++){
+	
+			loop = loopList[i];
+			start = loop[0];
+			length = loop[1];
+			source = loop[2];
+	
+			for(let c=start; c<length; c++){
+				// your code ...
+				console.log( _i, index, source[c] );
+				_i++;
+				index++;
+			}
+	
+		}
+	};
 
-	</script>
+	demo_loopList2 = function(loopList){
 
-	<script src="./preload.js"></script>
-	<script src="./debug.js"></script>
+		let R = [];
+
+		let L = loopList;
+		let len = L.length;
+		//for(let i=0, l=L[i],s=l[0],_=l[1],S=l[2], n=L.n,N=0; i<len; i++, l=L[i],s=l[0],_=l[1],S=l[2])
+		//for(let i=0, l=L[i],s=l[0],_=l[1],S=l[2], n=L.n,N=0, k=1; k; ){
+		for(L.i=0,L.l=L[L.i], L.s=L.l[0],L._=L.l[1],L.S=L.l[2], L.n=L.d,L.N=0, L.k=1; L.k; ){
+		for(L.c=L.s; L.c<L._; L.c++,L.n++,L.N++){
+
+			// your code ... ( L : i l s S _ n N c k )
+			// L : loopList	
+				// i : iLoop
+				// l : loop
+				// s : loopStart
+				// S : ArraySource
+				// _ : loopLength
+				// n : loopListIndex
+				// N : wholeProcessIndex
+				// c : sourceReadIndex
+				// k : keepProcessCondition
+
+			console.log( L.N, L.n, L.S[L.c] );
+			R.push(L.S[L.c]);
+
+		}L.i++;if(L.i<len){L.l=L[L.i],L.s=L.l[0],L._=L.l[1],L.S=L.l[2]}else{L.k=0}
+		}
+	
+		return R;
+	};
+
+	var test_loopList = function(start, length, arrayList){
+		return demo_loopList2( get_loopList(start, length, arrayList) );
+	};
+
+
+
+
+
+
+</script>
+
 	
 </html>
 
