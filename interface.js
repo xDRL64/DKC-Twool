@@ -94,9 +94,11 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 		this.update_workspace = function(ref, editModeParams){
 		
+			if(this.workspace.current) this.workspace.current.close();
+
 			this.workspace.list_generator[ref](editModeParams);
 			
-			this.workspace.current.update();
+			this.workspace.current.update('reset');
 		};
 		
 		// slide menu

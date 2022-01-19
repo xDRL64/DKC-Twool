@@ -42,6 +42,11 @@ dkc2ldd.lib = (function(app=dkc2ldd){
 	// arrayAsFunction : for very code friendly reading and writing within multiple arrays as one big array
 	// (very code friendly but very slow too, for offset range process)
 	// use jsArray() to make a copy as true js Array for reading offset range
+
+	// using :
+		// get length : AAF()
+		// get [val, array, i] : AAF(index)
+		// write : AAF(index, val)
 	o.arrayAsFunction = {};
 
 	o.arrayAsFunction.create = function(a){
@@ -342,9 +347,14 @@ dkc2ldd.lib = (function(app=dkc2ldd){
 
 
 
-	o.untitledTechnic = {};
+	// cellList : for one fast reading or writing cell within multiple arrays as one big array
+
+	// return :
+		// to read : [iCell, array, cell] : cellList.create(arrayList)
+		// to read and write : [iCell, array] : cellList.create(arrayList, false)
+	o.cellList = {};
 	
-	o.untitledTechnic.create = function(arrayList, getCell=true){
+	o.cellList.create = function(arrayList, getCell=true){
 
 		let o = [];
 		let iCell;

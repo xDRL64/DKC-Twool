@@ -23,7 +23,13 @@
 
         };
 
-        // connect current workspace object (export update methode)
+        // close
+        o.close = function(){
+            // app.mode[ /**/put its mode id/**/ ].save = something;
+            // delete something (eventlistener, requestanimationframe, setinveterval, etc..)
+        };
+
+        // connect current workspace object (export core methods)
         workspace.current = o;
 
     };

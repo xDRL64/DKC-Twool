@@ -39,6 +39,12 @@
                 //app.gfx.safe.draw_snespal(snespal, o.viewport.ctx);
             }
         };
+
+        o.close = function(){
+            // app.mode[ /**/put its mode id/**/ ].save = something;
+            // delete something (eventlistener, requestanimationframe, setinveterval, etc..)
+        };
+
         workspace.current = o;
 
     };
