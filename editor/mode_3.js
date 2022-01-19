@@ -33,12 +33,12 @@
                 let xtmax = parseInt(parameters[0]) || 32;
                 let scale = parseInt(parameters[1]) || 1;
 
-                let snespal = srcFilePanel.palette.get_data();
+                let snespal = srcFilePanel.palette.get_data__OLD();
                 let palettes = app.gfx.fast.snespalTo24bits(snespal);
                 
-                let bgtileset = srcFilePanel.bgtileset.get_data();
+                let bgtileset = srcFilePanel.bgtileset.get_data__OLD();
 
-                let background = srcFilePanel.background.get_data();
+                let background = srcFilePanel.background.get_data__OLD();
 
                 let len = background.length / 2;
 

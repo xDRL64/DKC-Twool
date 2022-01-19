@@ -30,7 +30,7 @@
 
             if(slot.multi > 0){
 
-                let data = slot.get_data();
+                let data = slot.get_data__OLD();
 
                 let parameters = slot.parameters.value.match(/\w{1,}/g) || [];
                 let _p = parameters;

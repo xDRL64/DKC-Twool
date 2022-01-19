@@ -794,7 +794,7 @@ dkc2debug.gfxTest.TILESET = (function(app=dkc2ldd, dbg=dkc2debug){
 	
 		let t, tt, tt0=0, tt1=0, tt2=0;
 
-		let data = dkc2ldd.interface.srcFilePanel.tileset.get_data();
+		let data = dkc2ldd.interface.srcFilePanel.tileset.get_data__OLD();
 	
 		t = performance.now();
 		for(let i=0; i<count; i++){

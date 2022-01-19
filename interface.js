@@ -333,7 +333,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			o.useDec = [false];
 			o.htmlInput = htmlInput;
 			
-			o.get_data = function(){
+			o.get_data__OLD = function(){
 				if(o.multi === 1){
 					return o.useDec[0] ? o.decompressed[0] : o.fileData[0];
 				}
@@ -348,6 +348,14 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 					}
 					return app.lib.arrayAsFunction.make_arraySyntax(all);
 				}
+			};
+
+			o.get_data = function(){
+				let _o = [];
+				let len = o.multi;
+				for(let i=0; i<len; i++)
+					_o.push( o.useDec[i] ? o.decompressed[i] : o.fileData[i] );
+				return _o;
 			};
 		
 			o.add = function(htmlParentElem){

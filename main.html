@@ -65,101 +65,27 @@
 		[12,13,14,15],
 	];
 
-	get_loopList = function(start, length, arrayList){
+	arrayList = [
+		['a','b','c','d'],
+		['e','f','g','h'],
+		['i','j','k','l'],
+		['m','n','o','p'],
+	];
 
-		let listLen = arrayList.length;
-
-		let end = start + length - 1;
-
-		let totalLen = 0;
-		let lastLen;
-		let arrayLen;
-
-		let startNotFound = true;
-
-		let loopList = [];
-		let iList = 0;
-
-		loopList.start = start;
-		loopList.d = start;
-
-		for(let i=0; i<listLen; i++){
-
-			arraySrc = arrayList[i];
-			arrayLen = arraySrc.length;
-			lastLen = totalLen;
-			totalLen += arrayLen;
-
-			// debug
-			//arraySrc = arraySrc.join();
-
-			if(startNotFound){
-				if(start < totalLen){
-					// start found
-					loopList.push( [] );
-					loopList[iList].push( start - lastLen );
-					if(end < totalLen){ // end is in this current array
-						loopList[iList].push( end - lastLen + 1 );
-						loopList[iList].push( arraySrc );
-						return loopList;
-					} // end is in another array
-					loopList[iList].push( arrayLen );
-					loopList[iList].push( arraySrc );
-					startNotFound = !startNotFound;
-					iList++;
-				}
-			}else{
-				loopList.push( [] );
-				loopList[iList].push( 0 );
-				if(end < totalLen){ // end is in this current array
-					loopList[iList].push( end - lastLen + 1 );
-					loopList[iList].push( arraySrc );
-					return loopList;
-				}
-				loopList[iList].push( arrayLen );
-				loopList[iList].push( arraySrc );
-				iList++;
-			}
-		}
-
-		return loopList;
-	};
+	
 
 	// Using :
 
-	demo_loopList = function(loopList){
-		
-		let listLen = loopList.length;
-		let loop, start, length, source;
-	
-		let _i = 0;
-		let index = loopList.start;
-	
-		for(let i=0; i<listLen; i++){
-	
-			loop = loopList[i];
-			start = loop[0];
-			length = loop[1];
-			source = loop[2];
-	
-			for(let c=start; c<length; c++){
-				// your code ...
-				console.log( _i, index, source[c] );
-				_i++;
-				index++;
-			}
-	
-		}
-	};
 
+
+	/*
 	demo_loopList2 = function(loopList){
 
 		let R = [];
 
 		let L = loopList;
 		let len = L.length;
-		//for(let i=0, l=L[i],s=l[0],_=l[1],S=l[2], n=L.n,N=0; i<len; i++, l=L[i],s=l[0],_=l[1],S=l[2])
-		//for(let i=0, l=L[i],s=l[0],_=l[1],S=l[2], n=L.n,N=0, k=1; k; ){
+
 		for(L.i=0,L.l=L[L.i], L.s=L.l[0],L._=L.l[1],L.S=L.l[2], L.n=L.d,L.N=0, L.k=1; L.k; ){
 		for(L.c=L.s; L.c<L._; L.c++,L.n++,L.N++){
 
@@ -174,6 +100,7 @@
 				// N : wholeProcessIndex
 				// c : sourceReadIndex
 				// k : keepProcessCondition
+				// 
 
 			console.log( L.N, L.n, L.S[L.c] );
 			R.push(L.S[L.c]);
@@ -183,9 +110,18 @@
 	
 		return R;
 	};
+	*/
+
+
+	callback = function(loop, index, src, i, args){
+		let str = '' + loop + ' ' + index + ' ' + src[i] + ' ' + args.join();
+		src[i] += (':'+i)
+		console.log(str);
+		return str;
+	};
 
 	var test_loopList = function(start, length, arrayList){
-		return demo_loopList2( get_loopList(start, length, arrayList) );
+		return dkc2ldd.lib.loopList.create(start, length, arrayList).functionCallback(callback, ["ab","cd"]);
 	};
 
 

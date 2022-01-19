@@ -328,12 +328,12 @@
                 // empty workspace (to empty html child elements)
                 workspace.elem.textContent = "";
 
-                snespal = srcFilePanel.palette.get_data();
+                snespal = srcFilePanel.palette.get_data__OLD();
                 palettes = app.gfx.fast.snespalTo24bits(snespal);
 
-                tileset = srcFilePanel.tileset.get_data();
-                mapchip = srcFilePanel.mapchip.get_data();
-                tilemap = srcFilePanel.tilemap.get_data();
+                tileset = srcFilePanel.tileset.get_data__OLD();
+                mapchip = srcFilePanel.mapchip.get_data__OLD();
+                tilemap = srcFilePanel.tilemap.get_data__OLD();
 
                 _tileset = srcFilePanel.tileset.multi<2 ? tileset : tileset.buffer;
                 _mapchip = srcFilePanel.mapchip.multi<2 ? mapchip : mapchip.buffer;

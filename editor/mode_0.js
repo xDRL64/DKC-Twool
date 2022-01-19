@@ -24,6 +24,7 @@
             if(srcFilePanel.palette.multi > 0){
             
                 let snespal = srcFilePanel.palette.get_data();
+                snespal = app.lib.arrayAsFunction.fromArrayList(snespal);
 
                 let palettes = app.gfx.fast.snespalTo24bits(snespal);
                 app.gfx.fast.draw_palettes(palettes, o.viewport.ctx);

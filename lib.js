@@ -38,6 +38,10 @@ dkc2ldd.lib = (function(app=dkc2ldd){
 		return prefix + str;
 	};
 	
+
+	// arrayAsFunction : for very code friendly reading and writing within multiple arrays as one big array
+	// (very code friendly but very slow too, for offset range process)
+	// use jsArray() to make a copy as true js Array for reading offset range
 	o.arrayAsFunction = {};
 
 	o.arrayAsFunction.create = function(a){
@@ -153,6 +157,220 @@ dkc2ldd.lib = (function(app=dkc2ldd){
 
 		return o;
 	};
+
+	o.arrayAsFunction.fromArrayList = function(arrayList, arraySyntax=true){
+		let len = arrayList.length;
+		let one;
+		let all = o.arrayAsFunction.create(arrayList[0]);
+		for(let i=1; i<len; i++){
+			one = o.arrayAsFunction.create(arrayList[i]);
+			all = o.arrayAsFunction.concat(all,one);
+		}
+		if(arraySyntax)
+			return o.arrayAsFunction.make_arraySyntax(all);
+		else
+			return all;
+	};
+
+	// loopList : for one very fast offset range over writing with multiple arrays as one big array
+	o.loopList = {};
+
+	o.loopList.create = function(start, length, arrayList){
+
+		// create loopList
+		let loopList = (function(){
+			let listLen = arrayList.length;
+	
+			let end = start + length - 1;
+	
+			let totalLen = 0;
+			let lastLen;
+			let arrayLen;
+	
+			let startNotFound = true;
+	
+			let loopList = [];
+			let iList = 0;
+	
+			loopList.start = start;
+			loopList.d = start;
+	
+			for(let i=0; i<listLen; i++){
+	
+				arraySrc = arrayList[i];
+				arrayLen = arraySrc.length;
+				lastLen = totalLen;
+				totalLen += arrayLen;
+	
+				// debug
+				//arraySrc = arraySrc.join();
+	
+				if(startNotFound){
+					if(start < totalLen){
+						// start found
+						loopList.push( [] );
+						loopList[iList].push( start - lastLen );
+						if(end < totalLen){ // end is in this current array
+							loopList[iList].push( end - lastLen + 1 );
+							loopList[iList].push( arraySrc );
+							return loopList;
+						} // end is in another array
+						loopList[iList].push( arrayLen );
+						loopList[iList].push( arraySrc );
+						startNotFound = !startNotFound;
+						iList++;
+					}
+				}else{
+					loopList.push( [] );
+					loopList[iList].push( 0 );
+					if(end < totalLen){ // end is in this current array
+						loopList[iList].push( end - lastLen + 1 );
+						loopList[iList].push( arraySrc );
+						return loopList;
+					}
+					loopList[iList].push( arrayLen );
+					loopList[iList].push( arraySrc );
+					iList++;
+				}
+			}
+
+			return loopList;
+		})();
+
+		// no callback return
+		loopList.procedureCallback = function(callback=(function(loop, index, scr, iSrc){}), args=[]){
+
+			let L = this;
+			let len = L.length;
+
+			for(L.i=0,L.l=L[L.i], L.s=L.l[0],L._=L.l[1],L.S=L.l[2], L.n=L.d,L.N=0, L.k=1; L.k; ){
+			for(L.c=L.s; L.c<L._; L.c++,L.n++,L.N++){
+
+				callback(L.N, L.n, L.S, L.c, args);
+
+			}L.i++;if(L.i<len){L.l=L[L.i],L.s=L.l[0],L._=L.l[1],L.S=L.l[2]}else{L.k=0}
+			}
+		};
+
+		// capture each callback return
+		loopList.functionCallback = function(callback=(function(loop, index, scr, iSrc){}), args=[]){
+			let R = [];
+			
+			let L = this;
+			let len = L.length;
+
+			for(L.i=0,L.l=L[L.i], L.s=L.l[0],L._=L.l[1],L.S=L.l[2], L.n=L.d,L.N=0, L.k=1; L.k; ){
+			for(L.c=L.s; L.c<L._; L.c++,L.n++,L.N++){
+
+				R.push( callback(L.N, L.n, L.S, L.c, args) );
+
+			}L.i++;if(L.i<len){L.l=L[L.i],L.s=L.l[0],L._=L.l[1],L.S=L.l[2]}else{L.k=0}
+			}
+		
+			return R;
+		};
+
+		return loopList;
+	};
+
+	// DON'T USE THIS FUNCTION LIKE THAT, COPY AND USE FORLOOP CODE FOR READING loopList
+	o.loopList.usingDemoExample = function(loopList){
+		let R = [];
+
+		let L = loopList;
+		let len = L.length;
+
+		for(L.i=0,L.l=L[L.i], L.s=L.l[0],L._=L.l[1],L.S=L.l[2], L.n=L.d,L.N=0, L.k=1; L.k; ){
+		for(L.c=L.s; L.c<L._; L.c++,L.n++,L.N++){
+
+			// your code ... ( L : i l s S _ n N c k )
+			// L : loopList	
+				// i : iLoop
+				// l : loop
+				// s : loopStart
+				// S : ArraySource
+				// _ : loopLength
+				// n : loopListIndex
+				// N : wholeProcessIndex
+				// c : sourceReadIndex
+				// k : keepProcessCondition
+
+				// as developer use especially : N n S c
+					// N : start to 0 (relative to process)
+					// n : start to index in the "considerated big array" formed by all arrays in loopList
+					// S : source array to read in and write in (corresponding to n)
+					// c : index (corresponding to n) to read and write in S
+
+					// example process code
+					console.log( L.N, L.n, L.S[L.c] );
+					R.push(L.S[L.c]);
+
+		}L.i++;if(L.i<len){L.l=L[L.i],L.s=L.l[0],L._=L.l[1],L.S=L.l[2]}else{L.k=0}
+		}
+	
+		return R;
+	};
+
+	// the same than o.loopList.usingDemoExample but the simplest possible for developer reading
+	o.loopList.usingDemoExample2 = function(loopList){
+		
+		let listLen = loopList.length;
+		let loop, start, length, source;
+	
+		let _i = 0;
+		let index = loopList.start;
+	
+		for(let i=0; i<listLen; i++){
+	
+			loop = loopList[i];
+			start = loop[0];
+			length = loop[1];
+			source = loop[2];
+	
+			for(let c=start; c<length; c++){
+
+				// your code ...
+				console.log( _i, index, source[c] );
+				// your code end
+
+				_i++;
+				index++;
+			}
+	
+		}
+	};
+
+
+
+	o.untitledTechnic = {};
+	
+	o.untitledTechnic.create = function(arrayList, getCell=true){
+
+		let o = [];
+		let iCell;
+
+		if(getCell)
+			for(let array of arrayList){
+				iCell = 0;
+				for(let cell of array){
+					o.push( [iCell, array, cell] )
+					iCell++;
+				}
+			}
+		else
+			for(let array of arrayList){
+				iCell = 0;
+				for(let cell of array){
+					o.push( [iCell, array] )
+					iCell++;
+				}
+			}
+
+		return o;
+	};
+
+
+
 
     o.checkVal = {};
     o.checkVal.A = [];    
