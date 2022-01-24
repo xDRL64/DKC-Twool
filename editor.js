@@ -234,6 +234,315 @@ dkc2ldd.editor = (function(app=dkc2ldd){
         return o;
     };
 
+    
+    // 2D cell list to border point list
+    o.borderPoints = function(_2D_cellList){
+
+        let T = _2D_cellList;
+
+        let w, wMin=Infinity, wMax=0, wOfst=0;
+        let h, hMin=Infinity, hMax=0, hOfst=0;
+
+        let len = Math.floor(T.length / 2);
+
+        // wh min max
+        for(let i=0; i<len; i++){
+            wMax = wMax<T[(i*2)  ] ? T[(i*2)  ] : wMax;
+            hMax = hMax<T[(i*2)+1] ? T[(i*2)+1] : hMax;
+            
+            wMin = wMin>T[(i*2)  ] ? T[(i*2)  ] : wMin;
+            hMin = hMin>T[(i*2)+1] ? T[(i*2)+1] : hMin;
+        }
+        
+        // get w h
+        w = wMax - wMin + 1;
+        h = hMax - hMin + 1;
+
+        wOfst = wMin;
+        hOfst = hMin;
+
+        // build 2D map
+        let m = new Array(h);
+        for(let y=0; y<h; y++){
+            m[y] = (new Array(w));
+            for(let x=0; x<w; x++)
+                m[y][x] = {set:0, bord:0, t:0,b:0,l:0,r:0, x:x,y:y, iList:undefined};
+        }
+
+        // init 2D map
+
+        // get m[][].set
+        for(let i=0; i<len; i++)
+            m[ T[(i*2)+1]-hOfst ][ T[(i*2)]-wOfst ].set = 1;
+
+        // get m[][] .bord .t .b .l .r .iList
+        // get m.borders
+        m.borders = [];
+        let bord;
+        for(let y=0; y<h; y++){
+            for(let x=0; x<w; x++){
+
+                if(m[y][x].set){
+
+                    bord = 0;
+
+                    if(y===0   || !m[y-1][x].set) m[y][x].t = bord = 1;
+
+                    if(y===h-1 || !m[y+1][x].set) m[y][x].b = bord = 1;
+
+                    if(x===0   || !m[y][x-1].set) m[y][x].l = bord = 1;
+
+                    if(x===w-1 || !m[y][x+1].set) m[y][x].r = bord = 1;
+
+                    if(bord){
+                        m[y][x].bord = bord;
+                        m[y][x].iList = m.borders.length;
+                        m.borders.push( m[y][x] );
+                    }
+
+                }
+
+            }
+        }
+
+        let c = m.borders[0];
+        let t,r,b,l;
+        let o = [];
+        let O = [];
+        let iBord = 0;
+        
+        while(c){
+
+            t=c.t; r=c.r; b=c.b; l=c.l;
+
+            // with getting corner touch case
+            while(true){
+
+                // TOP
+                if(t){
+
+                    t=0; r=0; b=0; l=0;
+
+                    // first point of top (LEFt to right)
+                    o.push( [wOfst+c.x, hOfst+c.y, 't'] );
+
+                    // look for extend top
+                    while(true){
+                        c.t = 0;
+                        if( !(c.t|c.b|c.l|c.r) ) c.bord = 0;
+                        if((c.x+1)===w) break;
+                        if(m[c.y][c.x+1].t) c = m[c.y][c.x+1]; else break;
+                    };
+                    
+                    // look for perpendicular side
+                    // other cell
+                    if(c.x+1<w && c.y-1>=0 && m[c.y-1][c.x+1].l){
+                        l = 1;
+                        c = m[c.y-1][c.x+1];
+                    }
+                    // same cell
+                    else if(c.r) r = 1;
+                }
+
+                // RIGHT
+                if(r){
+
+                    t=0; r=0; b=0; l=0;
+
+                    // first point of right (TOP to bottom)
+                    o.push( [wOfst+c.x+1, hOfst+c.y, 'r'] );
+
+                    // look for extend top
+                    while(true){
+                        c.r = 0;
+                        if( !(c.t|c.b|c.l|c.r) ) c.bord = 0;
+                        if((c.y+1)===h) break;
+                        if(m[c.y+1][c.x].r) c = m[c.y+1][c.x]; else break;
+                    }
+                    
+                    // look for perpendicular side
+                    // other cell
+                    if(c.x+1<w && c.y+1<h && m[c.y+1][c.x+1].t){
+                        t = 1;
+                        c = m[c.y+1][c.x+1];
+                    }
+                    // same cell
+                    else if(c.b) b = 1;
+                }
+
+                // BOTTOM
+                if(b){
+
+                    t=0; r=0; b=0; l=0;
+
+                    // first point of botton (RIGHT to left)
+                    o.push( [wOfst+c.x+1, hOfst+c.y+1, 'b'] );
+
+                    // look for extend top
+                    while(true){
+                        c.b = 0;
+                        if( !(c.t|c.b|c.l|c.r) ) c.bord = 0;
+                        if((c.x-1)===-1) break;
+                        if(m[c.y][c.x-1].b) c = m[c.y][c.x-1]; else break;
+                    }
+                    
+                    // look for perpendicular side
+                    // other cell
+                    if(c.x-1>=0 && c.y+1<h && m[c.y+1][c.x-1].r){
+                        r = 1;
+                        c = m[c.y+1][c.x-1];
+                    }
+                    // same cell
+                    else if(c.l) l = 1;
+                }
+
+                // LEFT
+                if(l){
+
+                    t=0; r=0; b=0; l=0;
+
+                    // first point of left (BOTTOM to top)
+                    o.push( [wOfst+c.x, hOfst+c.y+1, 'l'] );
+
+                    // look for extend top
+                    while(true){
+                        c.l = 0;
+                        if( !(c.t|c.b|c.l|c.r) ) c.bord = 0;
+                        if((c.y-1)===-1) break;
+                        if(m[c.y-1][c.x].l) c = m[c.y-1][c.x]; else break;
+                    }
+                    
+                    // look for perpendicular side
+                    // other cell
+                    if(c.x-1>=0 && c.y-1>=0 && m[c.y-1][c.x-1].b){
+                        b = 1;
+                        c = m[c.y-1][c.x-1];
+                    }
+                    // same cell
+                    else if(c.t) t = 1;
+                }
+
+                if(!(t|r|b|l)) break;
+            }
+
+            O.push( o );
+            o = [];
+
+            // look for bord cell not stil parsed
+            c = undefined;
+            len = m.borders.length;
+            for( ; iBord<len; iBord++){
+                if(m.borders[iBord].bord){
+                    c = m.borders[iBord];
+                    break;
+                }
+            }
+
+        }
+
+        return O;
+    };
+
+
+    o.pathListToSvgPath = function(pathList, rayBord, cellSize){
+        let paths = pathList;
+        let r = rayBord;
+        let unit = cellSize;
+
+        let relativeCornerSvgTemplate = {
+
+            // same cell corner rotation
+            tr : 'a '+r+','+r+' '+0+' '+0+' '+1+' '+( r)+','+( r),
+            rb : 'a '+r+','+r+' '+0+' '+0+' '+1+' '+(-r)+','+( r),
+            bl : 'a '+r+','+r+' '+0+' '+0+' '+1+' '+(-r)+','+(-r),
+            lt : 'a '+r+','+r+' '+0+' '+0+' '+1+' '+( r)+','+(-r),
+
+            // other cell corner rotation
+            tl : 'a '+r+','+r+' '+0+' '+0+' '+0+' '+( r)+','+(-r),
+            rt : 'a '+r+','+r+' '+0+' '+0+' '+0+' '+( r)+','+( r),
+            br : 'a '+r+','+r+' '+0+' '+0+' '+0+' '+(-r)+','+( r),
+            lb : 'a '+r+','+r+' '+0+' '+0+' '+0+' '+(-r)+','+(-r),
+
+            tt : '',
+            rr : '',
+            bb : '',
+            ll : '',
+        };
+
+        let points;
+        let len;
+        let xA,yA, xB,yB;
+        let str = '';
+        let i;
+        let corner;
+        for(let iPath=0; iPath<paths.length; iPath++){
+
+            points = paths[iPath];
+            len = points.length;
+            str += " M";
+            for(i=0; i<len-1; i++){
+
+                xA = (points[i][0]*unit);
+                yA = (points[i][1]*unit);
+                xB = (points[i+1][0]*unit);
+                yB = (points[i+1][1]*unit);
+                if(points[i][2]==='t'){
+                    xA += r;
+                    xB -= r;
+                }
+                if(points[i][2]==='r'){
+                    yA += r;
+                    yB -= r;
+                }
+                if(points[i][2]==='b'){
+                    xA -= r;
+                    xB += r;
+                }
+                if(points[i][2]==='l'){
+                    yA -= r;
+                    yB += r;
+                }
+                str += " " + xA + " " + yA + " L";
+                str += " " + xB + " " + yB + " ";
+
+                corner = '' + points[i][2] + points[i+1][2];
+                str += relativeCornerSvgTemplate[ corner ] + 'L';
+
+            }
+
+            // hard last
+                xA = (points[i][0]*unit);
+                yA = (points[i][1]*unit);
+                xB = (points[0][0]*unit);
+                yB = (points[0][1]*unit);
+                if(points[i][2]==='t'){
+                    xA += r;
+                    xB -= r;
+                }
+                if(points[i][2]==='r'){
+                    yA += r;
+                    yB -= r;
+                }
+                if(points[i][2]==='b'){
+                    xA -= r;
+                    xB += r;
+                }
+                if(points[i][2]==='l'){
+                    yA -= r;
+                    yB += r;
+                }
+                str += " " + xA + " " + yA + " L";
+                str += " " + xB + " " + yB + " ";
+
+                corner = '' + points[i][2] + points[0][2];
+                str += relativeCornerSvgTemplate[ corner ] + 'Z';
+            // end hard last
+
+        }
+
+        return str;
+
+    };
 
     return o;
 

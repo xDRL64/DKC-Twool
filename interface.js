@@ -415,6 +415,10 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			this.editModePanel.test4.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test4;
 		
+			this.editModePanel.test5 = this.create_editModeSlot("test selection", 'mode5');
+			this.editModePanel.test5.add(this.editModePanel.elem);
+			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test5;
+
 			this.editModePanel.list_editModeSlot = list_editModeSlot;
 		
 			// BUILD
@@ -484,6 +488,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 		// level tilemap
 		workspace.list_generator['mode4'] = app.mode[4];
+
+		// selection test
+		workspace.list_generator['mode5'] = app.mode[5];
 		
 	};
 	

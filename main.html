@@ -29,6 +29,7 @@
 <script src="./editor/mode_2.js"></script>
 <script src="./editor/mode_3.js"></script>
 <script src="./editor/mode_4.js"></script>
+<script src="./editor/mode_5.js"></script>
 
 
 <script>
@@ -56,79 +57,6 @@
 
 
 <script>
-
-
-	arrayList = [
-		[0,1,2,3],
-		[4,5,6,7],
-		[8,9,10,11],
-		[12,13,14,15],
-	];
-
-	arrayList = [
-		['a','b','c','d'],
-		['e','f','g','h'],
-		['i','j','k','l'],
-		['m','n','o','p'],
-	];
-
-	
-
-	// Using :
-
-
-
-	/*
-	demo_loopList2 = function(loopList){
-
-		let R = [];
-
-		let L = loopList;
-		let len = L.length;
-
-		for(L.i=0,L.l=L[L.i], L.s=L.l[0],L._=L.l[1],L.S=L.l[2], L.n=L.d,L.N=0, L.k=1; L.k; ){
-		for(L.c=L.s; L.c<L._; L.c++,L.n++,L.N++){
-
-			// your code ... ( L : i l s S _ n N c k )
-			// L : loopList	
-				// i : iLoop
-				// l : loop
-				// s : loopStart
-				// S : ArraySource
-				// _ : loopLength
-				// n : loopListIndex
-				// N : wholeProcessIndex
-				// c : sourceReadIndex
-				// k : keepProcessCondition
-				// 
-
-			console.log( L.N, L.n, L.S[L.c] );
-			R.push(L.S[L.c]);
-
-		}L.i++;if(L.i<len){L.l=L[L.i],L.s=L.l[0],L._=L.l[1],L.S=L.l[2]}else{L.k=0}
-		}
-	
-		return R;
-	};
-	*/
-
-
-	callback = function(loop, index, src, i, args){
-		let str = '' + loop + ' ' + index + ' ' + src[i] + ' ' + args.join();
-		src[i] += (':'+i)
-		console.log(str);
-		return str;
-	};
-
-	var test_loopList = function(start, length, arrayList){
-		return dkc2ldd.lib.loopList.create(start, length, arrayList).functionCallback(callback, ["ab","cd"]);
-	};
-
-
-
-
-
-
 </script>
 
 	
