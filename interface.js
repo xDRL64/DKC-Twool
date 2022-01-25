@@ -184,12 +184,13 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			// file slots
 
 			let slots = {
-				palette    : "PALETTE :",
-				tileset    : "TILESET :",
-				bgtileset  : "BG TILESET :",
-				background : "BG TILEMAP :",
-				mapchip    : "MAPCHIP (8x8 TILEMAP) :",
-				tilemap    : "LEVEL TILEMAP (32x32) :"
+				palette      : "PALETTE :",
+				tileset      : "TILESET :",
+				bgtileset    : "BG TILESET :",
+				background   : "BG TILEMAP :",
+				mapchip      : "MAPCHIP (8x8 TILEMAP) :",
+				tilemap      : "LEVEL TILEMAP (32x32) :",
+				collisionmap : "COLLISION MAP :"
 			};
 		
 			let list_dkc2FileSlot = [];
@@ -419,6 +420,10 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			this.editModePanel.test5.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test5;
 
+			this.editModePanel.test6 = this.create_editModeSlot("test collisionmap", 'mode6');
+			this.editModePanel.test6.add(this.editModePanel.elem);
+			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test6;
+
 			this.editModePanel.list_editModeSlot = list_editModeSlot;
 		
 			// BUILD
@@ -491,6 +496,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 
 		// selection test
 		workspace.list_generator['mode5'] = app.mode[5];
+		
+		// collisionmap
+		workspace.list_generator['mode6'] = app.mode[6];
 		
 	};
 	
