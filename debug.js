@@ -11,6 +11,7 @@ dkc2debug.simul_loadedData = function(){
 	dkc2ldd.interface.srcFilePanel.bgtileset.decompressed = [];
 	dkc2ldd.interface.srcFilePanel.background.decompressed = [];
 	dkc2ldd.interface.srcFilePanel.tilemap.decompressed = [];
+	dkc2ldd.interface.srcFilePanel.collisionmap.decompressed = [];
 
 	dkc2ldd.interface.srcFilePanel.tileset.fileData = [];
 	dkc2ldd.interface.srcFilePanel.mapchip.fileData = [];
@@ -18,6 +19,7 @@ dkc2debug.simul_loadedData = function(){
 	dkc2ldd.interface.srcFilePanel.bgtileset.fileData = [];
 	dkc2ldd.interface.srcFilePanel.background.fileData = [];
 	dkc2ldd.interface.srcFilePanel.tilemap.fileData = [];
+	dkc2ldd.interface.srcFilePanel.collisionmap.fileData = [];
 
 	dkc2ldd.interface.srcFilePanel.tileset.decompressed[0] = data.decompressedTileset;
 	dkc2ldd.interface.srcFilePanel.tileset.fileData[0] = data.compressedTileset;
@@ -50,6 +52,11 @@ dkc2debug.simul_loadedData = function(){
 	dkc2ldd.interface.srcFilePanel.tilemap.multi = 1;
 	dkc2ldd.interface.srcFilePanel.tilemap.parameters.value = "h 16";
 	
+	dkc2ldd.interface.srcFilePanel.collisionmap.decompressed[0] = data.decopressedCollisionmap;
+	dkc2ldd.interface.srcFilePanel.collisionmap.fileData[0] = data.compressedCollisionmap;
+	dkc2ldd.interface.srcFilePanel.collisionmap.useDec[0] = false;
+	dkc2ldd.interface.srcFilePanel.collisionmap.multi = 1;
+
 	data.decopressedLvlTilemap[0] = 0xD6
 	data.decopressedLvlTilemap[1] = 0x00
 	

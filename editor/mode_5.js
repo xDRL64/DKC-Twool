@@ -24,6 +24,7 @@
         let hView = 256;
         svg.style.width = wView;
         svg.style.height = hView;
+        svg.style.backgroundColor = '#ddd';
 
         path2.setAttributeNS(null, 'fill', 'none');
         path2.setAttributeNS(null, 'stroke', 'red');
