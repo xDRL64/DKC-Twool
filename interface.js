@@ -184,6 +184,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			// file slots
 
 			let slots = {
+				rom          : "DECOMPRESSED ROM :",
 				palette      : "PALETTE :",
 				tileset      : "TILESET :",
 				bgtileset    : "BG TILESET :",
@@ -327,15 +328,94 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			o.fileInfo = fileInfo;
 			o.importButton = importButton;
 			o.exportButton = exportButton;
+			o.htmlInput = htmlInput;
 			o.decompressionState = decompressionState;
 			o.parameters = parameters;
 			
 			o.name = name;
+
 			o.multi = 0;
 			o.index = 0;
-			o.useDec = [false];
-			o.htmlInput = htmlInput;
+			//o.useDec = [false];
 			
+			o.fileData = [];
+			o.decompressed = [];
+			o.names = [];
+			o.useDec = [];
+			
+
+			o.set_oneDataFile = function(file={name:'', data:[], useDec:false}, last=false){
+				
+				if(o.multi === 0)
+					o.fileIndex.disabled = false;
+				
+				let index = o.index;
+
+				o.fileData[index] = file.data;
+
+				o.decompressed[index] = app.decompressor(file.data);
+				o.useDec[index] = file.useDec;
+
+				o.names[index] = file.name;
+
+				if(o.multi === index) o.multi++;
+
+				if(!last) o.index++;
+
+				// update
+				if(last){
+					o.fileIndex.max = o.multi;
+					o.fileIndex.value = index;
+				
+					o.setText_fileArea();
+					o.setText_fileInfo();
+					
+					o.setText_decompressionState();
+					
+					//check_forUpdate(o.name);
+				}
+			};
+
+			o.setText_fileArea = function(){
+				let index = o.index;
+				
+				if(index < o.multi){
+					o.fileArea.textContent = o.names[index];
+				}else{
+					o.fileArea.textContent = "%file name";
+				}
+			};
+			
+			o.setText_fileInfo = function(){
+				let index = o.index;
+				
+				if(index < o.multi){
+					let size = o.fileData[index].length;
+					o.fileInfo.textContent = "size : " + size + " " + app.lib.get_hexToStr(size,"0x");
+				}else{
+					o.fileInfo.textContent = "file info";
+				}
+			};
+		
+			o.setText_decompressionState = function(){
+			
+				let ON  = "[O] use decompression";
+				let OFF = "[ ] use decompression";
+				
+				let index = o.index;
+				
+				if(index < o.multi){
+					let txt = o.useDec[index] ? ON : OFF;
+					
+					let size = o.decompressed[index].length;
+					txt += "\n" + "size : " + size + " " + app.lib.get_hexToStr(size,"0x");
+					o.decompressionState.textContent = txt;
+				}else{
+					o.decompressionState.textContent = OFF;
+				}
+			
+			};
+
 			o.get_data__OLD = function(){
 				if(o.multi === 1){
 					return o.useDec[0] ? o.decompressed[0] : o.fileData[0];
@@ -394,8 +474,30 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 			// edit mode slot
 		
+			let slots = {
+				test_ : ["rom manager",                  'mode_', null],
+				test0 : ["palette displayer",            'mode0', ['wearethere','butalwaysnotused']],
+				test1 : ["tileset displayer",            'mode1', null],
+				test2 : ["mapchip displayer",            'mode2', null],
+				test3 : ["background displayer",         'mode3', null],
+				test4 : ["level tilemap displayer",      'mode4', ['something','whatyouwant']],
+				test5 : ["test selection",               'mode5', null],
+				test6 : ["test collisionmap",            'mode6', null],
+				test7 : ["test 4formatedTileset",        'mode7', null],
+				test8 : ["test create_mapchipGfxBuffer", 'mode8', null],
+				test9 : ["mode 9",                       'mode9', null]
+			};
+
 			let list_editModeSlot = [];
+
+			for(slotName in slots){
+				let slot = slots[slotName];
+				this.editModePanel[slotName] = this.create_editModeSlot(slot[0], slot[1], slot[2]);
+				this.editModePanel[slotName].add(this.editModePanel.elem);
+				list_editModeSlot.push(this.editModePanel[slotName]);
+			}
 		
+			/*
 			this.editModePanel.test0 = this.create_editModeSlot("palette displayer", 'mode0');
 			this.editModePanel.test0.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test0;
@@ -423,6 +525,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			this.editModePanel.test6 = this.create_editModeSlot("test collisionmap", 'mode6');
 			this.editModePanel.test6.add(this.editModePanel.elem);
 			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test6;
+			*/
 
 			this.editModePanel.list_editModeSlot = list_editModeSlot;
 		
@@ -479,6 +582,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 
 		workspace.list_generator = [];
 			
+		// rom
+		workspace.list_generator['mode_'] = app.mode['ROM'];
+
 		// palette
 		workspace.list_generator['mode0'] = app.mode[0];
 		
@@ -499,6 +605,15 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 		// collisionmap
 		workspace.list_generator['mode6'] = app.mode[6];
+
+		// test 4formatedTileset
+		workspace.list_generator['mode7'] = app.mode[7];
+		
+		// test create_mapchipGfxBuffer
+		workspace.list_generator['mode8'] = app.mode[8];
+
+		// mode 9
+		workspace.list_generator['mode9'] = app.mode[9];
 		
 	};
 	

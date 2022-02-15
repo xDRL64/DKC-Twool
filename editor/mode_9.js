@@ -3,7 +3,7 @@
 
 	app.mode = app.mode || [];
 	
-	app.mode[ /**/put new mode id/**/ ] = function(editModePanParams){
+	app.mode[ 9 ] = function(editModePanParams){
 
 		// default interface API
 		let workspace = app.interface.workspace;
@@ -11,7 +11,7 @@
 		let wLib = app.editor;
 
 		// empty workspace (to empty html child elements)
-		workspace.elem.textContent = "";
+		workspace.elem.textContent = "mode 9";
 
 		// current workspace object
 		let o = {};
@@ -25,7 +25,7 @@
 
 		// close
 		o.close = function(){
-			// app.mode[ /**/put its mode id/**/ ].save = something;
+			// app.mode[ 9 ].save = something;
 			// delete something (eventlistener, requestanimationframe, setinveterval, etc..)
 		};
 

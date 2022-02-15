@@ -142,7 +142,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 	o.safe.snespalTo24bits = function(data){
 
-		let float_len = data.length / 2;
+		let float_len = data?.length / 2;
 		let palMax = Math.floor(float_len / 16);
 
         palMax = palMax<8 ? 8 : palMax;
@@ -1976,6 +1976,113 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
+	o.fast.format_2bppTileset = function(data, hFlip=0,vFlip=0){
+
+		// OVERFLOW : get zero values ?
+		// WRONGDAT : get zero values ?
+
+		let tOffset; // 8x8 tile offset
+		let rOffset; // 8x8 row offset
+		let bOffsets // 8x8 byte offsets
+		let b0, b1, b2, b3;
+		let tileset = [];
+
+		let col;
+
+		let len = data.length / 32;
+
+		let iTile;
+		
+		if( (hFlip|vFlip) === 0 ){
+
+			for(let iT=0; iT<len; iT++){
+				tileset.push( [] );
+				tileset.push( [] );
+				tOffset = iT * 32;
+
+				iTile = iT * 2;
+				// by row
+				for(let row=0; row<8; row++){
+		
+					tileset[iTile].push( [] );
+					tileset[iTile+1].push( [] );
+
+					rOffset = row * 2; // row offset
+					bOffsets = [ rOffset, rOffset+1, rOffset+16, rOffset+17 ]; // byte offset
+					
+					b0 = data[ tOffset + bOffsets[0] ];
+					b1 = data[ tOffset + bOffsets[1] ];
+					b2 = data[ tOffset + bOffsets[2] ];
+					b3 = data[ tOffset + bOffsets[3] ];
+				
+					// by row pixel
+					for(let pix=0x80; pix>0x00; pix=pix>>1){
+				
+						col = 0;
+						col += b0 & pix ? 0x1 : 0x0;
+						col += b1 & pix ? 0x2 : 0x0;
+						tileset[iTile][row].push(col);
+
+						col = 0;
+						col += b2 & pix ? 0x1 : 0x0;
+						col += b3 & pix ? 0x2 : 0x0;
+						tileset[iTile+1][row].push(col);
+						
+					}
+				}
+			}
+
+		}else{
+
+			let flip8 = app.ref.get_flipTable(8);
+			let flipB = app.ref.get_flipTable('byte');
+			let fPix;
+
+			for(let iTile=0; iTile<len; iTile++){
+				tileset.push( [] );
+				tOffset = iTile * 32;
+				// by row
+				for(let row=0; row<8; row++){
+		
+					tileset[iTile].push( [] );
+
+					rOffset = flip8[vFlip][row] * 2; // row offset
+					bOffsets = [ rOffset, rOffset+1, rOffset+16, rOffset+17 ]; // byte offset
+					
+					b0 = data[ tOffset + bOffsets[0] ];
+					b1 = data[ tOffset + bOffsets[1] ];
+					b2 = data[ tOffset + bOffsets[2] ];
+					b3 = data[ tOffset + bOffsets[3] ];
+				
+					// by row pixel
+					for(let pix=0x80; pix>0x00; pix=pix>>1){
+						fPix = flipB[hFlip][pix];
+						col = 0;
+						col += b0 & fPix ? 0x1 : 0x0;
+						col += b1 & fPix ? 0x2 : 0x0;
+						col += b2 & fPix ? 0x4 : 0x0;
+						col += b3 & fPix ? 0x8 : 0x0;
+						
+						tileset[iTile][row].push(col);
+					}
+				}
+			}
+		}
+
+		return tileset;
+	};
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1985,7 +2092,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	// one mapchip holds many chip
 	// one chip holds 16 fragments
 
-	o.draw_oneChip = function(tileset, mapchips, iChip, palettes, ctx, hChipFlip=0, vChipFlip=0){
+	o.draw_oneChip = function(tileset, mapchips, iChip, palettes, ctx, hChipFlip=0, vChipFlip=0, xCtx=0,yCtx=0){
 
 		let tiles = o.fast.format_4bppTileset(tileset);
 		
@@ -2063,7 +2170,8 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 				pixels.data[(pix*4)+3] = 255;
 			}
 		}
-		ctx.putImageData(pixels, 0,0);
+		//ctx.putImageData(pixels, 0,0);
+		ctx.putImageData(pixels, xCtx,yCtx);
 	};
 
 
@@ -2101,15 +2209,15 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 				lowByte = mapchips[fragOffset];
 				highByte = mapchips[fragOffset+1];
 				
-				iTile = ( (highByte & 0x03) << 8 ) + lowByte
+				iTile = ( (highByte & 0x03) << 8 ) + lowByte;
 				
 				iPal = (highByte & 0x1C) >> 2; // 0001 1100 0x1C palette id mask
 			
 				hFlip = (highByte & 0x40) >> 6;
 				vFlip = (highByte & 0x80) >> 7;
 			
-				hF = hFlip ? -1 : 1
-				vF = vFlip ? -1 : 1
+				hF = hFlip ? -1 : 1;
+				vF = vFlip ? -1 : 1;
 			
 				xf = iFrag % 4;
 				yf = Math.floor(iFrag/4);
@@ -2324,14 +2432,14 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 					*/
 					
 					
-					// overwrite color for tilemap flip flag test
-					if(hMapFlip===1) c = this.defaultPalettes[0][iCol];
-					if(vMapFlip===1) c = this.defaultPalettes[1][iCol];
-					if(hMapFlip===1 && vMapFlip===1) c = this.defaultPalettes[2][iCol];
-					
-					if((highByte&0x40)>>6) c = this.defaultPalettes[3][iCol];
-					if((highByte&0x80)>>7) c = this.defaultPalettes[4][iCol];
-					if( ((highByte&0x40)>>6) && ((highByte&0x80)>>7) ) c = this.defaultPalettes[5][iCol];
+//					// overwrite color for tilemap flip flag test
+//					if(hMapFlip===1) c = this.defaultPalettes[0][iCol];
+//					if(vMapFlip===1) c = this.defaultPalettes[1][iCol];
+//					if(hMapFlip===1 && vMapFlip===1) c = this.defaultPalettes[2][iCol];
+//					
+//					if((highByte&0x40)>>6) c = this.defaultPalettes[3][iCol];
+//					if((highByte&0x80)>>7) c = this.defaultPalettes[4][iCol];
+//					if( ((highByte&0x40)>>6) && ((highByte&0x80)>>7) ) c = this.defaultPalettes[5][iCol];
 					
 					
 					/*
