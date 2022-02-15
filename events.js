@@ -35,13 +35,9 @@ dkc2ldd.event = (function(app=dkc2ldd){
 		slot.index = index;
 		slot.fileIndex.value = index;
 
-	//	setText_fileArea(slot);
-	//	setText_fileInfo(slot);
 		slot.setText_fileArea();
 		slot.setText_fileInfo();
 		
-	
-	//	setText_decompressionState(slot);
 		slot.setText_decompressionState();
 
 	};
@@ -60,17 +56,6 @@ dkc2ldd.event = (function(app=dkc2ldd){
 		
 		reader.onloadend = function(e){
 			if (e.target.readyState === FileReader.DONE){
-				
-			//	let index = slot.index;
-
-			/*	if(slot.multi === 0){
-					slot.fileData = [];
-					slot.decompressed = [];
-					slot.name = [];
-					slot.fileIndex.disabled = false;
-					slot.useDec = [];
-				}
-			*/
 				let binStr = e.target.result;
 				let size = binStr.length;
 				let data = [];
@@ -80,34 +65,9 @@ dkc2ldd.event = (function(app=dkc2ldd){
 				
 				let binFile = {name:fileRef.name, data:data, useDec:false};
 				slot.set_oneDataFile(binFile, last);
-			/*
-				slot.fileData[index] = data;
-				
-				let dec = app.decompressor(data);
-				slot.decompressed[index] = dec;
-				slot.useDec[index] = false;
-				
-				slot.name[index] = fileRef.name;
-				
-				if(slot.multi === index)
-					slot.multi++;
-				
-				if(!last)
-					slot.index++
-			*/
+
 				// update
-				if(last){
-			/*		slot.fileIndex.max = slot.multi;
-					slot.fileIndex.value = index;
-				
-					setText_fileArea(slot);
-					setText_fileInfo(slot);
-					
-					setText_decompressionState(slot);
-			*/
-					check_forUpdate(slot.name);
-				}
-			
+				if(last) check_forUpdate(slot.name);
 			}
 		};
 		reader.readAsBinaryString(fileRef);
@@ -115,9 +75,6 @@ dkc2ldd.event = (function(app=dkc2ldd){
 	
 	let get_file = function(slot, files){
 
-		
-		//let files = e.dataTransfer.files;
-		
 		let len = files.length;
 		let end = len - 1;
 		let isLast;
@@ -148,49 +105,7 @@ dkc2ldd.event = (function(app=dkc2ldd){
 		//load_file(slot.htmlInput.files[0], slot);
 		get_file(slot, slot.htmlInput.files);
 	};
-	
-	/*
-	let setText_fileArea = function(slot){
-		let index = slot.index;
-		
-		if(index < slot.multi){
-			slot.fileArea.textContent = slot.names[index];
-		}else{
-			slot.fileArea.textContent = "%file name";
-		}
-	};
-	
-	let setText_fileInfo = function(slot){
-		let index = slot.index;
-		
-		if(index < slot.multi){
-			let size = slot.fileData[index].length;
-			slot.fileInfo.textContent = "size : " + size + " " + app.lib.get_hexToStr(size,"0x");
-		}else{
-			slot.fileInfo.textContent = "file info";
-		}
-	};
 
-	let setText_decompressionState = function(slot){
-	
-		let ON  = "[O] use decompression";
-		let OFF = "[ ] use decompression";
-		
-		let index = slot.index;
-		
-		if(index < slot.multi){
-			let txt = slot.useDec[index] ? ON : OFF;
-			
-			let size = slot.decompressed[index].length;
-			txt += "\n" + "size : " + size + " " + app.lib.get_hexToStr(size,"0x");
-			slot.decompressionState.textContent = txt;
-		}else{
-			slot.decompressionState.textContent = OFF;
-		}
-	
-	};
-	*/
-	
 	let toggle_useDecompression = function(e, slot){
 	
 		e.stopPropagation();
@@ -201,7 +116,7 @@ dkc2ldd.event = (function(app=dkc2ldd){
 			let index = slot.index;
 		
 			slot.useDec[index] = !slot.useDec[index];
-		//	setText_decompressionState(slot);
+
 			slot.setText_decompressionState();
 			
 			if(slot.multi > 0)

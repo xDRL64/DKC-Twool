@@ -373,6 +373,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 					o.setText_decompressionState();
 					
 					//check_forUpdate(o.name);
+					// todo : update chain trigger system
 				}
 			};
 
@@ -497,36 +498,6 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				list_editModeSlot.push(this.editModePanel[slotName]);
 			}
 		
-			/*
-			this.editModePanel.test0 = this.create_editModeSlot("palette displayer", 'mode0');
-			this.editModePanel.test0.add(this.editModePanel.elem);
-			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test0;
-			
-			this.editModePanel.test1 = this.create_editModeSlot("tileset displayer", 'mode1');
-			this.editModePanel.test1.add(this.editModePanel.elem);
-			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test1;
-		
-			this.editModePanel.test2 = this.create_editModeSlot("mapchip displayer", 'mode2');
-			this.editModePanel.test2.add(this.editModePanel.elem);
-			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test2;
-			
-			this.editModePanel.test3 = this.create_editModeSlot("background displayer", 'mode3');
-			this.editModePanel.test3.add(this.editModePanel.elem);
-			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test3;
-			
-			this.editModePanel.test4 = this.create_editModeSlot("level tilemap displayer", 'mode4', ["p0",2,[3.4,"5"]]);
-			this.editModePanel.test4.add(this.editModePanel.elem);
-			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test4;
-		
-			this.editModePanel.test5 = this.create_editModeSlot("test selection", 'mode5');
-			this.editModePanel.test5.add(this.editModePanel.elem);
-			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test5;
-
-			this.editModePanel.test6 = this.create_editModeSlot("test collisionmap", 'mode6');
-			this.editModePanel.test6.add(this.editModePanel.elem);
-			list_editModeSlot[list_editModeSlot.length] = this.editModePanel.test6;
-			*/
-
 			this.editModePanel.list_editModeSlot = list_editModeSlot;
 		
 			// BUILD
