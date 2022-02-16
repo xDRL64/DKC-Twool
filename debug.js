@@ -6,29 +6,6 @@ dkc2debug.simul_loadedData = function(app=dkc2ldd){
 	let data = this.preload;
 	let sfp = app.interface.srcFilePanel;
 
-	/*
-	dkc2ldd.interface.srcFilePanel.tileset.decompressed = [];
-	dkc2ldd.interface.srcFilePanel.mapchip.decompressed = [];
-	dkc2ldd.interface.srcFilePanel.palette.decompressed = [];
-	dkc2ldd.interface.srcFilePanel.bgtileset.decompressed = [];
-	dkc2ldd.interface.srcFilePanel.background.decompressed = [];
-	dkc2ldd.interface.srcFilePanel.tilemap.decompressed = [];
-	dkc2ldd.interface.srcFilePanel.collisionmap.decompressed = [];
-
-	dkc2ldd.interface.srcFilePanel.tileset.fileData = [];
-	dkc2ldd.interface.srcFilePanel.mapchip.fileData = [];
-	dkc2ldd.interface.srcFilePanel.palette.fileData = [];
-	dkc2ldd.interface.srcFilePanel.bgtileset.fileData = [];
-	dkc2ldd.interface.srcFilePanel.background.fileData = [];
-	dkc2ldd.interface.srcFilePanel.tilemap.fileData = [];
-	dkc2ldd.interface.srcFilePanel.collisionmap.fileData = [];
-	*/
-
-	/*dkc2ldd.interface.srcFilePanel.tileset.decompressed[0] = data.decompressedTileset;
-	dkc2ldd.interface.srcFilePanel.tileset.fileData[0] = data.compressedTileset;
-	dkc2ldd.interface.srcFilePanel.tileset.useDec[0] = true;
-	dkc2ldd.interface.srcFilePanel.tileset.multi = 1;*/
-
 	sfp.palette.set_oneDataFile({name:'ship deck palette', data:data.palettes, useDec:false}, true);
 	sfp.tileset.set_oneDataFile({name:'ship deck tileset', data:data.compressedTileset, useDec:true}, true);
 	sfp.mapchip.set_oneDataFile({name:'ship deck mapchip', data:data.compressedMapchip, useDec:true}, true);
@@ -37,49 +14,6 @@ dkc2debug.simul_loadedData = function(app=dkc2ldd){
 	sfp.tilemap.set_oneDataFile({name:'ship deck tilemap', data:data.copressedLvlTilemap, useDec:true}, true);
 	sfp.tilemap.parameters.value = "h 16";
 	sfp.collisionmap.set_oneDataFile({name:'ship deck tilemap', data:data.compressedCollisionmap, useDec:false}, true);
-
-	/*dkc2ldd.interface.srcFilePanel.mapchip.decompressed[0] = data.decompressedMapchip;
-	dkc2ldd.interface.srcFilePanel.mapchip.fileData[0] = data.compressedMapchip;
-	dkc2ldd.interface.srcFilePanel.mapchip.useDec[0] = true;
-	dkc2ldd.interface.srcFilePanel.mapchip.multi = 1;*/
-	
-	/*dkc2ldd.interface.srcFilePanel.palette.decompressed[0] = data.palettes;
-	dkc2ldd.interface.srcFilePanel.palette.fileData[0] = data.palettes;
-	dkc2ldd.interface.srcFilePanel.palette.useDec[0] = false;
-	dkc2ldd.interface.srcFilePanel.palette.multi = 1;*/
-	
-	/*dkc2ldd.interface.srcFilePanel.bgtileset.decompressed[0] = data.decompressedBGtileset;
-	dkc2ldd.interface.srcFilePanel.bgtileset.fileData[0] = data.compressedBGtileset;
-	dkc2ldd.interface.srcFilePanel.bgtileset.useDec[0] = true;
-	dkc2ldd.interface.srcFilePanel.bgtileset.multi = 1;*/
-	
-	/*dkc2ldd.interface.srcFilePanel.background.decompressed[0] = data.decompressedBGtilemap;
-	dkc2ldd.interface.srcFilePanel.background.fileData[0] = data.compressedBGtilemap;
-	dkc2ldd.interface.srcFilePanel.background.useDec[0] = true;
-	dkc2ldd.interface.srcFilePanel.background.multi = 1;*/
-	
-	/*dkc2ldd.interface.srcFilePanel.tilemap.decompressed[0] = data.decopressedLvlTilemap;
-	dkc2ldd.interface.srcFilePanel.tilemap.fileData[0] = data.copressedLvlTilemap;
-	dkc2ldd.interface.srcFilePanel.tilemap.useDec[0] = true;
-	dkc2ldd.interface.srcFilePanel.tilemap.multi = 1;
-	dkc2ldd.interface.srcFilePanel.tilemap.parameters.value = "h 16";*/
-	
-	/*dkc2ldd.interface.srcFilePanel.collisionmap.decompressed[0] = data.decopressedCollisionmap;
-	dkc2ldd.interface.srcFilePanel.collisionmap.fileData[0] = data.compressedCollisionmap;
-	dkc2ldd.interface.srcFilePanel.collisionmap.useDec[0] = false;
-	dkc2ldd.interface.srcFilePanel.collisionmap.multi = 1;*/
-
-	/* data.decopressedLvlTilemap[0] = 0xD6
-	data.decopressedLvlTilemap[1] = 0x00
-	
-	data.decopressedLvlTilemap[16*2+0] = 0xD6
-	data.decopressedLvlTilemap[16*2+1] = 0x40
-	
-	data.decopressedLvlTilemap[2] = 0xD6
-	data.decopressedLvlTilemap[3] = 0x80
-	
-	data.decopressedLvlTilemap[16*2+2] = 0xD6
-	data.decopressedLvlTilemap[16*2+3] = 0xc0 */
 
 	sfp.tilemap.decompressed[0] [0] = 0xD6
 	sfp.tilemap.decompressed[0] [1] = 0x00
