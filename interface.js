@@ -188,6 +188,8 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				palette      : "PALETTE :",
 				tileset      : "TILESET :",
 				bgtileset    : "BG TILESET :",
+				animation    : "ANIMATED TILESET :",
+				bganimation  : "ANIMATED BG TILESET :",
 				background   : "BG TILEMAP :",
 				mapchip      : "MAPCHIP (8x8 TILEMAP) :",
 				tilemap      : "LEVEL TILEMAP (32x32) :",
@@ -340,11 +342,15 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			
 			o.fileData = [];
 			o.decompressed = [];
+
 			o.names = [];
 			o.useDec = [];
-			
 
-			o.set_oneDataFile = function(file={name:'', data:[], useDec:false}, last=false){
+			o.romRefs = [];
+			o.vramRefs = [];
+			
+			let defFile = {name:'', data:[], useDec:false, romRef:null, vramRef:null};
+			o.set_oneDataFile = function(file=defFile, last=false){
 				
 				if(o.multi === 0)
 					o.fileIndex.disabled = false;
@@ -357,6 +363,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				o.useDec[index] = file.useDec;
 
 				o.names[index] = file.name;
+
+				o.romRefs[index] = file.romRef || null;
+				o.vramRefs[index] = file.vramRef || null;
 
 				if(o.multi === index) o.multi++;
 
