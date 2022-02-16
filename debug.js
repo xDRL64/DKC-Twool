@@ -28,7 +28,20 @@ dkc2debug.simul_loadedData = function(app=dkc2ldd){
 	sfp.tilemap.decompressed[0] [16*2+3] = 0xc0
 };
 
-dkc2debug.simul_loadedData();
+
+
+
+// enable debug mode in URL : ?debug=on
+(function(app=dkc2ldd){
+
+    let params = new URLSearchParams(location.search);
+    let p = params;
+
+    if(p.has('debug') && p.get('debug')==='on'){
+        dkc2debug.simul_loadedData();
+    }
+
+})();
 
 
 
