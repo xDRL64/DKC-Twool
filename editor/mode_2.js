@@ -14,7 +14,7 @@
         let o = {};
 
         let iFrame = 0; // vram
-        setInterval(function(){iFrame++;iFrame=iFrame>7?0:iFrame;o.update()}, 50);
+        let intervalRoutine = setInterval(function(){iFrame++;iFrame=iFrame>7?0:iFrame;o.update()}, 50);
 
         // code ...
         srcFilePanel.mapchip.parameters.onkeydown = function(e){
@@ -59,13 +59,22 @@
                     app.gfx.draw_mapchip(tileset, mapchip, palettes, xcmax, o.viewport.ctx);	
                 }
 
-                if(_p[0] === 'vram'){
+                _p = srcFilePanel.mapchip.parameters.value.match(/[\w=\.]{1,}/g) || [];
+                let p = new URLSearchParams(_p.join('&'));
+                //if(_p[0] === 'vram'){
+                if(p.has('vram')){
                     let xcmax = parseInt(_p[1]) || 16;
                     let scale = parseInt(_p[2]) || 1;
 
                     // get source file slot resources
+                    let palIndex = parseInt(p.get('vram')) || 0;
                     let snespal = srcFilePanel.palette.get_data__OLD();
+                    snespal = (snespal.jsArray?.()) || snespal;
                     let palettes = app.gfx.fast.snespalTo24bits(snespal);
+                    palettes = (palIndex*8)+8 <= palettes.length
+                             ? palettes.slice(palIndex*8,(palIndex*8)+8)
+                             : app.gfx.defaultPalettes;
+
 
                     let vram_tileset = srcFilePanel.tileset.get_data__OLD();
                     vram_tileset = (vram_tileset.jsArray?.()) || vram_tileset;
@@ -110,6 +119,7 @@
         o.close = function(){
             // app.mode[ /**/put its mode id/**/ ].save = something;
             // delete something (eventlistener, requestanimationframe, setinveterval, etc..)
+            clearInterval(intervalRoutine);
         };
 
         // connect current workspace object (export update methode)

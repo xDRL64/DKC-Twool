@@ -99,6 +99,7 @@
 				slot = srcFilePanel[dataType];
 				slot.set_oneDataFile(dataFile, last);
 
+				// todo : to move in an update method (build all from srcFilePanel once everything is loaded)
 				// TEST FEATURE : animated data type : parameters input update
 				if(vramRef){
 					let obj = {d:vramRef.destIndex, t:vramRef.tileCount, f:vramRef.frameCount};

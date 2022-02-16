@@ -28,6 +28,7 @@ dkc2ldd.event = (function(app=dkc2ldd){
 		else
 			panel.slideBoard.style.width = "0%";
 	};
+	o.slide_panel = slide_panel;
 	
 
 	let set_fileIndex = function(slot, index){
