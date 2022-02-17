@@ -80,7 +80,7 @@
                     vram_tileset = (vram_tileset.jsArray?.()) || vram_tileset;
                     vram_tileset = [...vram_tileset];
 
-                    for(let iAnim=0; iAnim<srcFilePanel.animation.multi; iAnim++){
+                    /* for(let iAnim=0; iAnim<srcFilePanel.animation.multi; iAnim++){
                         //let iAnim = 1;
                         let anim = srcFilePanel.animation.vramRefs[iAnim];
                         if(anim){
@@ -94,7 +94,10 @@
                                 dstOfst++;
                             }
                         }
-                    }
+                    } */
+                    let animations = srcFilePanel.animation.get_data();
+                    let animRefs = srcFilePanel.animation.vramRefs;
+                    app.gfx.fast.animatedTiles_to_vramTileset(animations, animRefs, vram_tileset, iFrame);
 
                     let mapchip = srcFilePanel.mapchip.get_data__OLD();
     

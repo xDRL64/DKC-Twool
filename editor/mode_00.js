@@ -41,6 +41,7 @@
 			// pirate flag 0x3A5FC1 30tiles*8animframes*32byteOneTile = 0x1E00
 			// rain DATA_F36EE8 16tiles*8animframes*32byteOneTile = 0x1000
 			// F0:0000 - C0:0000 = 30:0000 ram? to rom
+			// vram: null, if not set please
 			animation : [
 				{ name : 'ship mast flag animated tileset',
 					address: 0x3A5FC1, size: 0x1E00, compressed: false,
@@ -54,11 +55,17 @@
 			],
 			// bg rain DATA_F641C1
 			// F0:0000 - C0:0000 = 30:0000 ram? to rom
+			// vram: null, if not set please
 			bganimation : [
 				{ name : 'ship mast rain animated bg tileset',
 					address: 0x3641C1, size: 0x4000, compressed: false,
-					vram: null
-				}
+					vram: {destIndex: 0, tileCount:64/2, frameCount: 8, bpp:2}
+				},
+				// test & debug
+				{ name : 'ship mast rain animated bg tileset',
+					address: 0x3641C1, size: 0x4000, compressed: false,
+					vram: {destIndex: 0, tileCount:64/2, frameCount: 8, bpp:4}
+				},
 			],
 			// E5:E0C8 ~ E5:F52D (0x2540) - Tilemap (8x8)
 			// E0:0000 - C0:0000 = 20:0000 ram? to rom

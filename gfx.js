@@ -2076,7 +2076,25 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
+	o.fast.animatedTiles_to_vramTileset = function(animations, vramRefs, vramTileset, iFrame){
 
+		let len = animations.length;
+		for(let iAnim=0; iAnim<len; iAnim++){
+			let anim = vramRefs[iAnim];
+			if(anim){
+				let animTileset = animations[iAnim];
+				let frameBytes = anim.tileCount * 32;
+				let srcOfst = iFrame * frameBytes;
+				let dstOfst = anim.destIndex * 32;
+				for(let i=0; i<frameBytes; i++){
+					vramTileset[dstOfst] = animTileset[srcOfst];
+					srcOfst++;
+					dstOfst++;
+				}
+			}
+		}
+
+	};
 
 
 
