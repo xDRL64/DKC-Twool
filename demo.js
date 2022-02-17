@@ -10,20 +10,32 @@
         );
     }
 
-    if(p.has('demo') && p.get('demo')==='animated'){
+    if(p.has('demo')){
 
-        // set file data
-        app.interface.update_workspace('mode_');
+        if(p.get('demo')==='animated-shipmast-rain'){
+            // set file data
+            app.interface.update_workspace('mode_');
+            
+            // show mapchip with animated tileset
+            app.interface.srcFilePanel.mapchip.parameters.value = "vram=1";
+            app.interface.update_workspace('mode2');
+    
+        }
         
-        // show mapchip with animated tileset
-        app.interface.srcFilePanel.mapchip.parameters.value = "vram=1";
-        app.interface.update_workspace('mode2');
-
+        if(p.get('demo')==='animated-bg-rain'){
+            // set file data
+            app.interface.update_workspace('mode_');
+            
+            // show mapchip with animated tileset
+            app.interface.srcFilePanel.background.parameters.value = "format=8x8 0 4";
+            app.interface.update_workspace('mode9');
+    
+        }
+        
         // hide side panels
         let fakeEvent = {stopPropagation:function(){},preventDefault:function(){}};
         app.event.slide_panel(fakeEvent, app.interface.srcFilePanel);
         app.event.slide_panel(fakeEvent, app.interface.editModePanel);
-    
     }
 
 })();
