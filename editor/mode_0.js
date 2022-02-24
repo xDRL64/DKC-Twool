@@ -76,10 +76,10 @@
 		};
 		PAL = app.component.Palette(data, lib);
 		PAL.init();
-		PAL.update(['decoded2','decoded4','decoded8']);
-		PAL.update(['formated2','formated4','formated8']);
+		PAL.update('decoded2','decoded4','decoded8');
+		PAL.update('formated2','formated4','formated8');
 
-		PAL.update(['decoded2']);
+		PAL.update('decoded2');
 		PAL.type.decoded2[0][0] = 255
 		PAL.type.decoded2[0][1] = 0
 		PAL.type.decoded2[0][2] = 0
@@ -88,7 +88,7 @@
 		PAL.type.decoded2[31][2] = 0
 		PAL.sync('decoded2');
 
-		PAL.update(['formated2']);
+		PAL.update('formated2');
 		PAL.type.formated2[0][1][0] = 255
 		PAL.type.formated2[0][1][1] = 255
 		PAL.type.formated2[0][1][2] = 0
@@ -97,7 +97,7 @@
 		PAL.type.formated2[7][2][2] = 255
 		PAL.sync('formated2');
 
-		PAL.update(['decoded4']);
+		PAL.update('decoded4');
 		PAL.type.decoded4[2][0] = 0
 		PAL.type.decoded4[2][1] = 0
 		PAL.type.decoded4[2][2] = 255
@@ -106,7 +106,7 @@
 		PAL.type.decoded4[127][2] = 255
 		PAL.sync('decoded4');
 
-		PAL.update(['formated4']);
+		PAL.update('formated4');
 		PAL.type.formated4[0][3][0] = 255
 		PAL.type.formated4[0][3][1] = 127
 		PAL.type.formated4[0][3][2] = 0
@@ -115,7 +115,7 @@
 		PAL.type.formated4[7][14][2] = 255
 		PAL.sync('formated4');
 
-		PAL.update(['decoded8']);
+		PAL.update('decoded8');
 		PAL.type.decoded8[4][0] = 0
 		PAL.type.decoded8[4][1] = 127
 		PAL.type.decoded8[4][2] = 255
@@ -124,14 +124,14 @@
 		PAL.type.decoded8[255][2] = 255
 		PAL.sync('decoded8');
 
-		PAL.update(['formated8']);
+		PAL.update('formated8');
 		PAL.type.formated8[0][5][0] = 255
 		PAL.type.formated8[0][5][1] = 0
 		PAL.type.formated8[0][5][2] = 0
 		PAL.type.formated8[0][254][0] = 255
 		PAL.type.formated8[0][254][1] = 0
 		PAL.type.formated8[0][254][2] = 0
-		PAL.sync('formated8');
+		//PAL.sync('formated8');
 
 		//PAL.write();	
 		//PAL.type.formated2[0][0][2] = 255;
@@ -209,7 +209,7 @@
 					};
 					PAL = app.component.Palette(data, lib);
 					PAL.init();
-					PAL.update(['decoded2','decoded4','decoded8']);
+					PAL.update('decoded2','decoded4','decoded8');
 					PAL.type.decoded2[0][0] = 255
 					PAL.type.decoded2[0][1] = 0
 					PAL.type.decoded2[0][2] = 0
@@ -221,7 +221,7 @@
 					PAL.type.decoded2[31][2] = 0
 					//PAL.sync('decoded2');
 					//PAL.write();	
-					PAL.update(['formated2','formated4','formated8']);
+					PAL.update('formated2','formated4','formated8');
 					PAL.type.formated2[0][0][2] = 255;
 					//PAL.sync('formated2');
 					//PAL.write();
@@ -263,7 +263,7 @@
 					let copy = [len, oB, oA]; // len, src, dst
 					app.write.ext.decodedPalette(palSlot.fileData[0],PAL.type.decoded4, ...copy);*/
 
-					let frmtd = 8;
+					/*let frmtd = 8;
 					let sA=Math.floor(palSlot.fileData[0].length/2);
 					let oA=_DST//((8+8)*14)+5;
 					let sB=PAL.type['formated'+frmtd].length*({2:4,4:16,8:256})[frmtd];
@@ -273,6 +273,7 @@
 					let copy = [len, oB, oA]; // len, src, dst
 					palSlot.fileData[0] = [..._SAVEFILE];
 					app.write.ext.formatedPalette(palSlot.fileData[0],PAL.type['formated'+frmtd], frmtd, ...copy);
+					*/
 
 					///////////////////draw////////////////////////////////////
 					

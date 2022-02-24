@@ -102,7 +102,7 @@ if(true){
 
 	PAL.init();
 
-	PAL.update(['decoded2']);
+	PAL.update('decoded2');
 	PAL.type.decoded2[0][0] = 255
 	PAL.type.decoded2[0][1] = 0
 	PAL.type.decoded2[0][2] = 0
@@ -115,7 +115,7 @@ if(true){
 	PAL.sync('decoded2');
 	PAL.write();
 	
-	PAL.update(['formated2']);
+	PAL.update('formated2');
 	PAL.type.formated2[0][0][2] = 255;
 	PAL.sync('formated2');
 	PAL.write();

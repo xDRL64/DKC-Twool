@@ -73,21 +73,10 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			};
 		};
 
-		/*let get_typeDirect = function(iSrc,iDst,len){
-			let type = obj.type;
-			let copy = {iSrc:iSrc,iDst:iDst,len:len};
-			return {
-				decoded2  : {func:gfxlib.writeD2, args:[buffer,type.decoded2,copy]},
-				decoded4  : {func:gfxlib.writeD4, args:[buffer,type.decoded4,copy]},
-				decoded8  : {func:gfxlib.writeD8, args:[buffer,type.decoded8,copy]},
-				formated2 : {func:gfxlib.writeF2, args:[buffer,type.formated2,2,copy]},
-				formated4 : {func:gfxlib.writeF4, args:[buffer,type.formated4,4,copy]},
-				formated8 : {func:gfxlib.writeF8, args:[buffer,type.formated8,8,copy]},
-			};
-		};*/
 
 		let dataListToBuffer = {sens:0, copy:copy};
 		let bufferToDataList = {sens:1, copy:copy};
+
 
 		// from src to buffer
 		obj.init = function(){
@@ -95,7 +84,8 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		};
 
 		// from buffer to type
-		obj.update = function(typeName=[]){
+		obj.update = function(){
+			let typeName = arguments;
 			let typeUpdate = get_typeUpdate();
 			let name, update;
 			for(name of typeName){
@@ -105,7 +95,7 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		};
 
 		// from type to buffer to src
-		obj.save = function(typeName=[]){
+		obj.save = function(typeName){
 			obj.sync(typeName);
 			obj.write();
 		};
@@ -122,13 +112,6 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			bufferToDataList.copy(buffer, src, offset);
 		};
 		
-		/*// from type to src
-		obj.direct = function(typeName, iSrc=0,iDst=0,len=0){
-			let typeDirect = get_typeDirect(iSrc,iDst,len);
-			let direct = typeDirect[typeName];
-			direct.func(...(direct.args));
-		};*/
-
 
 		return obj;
 
