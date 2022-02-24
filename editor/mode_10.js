@@ -3,7 +3,7 @@
 
 	app.mode = app.mode || [];
 	
-	app.mode[ 0 ] = function(editModePanParams){
+	app.mode[ 10 ] = function(editModePanParams){
 
 		// default interface API
 		let workspace = app.interface.workspace;

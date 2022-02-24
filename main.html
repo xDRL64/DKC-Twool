@@ -14,6 +14,7 @@
 <script src="./lib.js"></script>
 
 <script src="./gfx.js"></script>
+<script src="./gfx/palette.js"></script>
 <script src="./gfxHARD/create_4formatedTileset.js"></script>
 <script src="./gfxHARD/create_mapchipGfxBuffer.js"></script>
 <script src="./gfxHARD/create_mapchipGfxBuffer_OLD_0.js"></script>
@@ -29,6 +30,8 @@
 
 <script src="./editor.js"></script>
 
+<script src="./component.js"></script>
+
 <script src="./editor/mode_00.js"></script>
 <script src="./editor/mode_0.js"></script>
 <script src="./editor/mode_1.js"></script>
@@ -40,6 +43,7 @@
 <script src="./editor/mode_7.js"></script>
 <script src="./editor/mode_8.js"></script>
 <script src="./editor/mode_9.js"></script>
+<script src="./editor/mode_10.js"></script>
 
 
 <script>
@@ -69,6 +73,55 @@
 
 
 <script>
+if(true){
+	/*
+	let app = dkc2ldd;
+
+	let data = {
+		ownerRefs : app.interface.srcFilePanel.palette.get_dataWithOwnerAccess(),
+		byteOffset : 0
+	};
+
+	let lib = {
+		decode2 : app.gfx.fast.decode_palette,
+		decode4 : app.gfx.fast.decode_palette,
+		decode8 : app.gfx.fast.decode_palette,
+		format2 : app.gfx.fast.format_palette,
+		format4 : app.gfx.fast.format_palette,
+		format8 : app.gfx.fast.format_palette,
+
+		writeD2 : app.write.decodedPalette,
+		writeD4 : app.write.decodedPalette,
+		writeD8 : app.write.decodedPalette,
+		writeF2 : app.write.formatedPalette,
+		writeF4 : app.write.formatedPalette,
+		writeF8 : app.write.formatedPalette,
+	};
+
+	PAL = app.component.Palette(data, lib);
+
+	PAL.init();
+
+	PAL.update(['decoded2']);
+	PAL.type.decoded2[0][0] = 255
+	PAL.type.decoded2[0][1] = 0
+	PAL.type.decoded2[0][2] = 0
+	PAL.type.decoded2[30][0] = 0
+	PAL.type.decoded2[30][1] = 0
+	PAL.type.decoded2[30][2] = 255
+	PAL.type.decoded2[31][0] = 0
+	PAL.type.decoded2[31][1] = 255
+	PAL.type.decoded2[31][2] = 0
+	PAL.sync('decoded2');
+	PAL.write();
+	
+	PAL.update(['formated2']);
+	PAL.type.formated2[0][0][2] = 255;
+	PAL.sync('formated2');
+	PAL.write();
+	*/
+
+}
 </script>
 
 	

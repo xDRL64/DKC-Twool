@@ -7,6 +7,8 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	o.fast = {};
 	o.safe = {};
 
+
+
 	o.generate_palette2 = function(r, g, b, av){
 		let o = [];
 		for(let i=0; i<16; i++){
@@ -85,12 +87,14 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	};
 	
 	
-	o._5to8 = [
-		0, 8, 16, 24, 33, 41, 49, 57,
-		66, 74, 82, 90, 99, 107, 115, 123,
-		132, 140, 148, 156, 165, 173, 181, 189,
-		198, 206, 214, 222, 231, 239, 247, 255
-	];
+
+	
+
+
+
+
+
+
 	
 
 
@@ -101,177 +105,6 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
-
-	//
-	// // SNESPAL TO 24BITS
-	//
-
-	o.fast.snespalTo24bits = function(data){
-
-		let float_len = data.length / 2;
-		let palMax = Math.floor(float_len / 16);
-
-		// convert to 24 bits
-		let offset = 0;
-		let r,g,b, c;
-		let palettes = [];
-		let palette;
-        let _5to8 = o._5to8;
-        for(let iPal=0; iPal<palMax; iPal++){
-            palette = [];
-            palettes.push( palette );
-            for(let iCol=0; iCol<16; iCol++){
-            
-                // use byte swap
-                c = (data[offset+1] << 8) + data[offset];
-
-				offset += 2;
-            
-                r = (c & 0x001F);
-                g = (c & 0x03E0) >> 5;
-                b = (c & 0x7C00) >> 10;
-                
-                c = [_5to8[r], _5to8[g], _5to8[b]];
-
-                palette.push(c);
-            }
-        }
-
-		return palettes;
-	};
-
-	o.safe.snespalTo24bits = function(data){
-
-		let float_len = data?.length / 2;
-		let palMax = Math.floor(float_len / 16);
-
-        palMax = palMax<8 ? 8 : palMax;
-
-		let offset = 0;
-		let r,g,b, c;
-		let palettes = [];
-		let palette;
-        let _5to8 = o._5to8;
-        for(let iPal=0; iPal<palMax; iPal++){
-			palette = [];
-            palettes.push( palette );
-            for(let iCol=0; iCol<16; iCol++){
-            
-                // use byte swap
-                c = (data[offset+1] << 8) + data[offset];
-
-				offset += 2;
-            
-				c = app.lib.checkVal.both(c, 0);
-
-                r = (c & 0x001F);
-                g = (c & 0x03E0) >> 5;
-                b = (c & 0x7C00) >> 10;
-                
-				// convert to 24 bits
-                c = [_5to8[r], _5to8[g], _5to8[b]];
-
-                palette.push(c);
-            }
-        }
-
-		return palettes;
-	};
-
-
-	//
-	// // DRAW SNESPAL (safe = fast)
-	//
-
-	// use scale preview
-	o.fast.draw_snespal = function(data, ctx){
-
-		let len = Math.floor(data.length / 2);
-		let palMax = Math.floor(len / 16);
-
-		len = len << 1; // len * 2
-
-		// convert to 24 bits
-		let r,g,b, c;
-        let _5to8 = o._5to8;
-
-        let pixels = ctx.createImageData(16, palMax);
-        let pix = 0;
-
-		for(let offset=0; offset<len; offset+=2){
-		
-			// (read) use byte swap
-			c = (data[offset+1] << 8) + data[offset];
-		
-			r = (c & 0x001F);
-			g = (c & 0x03E0) >> 5;
-			b = (c & 0x7C00) >> 10;
-			
-			// write
-			pixels.data[pix  ] = _5to8[r];
-			pixels.data[pix+1] = _5to8[g];
-			pixels.data[pix+2] = _5to8[b];
-			pixels.data[pix+3] = 255;
-
-			pix += 4;
-		}
-        
-		ctx.putImageData(pixels, 0,0);
-
-	};
-
-	o.safe.draw_snespal = o.fast.draw_snespal;
-
-
-	//
-	// // DRAW PALETTES
-	//
-    
-	o.fast.draw_palettes = function(palettes, ctx){
-
-		let palMax = palettes.length;
-		
-        let pixels = ctx.createImageData(16, palMax);
-        let pix = 0;
-
-		for(let iPal=0; iPal<palMax; iPal++){
-			for(let iCol=0; iCol<16; iCol++){
-		
-				pixels.data[pix  ] = palettes[iPal][iCol][0]; // r
-				pixels.data[pix+1] = palettes[iPal][iCol][1]; // g
-				pixels.data[pix+2] = palettes[iPal][iCol][2]; // b
-                pixels.data[pix+3] = 255;
-
-				pix += 4;
-			}
-		}
-        ctx.putImageData(pixels, 0,0);
-	};
-
-    o.safe.draw_palettes = function(palettes, ctx){
-
-		let palMax = palettes.length;
-		let palette, c;
-		
-        let pixels = ctx.createImageData(16, palMax);
-        let pix = 0;
-
-		for(let iPal=0; iPal<palMax; iPal++){
-			for(let iCol=0; iCol<16; iCol++){
-		
-				palette = app.lib.checkVal.undef(palettes[iPal], []);
-				c = app.lib.checkVal.undef(palette[iCol], []);
-
-				pixels.data[pix  ] = app.lib.checkVal.undef(c[0], 0);
-				pixels.data[pix+1] = app.lib.checkVal.undef(c[1], 0);
-				pixels.data[pix+2] = app.lib.checkVal.undef(c[2], 0);
-                pixels.data[pix+3] = 255;
-
-				pix += 4;
-			}
-		}
-        ctx.putImageData(pixels, 0,0);
-	};
 
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1970,7 +1803,74 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
+	o.fast._4bppPal_to_2bppPal = function(_4bppPal, colorDimensionDeepCopy=false, palStartOfst=0){
+		let _o = [[],[],[],[],[],[],[],[]];
 
+		let cddc = colorDimensionDeepCopy;
+
+		/*
+		let pal = _4bppPal[palStartOfst].concat( _4bppPal[palStartOfst+1] );
+
+		for(let iPal=0; iPal<8; iPal++){
+			_o.push( [] );
+			for(let iCol=0; iCol<4; iCol++)
+			let color = _4bppPal[palStartOfst]
+			_o[i].push( cddc? [...] )
+		}
+
+		for(let i=0; i<8; i++){
+			_o.push( [] );
+			let color = _4bppPal[palStartOfst]
+			_o[i].push( cddc? [...] )
+		}
+		*/
+
+		let pal0 = _4bppPal[palStartOfst];
+		let pal1 = _4bppPal[palStartOfst+1];
+
+		_o[0].push( cddc ? [...(pal0[0])] : pal0[0] );
+		_o[0].push( cddc ? [...(pal0[1])] : pal0[1] );
+		_o[0].push( cddc ? [...(pal0[2])] : pal0[2] );
+		_o[0].push( cddc ? [...(pal0[3])] : pal0[3] );
+
+		_o[1].push( cddc ? [...(pal0[4])] : pal0[4] );
+		_o[1].push( cddc ? [...(pal0[5])] : pal0[5] );
+		_o[1].push( cddc ? [...(pal0[6])] : pal0[6] );
+		_o[1].push( cddc ? [...(pal0[7])] : pal0[7] );
+
+		_o[2].push( cddc ? [...(pal0[8])] : pal0[8] );
+		_o[2].push( cddc ? [...(pal0[9])] : pal0[9] );
+		_o[2].push( cddc ? [...(pal0[10])] : pal0[10] );
+		_o[2].push( cddc ? [...(pal0[11])] : pal0[11] );
+
+		_o[3].push( cddc ? [...(pal0[12])] : pal0[12] );
+		_o[3].push( cddc ? [...(pal0[13])] : pal0[13] );
+		_o[3].push( cddc ? [...(pal0[14])] : pal0[14] );
+		_o[3].push( cddc ? [...(pal0[15])] : pal0[15] );
+
+		_o[4].push( cddc ? [...(pal1[0])] : pal1[0] );
+		//_o[4].push( cddc ? [...(pal0[0])] : pal0[0] );
+		_o[4].push( cddc ? [...(pal1[1])] : pal1[1] );
+		_o[4].push( cddc ? [...(pal1[2])] : pal1[2] );
+		_o[4].push( cddc ? [...(pal1[3])] : pal1[3] );
+
+		_o[5].push( cddc ? [...(pal1[4])] : pal1[4] );
+		_o[5].push( cddc ? [...(pal1[5])] : pal1[5] );
+		_o[5].push( cddc ? [...(pal1[6])] : pal1[6] );
+		_o[5].push( cddc ? [...(pal1[7])] : pal1[7] );
+
+		_o[6].push( cddc ? [...(pal1[8])] : pal1[8] );
+		_o[6].push( cddc ? [...(pal1[9])] : pal1[9] );
+		_o[6].push( cddc ? [...(pal1[10])] : pal1[10] );
+		_o[6].push( cddc ? [...(pal1[11])] : pal1[11] );
+
+		_o[7].push( cddc ? [...(pal1[12])] : pal1[12] );
+		_o[7].push( cddc ? [...(pal1[13])] : pal1[13] );
+		_o[7].push( cddc ? [...(pal1[14])] : pal1[14] );
+		_o[7].push( cddc ? [...(pal1[15])] : pal1[15] );
+
+		return _o;
+	};
 
 
 
@@ -2284,6 +2184,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	o.draw_background = function(tileset, bgtilemap, palettes, xtmax, ctx){
 	
 		let tiles = o.fast.format_4bppTileset(tileset);
+		//let tiles = o.fast.format_2bppTileset(tileset);
 	
 		let len = bgtilemap.length / 2;
 		
@@ -2302,6 +2203,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 			iTile = ( (highByte & 0x03) << 8 ) + lowByte
 			
 			iPal = (highByte & 0x1C) >> 2; // 0001 1100 0x1C palette id mask
+			//console.log(iPal);
 		
 			hFlip = (highByte & 0x40) >> 6;
 			vFlip = (highByte & 0x80) >> 7;
@@ -2376,7 +2278,10 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 			// get iChip
 			lowByte = lvltilemap[(iLTM*2)+0];
 			highByte = lvltilemap[(iLTM*2)+1];
-			
+
+//vh00 000t tttt tttt (shipdeck fg metamap in tilemap theory)
+//console.log(highByte&(0xFF-0xC1));
+
 			iChip = ((highByte&0x0F)<<8) + lowByte;
 			chipOffset = iChip * 32;
 			

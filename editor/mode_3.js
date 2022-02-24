@@ -49,6 +49,8 @@
                 o.viewport = wLib.create_preview(W, H, scale);
                 workspace.elem.appendChild(o.viewport.view);
 
+                //palettes = app.gfx.fast._4bppPal_to_2bppPal(palettes);
+
                 // draw background
                 app.gfx.draw_background(bgtileset, background, palettes, xtmax, o.viewport.ctx);
             }

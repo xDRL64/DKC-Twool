@@ -98,7 +98,22 @@
 					viewportUpdate = true;
 				}
 
-				if(_p[0]==='parameters' || _p[0]==='default' || _p[0]===undefined){
+				if(_p[0]===undefined){
+					let xtmax  = 16;
+					let h = Math.ceil( (data.length/32) /xtmax ) * 8;
+					let w = xtmax * 8;
+				
+					o.viewport = wLib.create_preview(w,h, 2);
+					let ctx = o.viewport.ctx;
+
+					let pal = app.gfx.defaultPalettes[1];
+					app.gfx[_gfx].draw_4bppTileset(data, pal, 0,0, 16, ctx);
+
+					viewportUpdate = true;
+				}
+
+				if(_p[0]==='bg'){
+					let data = srcFilePanel.bgtileset.get_data__OLD();
 					let xtmax  = 16;
 					let h = Math.ceil( (data.length/32) /xtmax ) * 8;
 					let w = xtmax * 8;

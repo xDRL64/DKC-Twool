@@ -54,13 +54,13 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		this.init_mainArea = function(){
 		
 			this.make_editModePanel();
-			this.init_editModePanel("90%");
+			this.init_editModePanel("30%");//90%
 		
 			this.make_workspace();
 			this.init_workspace();
 			
 			this.make_srcFilePanel();
-			this.init_srcFilePanel("90%");
+			this.init_srcFilePanel("40%");//90%
 		
 			document.body.appendChild(this.mainArea.elem);
 		};
@@ -450,7 +450,26 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 					_o.push( o.useDec[i] ? o.decompressed[i] : o.fileData[i] );
 				return _o;
 			};
-		
+
+			o.get_dataWithOwnerAccess = function(){
+				let _o = [];
+				let len = o.multi;
+				for(let i=0; i<len; i++)
+					_o.push( o.useDec[i]
+						? {data:o.decompressed[i], owner:o.decompressed, prop:i}
+						: {data:o.fileData[i], owner:o.fileData, prop:i}
+					);
+				return _o;
+			};
+
+			o.get_totalSize = function(){
+				let len = o.multi;
+				let size = 0;
+				for(let i=0; i<len; i++)
+					size += o.useDec[i] ? o.decompressed[i].length : o.fileData[i].length;
+				return size;
+			};
+
 			o.add = function(htmlParentElem){
 				htmlParentElem.appendChild(slotArea);
 			};
@@ -485,17 +504,19 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			// edit mode slot
 		
 			let slots = {
-				test_ : ["rom manager",                  'mode_', null],
-				test0 : ["palette displayer",            'mode0', ['wearethere','butalwaysnotused']],
-				test1 : ["tileset displayer",            'mode1', null],
-				test2 : ["mapchip displayer",            'mode2', null],
-				test3 : ["background displayer",         'mode3', null],
-				test4 : ["level tilemap displayer",      'mode4', ['something','whatyouwant']],
-				test5 : ["test selection",               'mode5', null],
-				test6 : ["test collisionmap",            'mode6', null],
-				test7 : ["test 4formatedTileset",        'mode7', null],
-				test8 : ["test create_mapchipGfxBuffer", 'mode8', null],
-				test9 : ["mode 9",                       'mode9', null]
+				test_  : ["rom manager",                  'mode_',  null],
+				test0  : ["palette displayer",            'mode0',  ['wearethere','butalwaysnotused']],
+				test1  : ["tileset displayer",            'mode1',  null],
+				test2  : ["mapchip displayer",            'mode2',  null],
+				test3  : ["background displayer",         'mode3',  null],
+				test4  : ["level tilemap displayer",      'mode4',  ['something','whatyouwant']],
+				test5  : ["test selection",               'mode5',  null],
+				test6  : ["test collisionmap",            'mode6',  null],
+				test7  : ["test 4formatedTileset",        'mode7',  null],
+				test8  : ["test create_mapchipGfxBuffer", 'mode8',  null],
+				test9  : ["test animated background",     'mode9',  null],
+				test10 : ["test PALETTE type & ext func", 'mode10', null]
+
 			};
 
 			let list_editModeSlot = [];
@@ -592,8 +613,11 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		// test create_mapchipGfxBuffer
 		workspace.list_generator['mode8'] = app.mode[8];
 
-		// mode 9
+		// test animated background
 		workspace.list_generator['mode9'] = app.mode[9];
+
+		// test PALETTE component types update/draw func & gfx ext func
+		workspace.list_generator['mode10'] = app.mode[10];
 		
 	};
 	
