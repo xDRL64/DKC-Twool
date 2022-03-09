@@ -88,8 +88,37 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	
 	
 
-	
+	(function(){
+		let _1=0x8
+		let _4=0x21;
+		let _6=0x31;
+		let _7=0x39
+		let _10=0x52;
+		let _14=0x73;
+		let _15=0x7b;
+		let _16=0x84;
+		let _19=0x9c;
+		let _21=0xAD;
+		let _24=0xc6;
+		let _28=0xe7;
+		o.def2bppPal = [
+			[[0,0,0],[_14,_14,_21],[_16,_16,_24],[_19,_19,_28]],
+			[[0,0,0],[_7,_7,_10],[_10,_10,_15],[_14,_14,_21]],
+			[[0,0,0],[_4,_4,_6],[_7,_7,_10],[_10,_10,_15]],
+			[[0,0,0],[_1,_1,_1],[_1,_1,_1],[_4,_4,_6]],
 
+			[[0,0,0],[_14,_14,_21],[_16,_16,_24],[_19,_19,_28]],
+			[[0,0,0],[_7,_7,_10],[_10,_10,_15],[_14,_14,_21]],
+			[[0,0,0],[_4,_4,_6],[_7,_7,_10],[_10,_10,_15]],
+			[[0,0,0],[_1,_1,_1],[_1,_1,_1],[_4,_4,_6]],
+	
+			[[0,0,0],[64,64,64],[128,128,128],[255,255,255]],
+			[[0,0,0],[64,64,64],[128,128,128],[255,255,255]],
+			[[0,0,0],[64,64,64],[128,128,128],[255,255,255]],
+			[[0,0,0],[64,64,64],[128,128,128],[255,255,255]]
+		];
+		
+	})();
 
 
 
@@ -1927,7 +1956,6 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 						col += b2 & pix ? 0x1 : 0x0;
 						col += b3 & pix ? 0x2 : 0x0;
 						tileset[iTile+1][row].push(col);
-						
 					}
 				}
 			}
@@ -1973,31 +2001,89 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	};
 
 
-
-
-
-	o.fast.animatedTiles_to_vramTileset = function(animations, vramRefs, vramTileset, iFrame){
+	o.fast.animatedTiles_to_vramBackRef = function(animations, vramRefs, backRef){
 
 		let len = animations.length;
 		for(let iAnim=0; iAnim<len; iAnim++){
 			let anim = vramRefs[iAnim];
 			if(anim){
-				let animTileset = animations[iAnim];
 				let frameBytes = anim.tileCount * 32;
-				let srcOfst = iFrame * frameBytes;
 				let dstOfst = anim.destIndex * 32;
 				for(let i=0; i<frameBytes; i++){
-					vramTileset[dstOfst] = animTileset[srcOfst];
-					srcOfst++;
+					// back ref
+					backRef.isAnim[dstOfst] = 1;
+					backRef.isAnim[dstOfst] = iAnim;
+					backRef.isAnim[dstOfst] = i;
 					dstOfst++;
+				}
+			}
+		}
+		
+	};
+
+	o.fast.animatedTiles_to_vramTileset = function(animations, vramRefs, vramTileset, iFrame, backRef=null){
+
+		// normal working : does not set backRef
+		if(!backRef){
+			let len = animations.length;
+			for(let iAnim=0; iAnim<len; iAnim++){
+				let anim = vramRefs[iAnim];
+				if(anim){
+					let animTileset = animations[iAnim];
+					let frameBytes = anim.tileCount * 32;
+					let srcOfst = iFrame * frameBytes;
+					let dstOfst = anim.destIndex * 32;
+					for(let i=0; i<frameBytes; i++){
+						vramTileset[dstOfst] = animTileset[srcOfst];
+						srcOfst++;
+						dstOfst++;
+					}
+				}
+			}
+		// special : sets backRef in the same time
+		}else{
+			let len = animations.length;
+			for(let iAnim=0; iAnim<len; iAnim++){
+				let anim = vramRefs[iAnim];
+				if(anim){
+					let animTileset = animations[iAnim];
+					let frameBytes = anim.tileCount * 32;
+					let srcOfst = iFrame * frameBytes;
+					let dstOfst = anim.destIndex * 32;
+					for(let i=0; i<frameBytes; i++){
+						vramTileset[dstOfst] = animTileset[srcOfst]; // set vram
+
+						// back ref
+						backRef.isAnim[dstOfst] = 1;
+						backRef.isAnim[dstOfst] = iAnim;
+						backRef.isAnim[dstOfst] = i;
+
+						srcOfst++;
+						dstOfst++;
+					}
 				}
 			}
 		}
 
 	};
 
-
-
+	o.fast.vramTileset_to_animatedTiles = function(animations, vramRefs, vramTileset, iFrame){
+		let len = animations.length;
+		for(let iAnim=0; iAnim<len; iAnim++){
+			let anim = vramRefs[iAnim];
+			if(anim){
+				let animTileset = animations[iAnim];
+				let frameBytes = anim.tileCount * 32;
+				let dstOfst = iFrame * frameBytes;
+				let srcOfst = anim.destIndex * 32;
+				for(let i=0; i<frameBytes; i++){
+					animTileset[dstOfst] = vramTileset[srcOfst];
+					dstOfst++;
+					srcOfst++;
+				}
+			}
+		}
+	};
 
 
 
@@ -2180,11 +2266,12 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	};
 
 
-	
+	// draw_background8x8
 	o.draw_background = function(tileset, bgtilemap, palettes, xtmax, ctx){
 	
-		let tiles = o.fast.format_4bppTileset(tileset);
-		//let tiles = o.fast.format_2bppTileset(tileset);
+		let tiles = o.fast.format_2bppTileset(tileset);
+		//let tiles = o.fast.format_4bppTileset(tileset);
+		//let tiles = o.fast.format_8bppTileset(tileset);
 	
 		let len = bgtilemap.length / 2;
 		
@@ -2194,7 +2281,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		let pixels = ctx.createImageData(xtmax*8, Math.ceil(len/xtmax)*8);
 		
 		for(let iTmap=0; iTmap<len; iTmap++){
-		
+
 			offset = iTmap * 2;
 		
 			lowByte = bgtilemap[offset];
@@ -2207,7 +2294,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		
 			hFlip = (highByte & 0x40) >> 6;
 			vFlip = (highByte & 0x80) >> 7;
-		
+	
 			hF = hFlip ? -1 : 1
 			vF = vFlip ? -1 : 1
 		
@@ -2245,6 +2332,80 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		ctx.putImageData(pixels, 0,0);
 	};
 	
+
+
+	// ne sert a rien
+	o.draw_background16x8 = function(tileset, bgtilemap, palettes, xtmax, ctx){
+	
+		let tiles = o.fast.format_2bppTileset(tileset);
+		//let tiles = o.fast.format_4bppTileset(tileset);
+		//let tiles = o.fast.format_8bppTileset(tileset);
+	
+		let len = bgtilemap.length >> 1;
+		
+		//let xtmax = 32;
+		
+		let pix;
+		let pixels = ctx.createImageData(xtmax*8, Math.ceil(len/xtmax)*8);
+		
+		let iTmap;
+
+		for(let iT=0; iT<len-1; iT++){
+
+			iTmap = (iT&0x1) ? iT-1 : iT+1;
+
+			offset = iTmap * 2;
+		
+			lowByte = bgtilemap[offset];
+			highByte = bgtilemap[offset+1];
+			
+			iTile = ( (highByte & 0x03) << 8 ) + lowByte
+			
+			iPal = (highByte & 0x1C) >> 2; // 0001 1100 0x1C palette id mask
+			//console.log(iPal);
+		
+			hFlip = (highByte & 0x40) >> 6;
+
+			//hFlip ^= 1;
+
+			vFlip = (highByte & 0x80) >> 7;
+		
+			hF = hFlip ? -1 : 1
+			vF = vFlip ? -1 : 1
+		
+			xt = iT % xtmax;
+			yt = Math.floor(iT/xtmax);
+		
+			// by pixel (absolute position)
+			for(yp=0; yp<8; yp++)
+				for(xp=0; xp<8; xp++){
+
+				// tile pixel sampling position relative to flip
+				xtp = (hFlip*7) + (xp*hF);
+				ytp = (vFlip*7) + (yp*vF);
+				
+				// relative pixel position on chip draw
+				x = (xt*8) + xp;
+				y = (yt*8) + yp;
+				
+				// pixel color
+				iCol = tiles[iTile][ytp][xtp];
+				c = palettes[iPal][iCol];
+				
+				// pixel index in ImageData type
+				pix = (y*pixels.width) + x;
+				
+				// set rgba ImageData
+				pixels.data[(pix*4)+0] = c[0];
+				pixels.data[(pix*4)+1] = c[1];
+				pixels.data[(pix*4)+2] = c[2];
+				pixels.data[(pix*4)+3] = 255;
+			}
+		
+		}
+	
+		ctx.putImageData(pixels, 0,0);
+	};
 	
 	
 

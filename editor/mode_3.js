@@ -14,8 +14,16 @@
         let o = {};
 
         // code ...
+        let debugOfst = 0;
+        let tilesize = 16;
+        let debugxtmax = 0//9;
         srcFilePanel.background.parameters.onkeydown = function(e){
             if(e.code === 'Enter') o.update();
+            if(e.code === 'ArrowUp') debugOfst++;
+            if(e.code === 'ArrowDown') debugOfst--;
+            if(e.code === 'ArrowRight') debugxtmax++;
+            if(e.code === 'ArrowLeft') debugxtmax--;
+            console.log(debugOfst,debugxtmax);
         };
 
         // update
@@ -30,17 +38,20 @@
                 // get source file slot parameters (mapchip)
                 let parameters = srcFilePanel.background.parameters.value.match(/\w{1,}/g) || [];
 
-                let xtmax = parseInt(parameters[0]) || 32;
+                let xtmax = parseInt(parameters[0]) || 32//debugxtmax//32;
                 let scale = parseInt(parameters[1]) || 1;
 
                 let snespal = srcFilePanel.palette.get_data__OLD();
                 let palettes = app.gfx.fast.snespalTo24bits(snespal);
+                //palettes = app.gfx.defaultPalettes;
                 
-                let bgtileset = srcFilePanel.bgtileset.get_data__OLD();
+                let bgtileset = srcFilePanel.bgtileset.get_data()[0];
+                bgtileset = [...(new Uint8Array(debugOfst*tilesize)),...bgtileset,...(new Uint8Array(1024*tilesize))];
 
-                let background = srcFilePanel.background.get_data__OLD();
+                let background = srcFilePanel.background.get_data()[0];
+                background = [...(new Uint8Array(debugxtmax*2)),...background];
 
-                let len = background.length / 2;
+                let len = background.length >> 1;
 
                 // create backgound viewport
                 let W = xtmax * 8;
@@ -50,9 +61,18 @@
                 workspace.elem.appendChild(o.viewport.view);
 
                 //palettes = app.gfx.fast._4bppPal_to_2bppPal(palettes);
+                //palettes = app.gfx.fast.format_palette(snespal, 2);
+                palettes = app.gfx.def2bppPal;
+
+                let _pal = app.gfx.defaultPalettes;
+                let pal256 = _pal[0].concat(_pal[1]).concat(_pal[2]).concat(_pal[3]).
+                            concat(_pal[4]).concat(_pal[5]).concat(_pal[6]).concat(_pal[7]);
+                pal256 = pal256.concat(pal256);
+                //palettes = [pal256,pal256,pal256,pal256, pal256,pal256,pal256,pal256,];
 
                 // draw background
                 app.gfx.draw_background(bgtileset, background, palettes, xtmax, o.viewport.ctx);
+                //app.gfx.draw_background16x8(bgtileset, background, palettes, xtmax, o.viewport.ctx);
             }
 
         };

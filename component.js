@@ -5,8 +5,14 @@ dkc2ldd.component = (function(app=dkc2ldd){
 	let o = {};
 
 	let data = {
-		ownerRefs : [], // array cell : {data,owner,index}
-		byteOffset : 0
+		ownerRefs : [], // array cell : {data,owner,index|prop}
+		byteOffset : 0, // files to buffer
+		vramOffset : 0, // buffer to vram
+	};
+
+	let anim = {
+		ownerRefs : [], // array cell : {data,owner,index|prop}
+		vramRefs : []
 	};
 
 	let gfxlib = {};
@@ -17,6 +23,7 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		decode2 : app?.gfx?.fast?.decode_palette || unsetLib,
 		decode4 : app?.gfx?.fast?.decode_palette || unsetLib,
 		decode8 : app?.gfx?.fast?.decode_palette || unsetLib,
+
 		format2 : app?.gfx?.fast?.format_palette || unsetLib,
 		format4 : app?.gfx?.fast?.format_palette || unsetLib,
 		format8 : app?.gfx?.fast?.format_palette || unsetLib,
@@ -24,9 +31,44 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		writeD2 : app?.write?.decodedPalette || unsetLib,
 		writeD4 : app?.write?.decodedPalette || unsetLib,
 		writeD8 : app?.write?.decodedPalette || unsetLib,
+
 		writeF2 : app?.write?.formatedPalette || unsetLib,
 		writeF4 : app?.write?.formatedPalette || unsetLib,
 		writeF8 : app?.write?.formatedPalette || unsetLib,
+	};
+
+	gfxlib.tileset = {
+		vramBackRef : app?.gfx?.fast?.animatedTiles_to_vramBackRef || unsetLib,
+		anim_vram : app?.gfx?.fast?.animatedTiles_to_vramTileset || unsetLib,
+		vram_anim : app?.gfx?.fast?.vramTileset_to_animatedTiles || unsetLib,
+		clampLen2 : app?.write?.get_clampedLength2 || unsetLib,
+		clampCopy : app?.write?.clampedCopy || unsetLib,
+		ignoreAnim : app?.write?.copy_byteToByte || unsetLib,
+		avoidAnim : app?.write?.copy_byteToByteWithSrcMask || unsetLib,
+
+		decode2 : null || unsetLib,
+		decode4 : null || unsetLib,
+		decode8 : null || unsetLib,
+		
+		_4decode2 : null || unsetLib,
+		_4decode4 : null || unsetLib,
+		_4decode8 : null || unsetLib,
+
+		format2 : null || unsetLib,
+		format4 : null || unsetLib,
+		format8 : null || unsetLib,
+
+		_4format2 : null || unsetLib,
+		_4format4 : null || unsetLib,
+		_4format8 : null || unsetLib,
+		
+		writeD2 : null || unsetLib,
+		writeD4 : null || unsetLib,
+		writeD8 : null || unsetLib,
+
+		writeF2 : null || unsetLib,
+		writeF4 : null || unsetLib,
+		writeF8 : null || unsetLib,
 	};
 
 	o.Palette = function(data, gfxlib=gfxlib.palette){
@@ -35,9 +77,9 @@ dkc2ldd.component = (function(app=dkc2ldd){
 
 		let buffer = new Uint8Array(512); obj.get_buffer = function(){return buffer};
 		
-		let src = (data?.ownerRefs) || [];
+		let src = data.ownerRefs;
 
-		let offset = (data?.byteOffset) || 0;
+		let offset = data.byteOffset || 0;
 
 		obj.type = {
 			decoded2  : null,
@@ -117,8 +159,154 @@ dkc2ldd.component = (function(app=dkc2ldd){
 
 	};
 
-	
 
+	
+	let gfxlibtileset = gfxlib.tileset;
+
+	o.Tileset = function(data, animated=null, gfxlib=gfxlibtileset){
+
+		let obj = {};
+
+		let main = {};
+		// 1024 * 32 = 32768
+		main.buffer = new Uint8Array(32768);
+		obj.get_buffer = function(){return main.buffer};
+		main.src = data.ownerRefs;
+		main.offset = data.byteOffset || 0;
+		main.vramOfst = data.vramOffset || 0;
+
+		let vram = {};
+		vram.buffer = new Uint8Array(32768),  // [byte, ...]
+		vram.backRef = null;
+
+
+		
+		let anim = animated ? {} : null;
+		if(anim){
+			anim.buffers = [];
+			anim.maxFrame = 0;
+			let len = animated.ownerRefs.length;
+			anim.len = len;
+			anim.src = animated.ownerRefs;
+			anim.vramRefs = animated.vramRefs;
+			for(let i=0; i<len; i++){
+				anim.buffers[i] = new Uint8Array(32768);
+				anim.maxFrame = Math.max(anim.maxFrame, anim.vramRefs[i].frameCount)
+			}
+			
+			// vram
+			// multiple byte map stack
+			vram.backRef = {
+				// 0 : use main.buffer, 1 : use anim.buffers
+				isAnim: new Uint8Array(32768),
+				// ref to an index in anim.buffers; use like that : anim.buffers[backRef.iAnim[i]]
+				iAnim:  new Uint8Array(32768),
+				// ref to an index in anim.buffers[]; use like that : anim.buffers[backRef.iAnim[i]][backRef.iByte[i]]
+				iByte:  new Uint16Array(32768),
+			};
+			let backRef = vram.backRef;
+			backRef.isAnim.fill(0);
+			backRef.iAnim.fill(0);
+			backRef.iByte.fill(0);
+			gfxlib.vramBackRef(anim.buffers, anim.vramRefs, backRef);
+
+			// Tileset obj
+			anim.frame = 0;
+		}
+
+		/* obj.type = {
+			decoded2  : [null,null,null,null],
+			decoded4  : [null,null,null,null],
+			decoded8  : [null,null,null,null],
+			formated2 : [null,null,null,null],
+			formated4 : [null,null,null,null],
+			formated8 : [null,null,null,null],
+		}; */
+
+		let dataListToBuffer = {sens:0, copy:copy};
+		let bufferToDataList = {sens:1, copy:copy};
+
+
+		// from src to buffer/buffers
+		obj.init = function(){
+			dataListToBuffer.copy(main.buffer, main.src, main.offset);
+
+			if(anim){
+				// anim buffers
+				let len = anim.len;
+				let buffers = anim.buffers;
+				for(let i=0; i<len; i++)
+					//buffers[i].set(anim.src[i].data);
+					gfxlib.clampCopy(0,0, anim.src[i].data,buffers[i], 32768);
+			}
+		};
+
+		// from buffer to vram
+		obj.load = function(){
+			if(main.vramOfst < 32768)
+				//vram.buffer.set(main.buffer, main.vramOfst);
+				gfxlib.clampCopy(0,main.vramOfst, main.buffer,vram.buffer, 32768);
+		};
+
+		// from buffers to vram
+		obj.anim = function(frame=0){
+			if(frame < anim.maxFrame){
+				gfxlib.anim_vram(anim.buffers, anim.vramRefs, vram.buffer, frame);
+				anim.frame = frame;
+			}
+		};
+
+		// from vram to buffer
+		obj.vram = function(ignoreAnim=false){
+			let len = gfxlib.clampLen2(32768,32768, 0,main.vramOfst, 32768);
+			if(!anim || ignoreAnim){
+				// copy all, no overlap checking
+				gfxlib.ignoreAnim(main.vramOfst,0, vram.buffer,main.buffer, len);
+			}else{
+				// copy only not animated tiles
+				gfxlib.avoidAnim(main.vramOfst,0, vram.buffer,main.buffer, len, vram.backRef.isAnim, 0);
+			}
+		};
+
+		// from vram to buffers
+		obj.frame = function(){
+			gfxlib.vram_anim(anim.buffers, anim.vramRefs, vram.buffer, anim.frame);
+		};
+
+		// from vram to type
+		obj.update = function(){
+
+		};
+
+		// from type to vram
+		obj.sync = function(typeName){
+
+		};
+
+		// from type to vram to buffer/buffers to src
+		obj.save = function(typeName){
+			obj.sync(typeName);
+			//obj.write();
+		};
+
+		// from buffer/buffers to src
+		obj.write = function(){
+			//bufferToDataList.copy(buffer, src, offset);
+		};
+
+		obj.get_vram = function(){
+			return vram;
+		};
+
+
+
+		return obj;
+	};
+
+
+
+	// NO FINALLY NO DSTOFFSET, INSTEAD VRAMOFFSET SYSTEM
+	// todo : add dstOffset
 	let copy = function(buffer, dataList, srcOffset){
 		let src = dataList;
 		let len = src.length;
@@ -135,17 +323,18 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		if(len === 1){
 
 			let data = src[0].data;
-			len = Math.min(bufferSize, data.length-ofst);
+			len = Math.min(bufferSize, data.length-ofst); // todo : bufferSize-dstOffset
+			// len = Math.max(len, 0);
 
 			if(sens === 0){
-				for(let i=0; i<len; i++){
+				for(let i=0; i<len; i++){ // todo : i=dstOffset
 					buffer[i] = data[ofst];
 					ofst++;
 				}
 				return;
 			}
 			if(sens === 1){
-				for(let i=0; i<len; i++){
+				for(let i=0; i<len; i++){ // todo : i=dstOffset
 					data[ofst] = buffer[i];
 					ofst++;
 				}
@@ -165,14 +354,15 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			}
 
 			// use HARD loopList system
-			len = Math.min(bufferSize, size-ofst);
+			len = Math.min(bufferSize, size-ofst); // todo : bufferSize-dstOffset
+			// len = Math.max(len, 0);
 			let loops = app.lib.loopList.create(ofst, len, list);
 			(function(L){ let len=L.length, $i,$l,$s,$_,$k, $N,$n,$S,$c;
 				if(sens === 0){
 					for($i=0,$l=L[$i], $s=$l[0],$_=$l[1],$S=$l[2], $n=L.d,$N=0, $k=1; $k; ){
 					for($c=$s; $c<$_; $c++,$n++,$N++){
 						// PROCESS CODE
-						buffer[$N] = $S[$c];
+						buffer[$N] = $S[$c]; // todo : $N+dstOffset
 						// END 
 					}$i++;if($i<len){$l=L[$i],$s=$l[0],$_=$l[1],$S=$l[2]}else{$k=0}
 					}
@@ -182,7 +372,7 @@ dkc2ldd.component = (function(app=dkc2ldd){
 					for($i=0,$l=L[$i], $s=$l[0],$_=$l[1],$S=$l[2], $n=L.d,$N=0, $k=1; $k; ){
 					for($c=$s; $c<$_; $c++,$n++,$N++){
 						// PROCESS CODE
-						$S[$c] = buffer[$N];
+						$S[$c] = buffer[$N]; // todo : $N+dstOffset
 						// END 
 					}$i++;if($i<len){$l=L[$i],$s=$l[0],$_=$l[1],$S=$l[2]}else{$k=0}
 					}

@@ -38,6 +38,7 @@
         decodedTile[pixel] // safe size : [64]
 
         decodedTileset[pixel] // safe size : [64 * tile count]
+        decodedTileset_NEW[tile][pixel] // safe size : [tile count][64]
 
         formatedTile[row][pixel] // safe size : [8][8]
 

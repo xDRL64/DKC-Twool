@@ -18,6 +18,28 @@ dkc2ldd.write = (function(app=dkc2ldd){
 		return Math.min(size,ofst+len) - ofst;
 	};
 
+	o.clampedCopy = function(iSrc,iDst,bSrc,bDst,len){
+		len = o.get_clampedLength2(bSrc.length,bDst.length, iSrc,iDst, len);
+		o.copy_byteToByte(iSrc,iDst,bSrc,bDst,len);
+	};
+
+	o.copy_byteToByte = function(iSrc,iDst,bSrc,bDst,len){
+		for(let i=0; i<len; i++){
+			bDst[iDst] = bSrc[iSrc];
+			iSrc++;
+			iDst++;
+		}
+	};
+
+	o.copy_byteToByteWithSrcMask = function(iSrc,iDst,bSrc,bDst,len, srcMask, maskCopyVal){
+		for(let i=0; i<len; i++){
+			if(srcMask[iSrc] === maskCopyVal)
+				bDst[iDst] = bSrc[iSrc];
+			iSrc++;
+			iDst++;
+		}
+	};
+
 
 	o.decodedPalette = function(snespal, palette){
 

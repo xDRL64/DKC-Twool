@@ -451,7 +451,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				return _o;
 			};
 
-			o.get_dataWithOwnerAccess = function(){
+			/* o.get_dataWithOwnerAccess_OLD = function(){
 				let _o = [];
 				let len = o.multi;
 				for(let i=0; i<len; i++)
@@ -460,7 +460,26 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 						: {data:o.fileData[i], owner:o.fileData, prop:i}
 					);
 				return _o;
+			}; */
+
+			let OwnerAccess = function(owner, prop){
+				return {
+					get data() {return owner[prop]},
+					set data(v) {owner[prop] = v},
+				};
+			}
+
+			o.get_dataWithOwnerAccess = function(){
+				let _o = [];
+				let len = o.multi;
+				for(let i=0; i<len; i++)
+					_o.push( o.useDec[i]
+						? OwnerAccess(o.decompressed, i)
+						: OwnerAccess(o.fileData, i)
+					);
+				return _o;
 			};
+			//set current(name) { this.log.push(name); },
 
 			o.get_totalSize = function(){
 				let len = o.multi;
@@ -515,7 +534,8 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				test7  : ["test 4formatedTileset",        'mode7',  null],
 				test8  : ["test create_mapchipGfxBuffer", 'mode8',  null],
 				test9  : ["test animated background",     'mode9',  null],
-				test10 : ["test PALETTE type & ext func", 'mode10', null]
+				test10 : ["test PALETTE type & ext func", 'mode10', null],
+				test11 : ["test TILESET type",            'mode11', null]
 
 			};
 
@@ -619,6 +639,8 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		// test PALETTE component types update/draw func & gfx ext func
 		workspace.list_generator['mode10'] = app.mode[10];
 		
+		// test TILESET component and vram for now
+		workspace.list_generator['mode11'] = app.mode[11];
 	};
 	
 	return o;
