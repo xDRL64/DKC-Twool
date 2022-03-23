@@ -181,7 +181,8 @@
 			tileset : [
 				{ name:'ship mast tileset',
 					address: 0x1FD537, size: 0x5D20, compressed: true
-				}
+					,vram: {offset: 16*32, bpp:4}
+				},
 			],
 			// pirate flag 0x3A5FC1 30tiles*8animframes*32byteOneTile = 0x1E00
 			// rain DATA_F36EE8 16tiles*8animframes*32byteOneTile = 0x1000
@@ -190,12 +191,12 @@
 			animation : [
 				{ name : 'ship mast flag animated tileset',
 					address: 0x3A5FC1, size: 0x1E00, compressed: false,
-					vram: {destIndex: 1, tileCount: 30, frameCount: 8}
+					vram: {destOffset: 1*32, frameSize: 30*32, frameCount: 8, bpp:4}
 					// iFile iVRDest tLen fLen
 				},
 				{ name : 'ship mast rain animated tileset',
 					address: 0x336EE8, size: 0x1000, compressed: false,
-					vram: {destIndex: 752, tileCount:16, frameCount: 8}
+					vram: {destOffset: 752*32, frameSize: 16*32, frameCount: 8, bpp:4}
 				}
 			],
 			// bg rain DATA_F641C1
@@ -204,12 +205,12 @@
 			bganimation : [
 				{ name : 'ship mast rain animated bg tileset',
 					address: 0x3641C1, size: 0x4000, compressed: false,
-					vram: {destIndex: 0, tileCount:64/2, frameCount: 8, bpp:2}
+					vram: {destOffset: 0*16, frameSize: 64*16, frameCount: 8, bpp:2}
 				},
 				// test & debug
 				{ name : 'ship mast rain animated bg tileset',
 					address: 0x3641C1, size: 0x4000, compressed: false,
-					vram: {destIndex: 0, tileCount:64/2, frameCount: 8, bpp:4}
+					vram: {destOffset: 0*32, frameSize: 32*32, frameCount: 8, bpp:4}
 				},
 			],
 			// E5:E0C8 ~ E5:F52D (0x2540) - Tilemap (8x8)
@@ -332,7 +333,7 @@
 				// todo : to move in an update method (build all from srcFilePanel once everything is loaded)
 				// TEST FEATURE : animated data type : parameters input update
 				if(vramRef){
-					let obj = {d:vramRef.destIndex, t:vramRef.tileCount, f:vramRef.frameCount};
+					let obj = {d:vramRef.destOffset, t:vramRef.frameSize, f:vramRef.frameCount};
 					slot.parameters.value += JSON.stringify(obj) + (last ? '' : ', ');
 				}
 				if(vramRef === null){ // important nullish type

@@ -120,6 +120,13 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		let bufferToDataList = {sens:1, copy:copy};
 
 
+		// reset src and settings
+		obj.reset = function(data){
+			src = data.ownerRefs;
+			offset = data.byteOffset || 0;
+		};
+
+
 		// from src to buffer
 		obj.init = function(){
 			dataListToBuffer.copy(buffer, src, offset);
@@ -163,20 +170,23 @@ dkc2ldd.component = (function(app=dkc2ldd){
 	
 	let gfxlibtileset = gfxlib.tileset;
 
-	o.Tileset = function(data, animated=null, gfxlib=gfxlibtileset){
+	o.Tileset = function(data, bpp=4, animated=null, gfxlib=gfxlibtileset){
 
 		let obj = {};
 
 		let main = {};
 		// 1024 * 32 = 32768
-		main.buffer = new Uint8Array(32768);
+
+		let bufferSize = ({2:1024*16,4:1024*32,8:1024*64})[bpp];
+
+		main.buffer = new Uint8Array(bufferSize);
 		obj.get_buffer = function(){return main.buffer};
 		main.src = data.ownerRefs;
 		main.offset = data.byteOffset || 0;
 		main.vramOfst = data.vramOffset || 0;
 
 		let vram = {};
-		vram.buffer = new Uint8Array(32768),  // [byte, ...]
+		vram.buffer = new Uint8Array(bufferSize),  // [byte, ...]
 		vram.backRef = null;
 
 
@@ -188,21 +198,23 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			let len = animated.ownerRefs.length;
 			anim.len = len;
 			anim.src = animated.ownerRefs;
-			anim.vramRefs = animated.vramRefs;
+			anim.vramRefs = JSON.parse(JSON.stringify(animated.vramRefs));
+			anim._vramRefs = animated.vramRefs;
 			for(let i=0; i<len; i++){
-				anim.buffers[i] = new Uint8Array(32768);
-				anim.maxFrame = Math.max(anim.maxFrame, anim.vramRefs[i].frameCount)
+				anim.buffers[i] = new Uint8Array(bufferSize);
+				anim.maxFrame = Math.max(anim.maxFrame, anim.vramRefs[i].frameCount);
+				anim.vramRefs[i].destOffset += main.vramOfst;
 			}
 			
 			// vram
 			// multiple byte map stack
 			vram.backRef = {
 				// 0 : use main.buffer, 1 : use anim.buffers
-				isAnim: new Uint8Array(32768),
+				isAnim: new Uint8Array(bufferSize),
 				// ref to an index in anim.buffers; use like that : anim.buffers[backRef.iAnim[i]]
-				iAnim:  new Uint8Array(32768),
+				iAnim:  new Uint8Array(bufferSize),
 				// ref to an index in anim.buffers[]; use like that : anim.buffers[backRef.iAnim[i]][backRef.iByte[i]]
-				iByte:  new Uint16Array(32768),
+				iByte:  new Uint16Array(bufferSize),
 			};
 			let backRef = vram.backRef;
 			backRef.isAnim.fill(0);
@@ -237,15 +249,15 @@ dkc2ldd.component = (function(app=dkc2ldd){
 				let buffers = anim.buffers;
 				for(let i=0; i<len; i++)
 					//buffers[i].set(anim.src[i].data);
-					gfxlib.clampCopy(0,0, anim.src[i].data,buffers[i], 32768);
+					gfxlib.clampCopy(0,0, anim.src[i].data,buffers[i], bufferSize);
 			}
 		};
 
 		// from buffer to vram
 		obj.load = function(){
-			if(main.vramOfst < 32768)
+			if(main.vramOfst < bufferSize)
 				//vram.buffer.set(main.buffer, main.vramOfst);
-				gfxlib.clampCopy(0,main.vramOfst, main.buffer,vram.buffer, 32768);
+				gfxlib.clampCopy(0,main.vramOfst, main.buffer,vram.buffer, bufferSize);
 		};
 
 		// from buffers to vram
@@ -258,7 +270,7 @@ dkc2ldd.component = (function(app=dkc2ldd){
 
 		// from vram to buffer
 		obj.vram = function(ignoreAnim=false){
-			let len = gfxlib.clampLen2(32768,32768, 0,main.vramOfst, 32768);
+			let len = gfxlib.clampLen2(bufferSize,bufferSize, 0,main.vramOfst, bufferSize);
 			if(!anim || ignoreAnim){
 				// copy all, no overlap checking
 				gfxlib.ignoreAnim(main.vramOfst,0, vram.buffer,main.buffer, len);
@@ -291,13 +303,31 @@ dkc2ldd.component = (function(app=dkc2ldd){
 
 		// from buffer/buffers to src
 		obj.write = function(){
-			//bufferToDataList.copy(buffer, src, offset);
+			bufferToDataList.copy(main.buffer, main.src, main.offset);
+
+			if(anim){
+				// anim buffers
+				let len = anim.len;
+				let buffers = anim.buffers;
+				for(let i=0; i<len; i++)
+					gfxlib.clampCopy(0,0, buffers[i],anim.src[i].data, bufferSize);
+			}
 		};
+
+		// debug
+		//
 
 		obj.get_vram = function(){
 			return vram;
 		};
 
+		obj.get_allBuffer = function(){
+			return {buffer:main.buffer, buffers:anim.buffers};
+		};
+
+		obj._vram = vram.buffer;
+		obj._buffer = main.buffer;
+		obj._buffers = anim.buffers;
 
 
 		return obj;

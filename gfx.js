@@ -126,7 +126,9 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 	
 
-
+	o.tileBpp = {};
+	o.tileBpp.size = {2:16, 4:32, 8:64};
+	o.tileBpp.bitshit = {2:4, 4:5, 8:6};
 
 
 
@@ -320,7 +322,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	// // DRAW 4BPP TILESET
 	//
 
-	o.fast.draw_4bppTileset = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
+	o.fast.draw_4bppTileset_OLD = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
 
 		// OVERFLOW : display zero values
 		// WRONGDAT : display zero values
@@ -1904,8 +1906,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
-
-	o.fast.format_2bppTileset = function(data, hFlip=0,vFlip=0){
+	/* o.fast.format_2bppTileset = function(data, hFlip=0,vFlip=0){
 
 		// OVERFLOW : get zero values ?
 		// WRONGDAT : get zero values ?
@@ -1999,6 +2000,11 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 		return tileset;
 	};
+	*/
+
+
+
+
 
 
 	o.fast.animatedTiles_to_vramBackRef = function(animations, vramRefs, backRef){
@@ -2007,8 +2013,8 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		for(let iAnim=0; iAnim<len; iAnim++){
 			let anim = vramRefs[iAnim];
 			if(anim){
-				let frameBytes = anim.tileCount * 32;
-				let dstOfst = anim.destIndex * 32;
+				let frameBytes = anim.frameSize;
+				let dstOfst = anim.destOffset;
 				for(let i=0; i<frameBytes; i++){
 					// back ref
 					backRef.isAnim[dstOfst] = 1;
@@ -2030,9 +2036,9 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 				let anim = vramRefs[iAnim];
 				if(anim){
 					let animTileset = animations[iAnim];
-					let frameBytes = anim.tileCount * 32;
+					let frameBytes = anim.frameSize;
 					let srcOfst = iFrame * frameBytes;
-					let dstOfst = anim.destIndex * 32;
+					let dstOfst = anim.destOffset;
 					for(let i=0; i<frameBytes; i++){
 						vramTileset[dstOfst] = animTileset[srcOfst];
 						srcOfst++;
@@ -2047,9 +2053,9 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 				let anim = vramRefs[iAnim];
 				if(anim){
 					let animTileset = animations[iAnim];
-					let frameBytes = anim.tileCount * 32;
+					let frameBytes = anim.frameSize;
 					let srcOfst = iFrame * frameBytes;
-					let dstOfst = anim.destIndex * 32;
+					let dstOfst = anim.destOffset;
 					for(let i=0; i<frameBytes; i++){
 						vramTileset[dstOfst] = animTileset[srcOfst]; // set vram
 
@@ -2073,9 +2079,9 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 			let anim = vramRefs[iAnim];
 			if(anim){
 				let animTileset = animations[iAnim];
-				let frameBytes = anim.tileCount * 32;
+				let frameBytes = anim.frameSize;
 				let dstOfst = iFrame * frameBytes;
-				let srcOfst = anim.destIndex * 32;
+				let srcOfst = anim.destOffset;
 				for(let i=0; i<frameBytes; i++){
 					animTileset[dstOfst] = vramTileset[srcOfst];
 					dstOfst++;

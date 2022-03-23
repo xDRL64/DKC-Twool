@@ -535,7 +535,8 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				test8  : ["test create_mapchipGfxBuffer", 'mode8',  null],
 				test9  : ["test animated background",     'mode9',  null],
 				test10 : ["test PALETTE type & ext func", 'mode10', null],
-				test11 : ["test TILESET type",            'mode11', null]
+				test11 : ["test TILESET type",            'mode11', null],
+				test12 : ["test types",                   'mode12', null]
 
 			};
 
@@ -641,6 +642,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 		// test TILESET component and vram for now
 		workspace.list_generator['mode11'] = app.mode[11];
+
+		// test 
+		workspace.list_generator['mode12'] = app.mode[12];
 	};
 	
 	return o;
