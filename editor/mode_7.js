@@ -213,6 +213,7 @@
 		//////////
 		// 8BPP //
 		//////////
+		let _8bppPal = pal256;
 
 
 		// 4 decode_8bppTileset() preview
@@ -229,7 +230,7 @@
 		let ctx_d8ts = viewport_d8ts.ctx;
 		viewport_d8ts.elem.appendChild(makelabel('D8 : '+timeC,h/2));
 
-		let d8ts_pal = pal256_oneCol;
+		let d8ts_pal = _8bppPal;
 		app.gfx.fast.draw_decodedTileset_NEW(nflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,0,0);
 		app.gfx.fast.draw_decodedTileset_NEW(hflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,w,0);
 		app.gfx.fast.draw_decodedTileset_NEW(vflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,w*2,0);
@@ -247,7 +248,7 @@
 		let ctx_4d8ts = viewport_4d8ts.ctx;
 		viewport_4d8ts.elem.appendChild(makelabel('4D8 : '+timeC,h/2));
 		
-		let _4d8ts_pal = pal256_oneCol;
+		let _4d8ts_pal = _8bppPal;
 		app.gfx.fast.draw_decodedTileset_NEW(_4d8ts.n, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,0,0);
 		app.gfx.fast.draw_decodedTileset_NEW(_4d8ts.h, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,w,0);
 		app.gfx.fast.draw_decodedTileset_NEW(_4d8ts.v, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,w*2,0);
@@ -268,7 +269,7 @@
 		let ctx_f8ts = viewport_f8ts.ctx;
 		viewport_f8ts.elem.appendChild(makelabel('F8 : '+timeC,h/2));
 
-		let f8ts_pal = pal256_oneCol;
+		let f8ts_pal = _8bppPal;
 		app.gfx.fast.draw_formatedTileset(nflip, f8ts_pal, 0,0, xtmax, ctx_f8ts,0,0);
 		app.gfx.fast.draw_formatedTileset(hflip, f8ts_pal, 0,0, xtmax, ctx_f8ts,w,0);
 		app.gfx.fast.draw_formatedTileset(vflip, f8ts_pal, 0,0, xtmax, ctx_f8ts,w*2,0);
@@ -286,7 +287,7 @@
 		let ctx_4f8ts = viewport_4f8ts.ctx;
 		viewport_4f8ts.elem.appendChild(makelabel('4F8 : '+timeC,h/2));
 		
-		let _4f8ts_pal = pal256_oneCol;
+		let _4f8ts_pal = _8bppPal;
 		app.gfx.fast.draw_formatedTileset(_4f8ts.n, _4f8ts_pal, 0,0, xtmax, ctx_4f8ts,0,0);
 		app.gfx.fast.draw_formatedTileset(_4f8ts.h, _4f8ts_pal, 0,0, xtmax, ctx_4f8ts,w,0);
 		app.gfx.fast.draw_formatedTileset(_4f8ts.v, _4f8ts_pal, 0,0, xtmax, ctx_4f8ts,w*2,0);

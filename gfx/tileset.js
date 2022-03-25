@@ -535,15 +535,15 @@
 				
 						col = 0;
 						
-						col += b0 & pix ? 0x1 : 0x0;
-						col += b1 & pix ? 0x2 : 0x0;
-						col += b2 & pix ? 0x4 : 0x0;
-						col += b3 & pix ? 0x8 : 0x0;
+						col += b0 & pix ? 0x01 : 0x0;
+						col += b1 & pix ? 0x02 : 0x0;
+						col += b2 & pix ? 0x04 : 0x0;
+						col += b3 & pix ? 0x08 : 0x0;
 
-						col += b4 & pix ? 0x16 : 0x0;
-						col += b5 & pix ? 0x32 : 0x0;
-						col += b6 & pix ? 0x64 : 0x0;
-						col += b7 & pix ? 0x128 : 0x0;
+						col += b4 & pix ? 0x10 : 0x0;
+						col += b5 & pix ? 0x20 : 0x0;
+						col += b6 & pix ? 0x40 : 0x0;
+						col += b7 & pix ? 0x80 : 0x0;
 						
 						tileset[iTile][row][iPix] = col;
 
@@ -584,15 +584,15 @@
 						fPix = flipB[hFlip][pix];
 						col = 0;
 
-						col += b0 & fPix ? 0x1 : 0x0;
-						col += b1 & fPix ? 0x2 : 0x0;
-						col += b2 & fPix ? 0x4 : 0x0;
-						col += b3 & fPix ? 0x8 : 0x0;
+						col += b0 & fPix ? 0x01 : 0x0;
+						col += b1 & fPix ? 0x02 : 0x0;
+						col += b2 & fPix ? 0x04 : 0x0;
+						col += b3 & fPix ? 0x08 : 0x0;
 
-						col += b4 & fPix ? 0x16 : 0x0;
-						col += b5 & fPix ? 0x32 : 0x0;
-						col += b6 & fPix ? 0x64 : 0x0;
-						col += b7 & fPix ? 0x128 : 0x0;
+						col += b4 & fPix ? 0x10 : 0x0;
+						col += b5 & fPix ? 0x20 : 0x0;
+						col += b6 & fPix ? 0x40 : 0x0;
+						col += b7 & fPix ? 0x80 : 0x0;
 						
 						tileset[iTile][row][iPix] = col;
 

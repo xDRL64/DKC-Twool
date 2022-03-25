@@ -157,7 +157,8 @@
 			o.view.style.backgroundColor = "black";
 			o.view.style.backgroundImage = "url("+app.imgPack.alphaTex+")";
 			o.view.style.backgroundSize = "10%";
-			o.view.style.border = "2px solid red";
+
+			o.hoverBox.style.border = "2px solid red";
 			return o;
 		};
 
@@ -307,7 +308,7 @@
 			gfxPan_anim_buffer.appendChild(IO.screen.anim_buffer.elem);
 
 			gfxPan_vram.appendChild(IO.screen.vram_buffer.elem);
-			gfxPan_type.appendChild(IO.screen.type_buffer.elem);
+			gfxPan_type.appendChild(IO.screen.type_buffer.hoverBox);
 
 
 			return {grid:grid, elems:IO};
@@ -464,13 +465,13 @@
 		// COLUMN 1 //
 		//////////////
 
-		// [UPDATE FROM FILE] tilset button
+		// [UPDATE FROM FILE] tilset button : display source files
 		tlstArea.elems.btn.tlst_displaySrcFile.onclick = function(){
 			// draw tileset srcFile
 			display_tlstSrcFile();
 		};
 
-		// [UPDATE FROM FILE] animation button
+		// [UPDATE FROM FILE] animation button : display source files[#]
 		tlstArea.elems.btn.anim_displaySrcFile.onclick = function(){
 			// draw animation srcFile
 			display_animSrcFile();
@@ -480,7 +481,7 @@
 		// COLUMN 2 //
 		//////////////
 
-		// [###] animation file number input
+		// [###] animation input : file number
 		tlstArea.elems.inum.anim_fileNum.oninput = function(){
 			// change element value
 			let value = parseInt(this.value) || 0;
@@ -492,7 +493,7 @@
 			display_animBuffers();
 		};
 
-		// [🡺] tileset/animation button
+		// [🡺] tileset/animation button : source files to buffer/buffers
 		tlstArea.elems.btn.tlst_srcFileToBuffer.onclick = function(){
 			TLST.init();
 
@@ -500,7 +501,7 @@
 			display_tlstBuffer();
 			display_animBuffers();
 		};
-		// [🡸] tileset/animation button
+		// [🡸] tileset/animation button : buffer/buffers to source files
 		tlstArea.elems.btn.tlst_bufferToSrcFile.onclick = function(){
 			TLST.write();
 
@@ -513,14 +514,14 @@
 		// COLUMN 3 //
 		//////////////
 
-		// [🡺] tileset buffer to vram button
+		// [🡺] tileset button : buffer to vram
 		tlstArea.elems.btn.tlst_bufferToVram.onclick = function(){
 			TLST.load();
 
 			// draw tileset vram
 			display_vram();
 		};
-		// [🡸] tileset vram to buffer button
+		// [🡸] tileset button : vram to buffer
 		tlstArea.elems.btn.tlst_vramToBuffer.onclick = function(){
 			TLST.vram(false);
 
@@ -528,14 +529,14 @@
 			display_tlstBuffer();
 		};
 
-		// [🡺] animation buffers[#] to vram button
+		// [🡺] animation button : buffers[#] to vram
 		tlstArea.elems.btn.anim_bufferToVram.onclick = function(){
 			TLST.anim(iAnimFrame);
 
 			// draw tileset buffer and animation buffers[#]
 			display_vram();
 		};
-		// [🡸] animation vram to buffers[#] button
+		// [🡸] animation button : vram to buffers[#]
 		tlstArea.elems.btn.anim_vramToBuffer.onclick = function(){
 			TLST.frame();
 
@@ -547,7 +548,7 @@
 		// COLUMN 4 //
 		//////////////
 
-		// [###] animation frame number input
+		// [###] animation input : frame number
 		tlstArea.elems.inum.work_vramFrame.oninput = function(){
 			let maxFrame = 8;
 			// change element value
@@ -564,27 +565,101 @@
 		// COLUMN 5 //
 		//////////////
 
+		// [🡺] work botton : vram to type object
 		tlstArea.elems.btn.work_vramToType.onclick = function(){
 			TLST.update(
 				'decoded2','decoded4','decoded8','formated2','formated4','formated8',
 				'_4decoded2','_4decoded4','_4decoded8','_4formated2','_4formated4','_4formated8'
 			);
-			display_type( (TLST.type['decoded'+bpp]), 'd' );
-			//display_type( (TLST.type['_4decoded'+bpp]).n, 'd' );
 
+			//display_type( (TLST.type['decoded'+bpp]), 'd' );
+			//display_type( (TLST.type['_4decoded'+bpp]).n, 'd' );
+			//display_type( (TLST.type['_4decoded'+bpp]).h, 'd' );
+			//display_type( (TLST.type['_4decoded'+bpp]).v, 'd' );
+			//display_type( (TLST.type['_4decoded'+bpp]).a, 'd' );
+
+			//display_type( (TLST.type['formated'+bpp]), 'f' );
+			//display_type( (TLST.type['_4formated'+bpp]).n, 'f' );
+			//display_type( (TLST.type['_4formated'+bpp]).h, 'f' );
+			//display_type( (TLST.type['_4formated'+bpp]).v, 'f' );
+			//display_type( (TLST.type['_4formated'+bpp]).a, 'f' );
+
+			start_miniEditor();
 
 			_TLST = TLST;
 		};
 
+		// [🡸] work botton : type object to vram
+		tlstArea.elems.btn.work_typeToVram.onclick = function(){
+			TLST.sync(miniEditor_currentType);
+
+			display_vram();
+		};
+
+		// DEBUG
+		window.debug_display = function(){
+			let test = window.debug_display.test;
+			if(test === 0) display_type( (TLST.type['decoded'+bpp]), 'd' );
+			if(test === 1) display_type( (TLST.type['_4decoded'+bpp]).n, 'd' );
+			if(test === 2) display_type( (TLST.type['_4decoded'+bpp]).h, 'd' );
+			if(test === 3) display_type( (TLST.type['_4decoded'+bpp]).v, 'd' );
+			if(test === 4) display_type( (TLST.type['_4decoded'+bpp]).a, 'd' );
+
+			if(test === 5) display_type( (TLST.type['formated'+bpp]), 'f' );
+			if(test === 6) display_type( (TLST.type['_4formated'+bpp]).n, 'f' );
+			if(test === 7) display_type( (TLST.type['_4formated'+bpp]).h, 'f' );
+			if(test === 8) display_type( (TLST.type['_4formated'+bpp]).v, 'f' );
+			if(test === 9) display_type( (TLST.type['_4formated'+bpp]).a, 'f' );
+			console.log("window.debug_display.test : ", window.debug_display.test);
+
+			window.debug_display.test++;
+			if(window.debug_display.test === 10) window.debug_display.test = 0;
+		};
+		window.debug_display.test = 0;
+		// END : DEBUG
 
 
-		
+		// MINI EDITOR (test)
+		let miniEditor_currentType = 'formated'+bpp;
+		let miniEditor_typeFlag = 'f';
+		let start_miniEditor = function(){
 
-		//tlst_buffer
-		//anim_srcFile
-		//anim_buffer
-		//vram_buffer
-		//type_buffer
+			let hoverPreview = tlstArea.elems.screen.type_buffer;
+			let type = TLST.type[miniEditor_currentType];
+			let iColor = 0;
+			let xtp, ytp, iTile;
+
+			let update_pos = function(xMousePos, yMousePos){
+				let x = xMousePos, y = yMousePos;
+				let xt = x >> 3 // div by 8
+				let yt = y >> 3 // div by 8
+				xtp = x - (xt<<3); // % 8
+				ytp = y - (yt<<3); // % 8
+				iTile = (yt * xtmax) + xt;
+			};
+
+			let get_pixel = function(){
+				iColor = type[iTile][ytp][xtp];
+			};
+			let put_pixel = function(){
+				type[iTile][ytp][xtp] = iColor;
+				display_type(type, miniEditor_typeFlag);
+			};
+
+			tlstArea.elems.screen.type_buffer.hoverBox.onmousemove = function(e){
+				let pos = hoverPreview.get_mousePos(e);
+				update_pos(pos.x,pos.y);
+				if(e.buttons&0x1) put_pixel();
+			};
+
+			tlstArea.elems.screen.type_buffer.hoverBox.onmousedown = function(e){
+				e.preventDefault();
+				if(e.buttons&0x1) put_pixel();
+				if(e.buttons&0x4) get_pixel();
+			};
+
+		};
+		// END : MINI EDITOR
 
 
 		// update
