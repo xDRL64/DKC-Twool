@@ -148,6 +148,19 @@
 			return o;
 		};
 
+		let create_ioDisplay = function(w,h, s=1){
+			let o = wLib.create_hoverPreview(w,h, s, undefined, 0, 0);
+			
+			o.elem.style.width = w * s;
+			o.elem.style.height = h * s;
+
+			o.view.style.backgroundColor = "black";
+			o.view.style.backgroundImage = "url("+app.imgPack.alphaTex+")";
+			o.view.style.backgroundSize = "10%";
+			o.view.style.border = "2px solid red";
+			return o;
+		};
+
 		let build_tilesetArea = function(xtmax, srcFileTileCount){
 
 			// grid elem
@@ -245,7 +258,7 @@
 					anim_buffer : create_outputDisplay(W,H, 1),
 
 					vram_buffer : create_outputDisplay(W,H, 1),
-					type_buffer : create_outputDisplay(W,H, 1),
+					type_buffer : create_ioDisplay(W,H, 1),
 				}
 
 			};
@@ -346,7 +359,7 @@
 		let TLST = app.component.Tileset(
 			//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
 			{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:0},
-			8,
+			bpp,
 			{ownerRefs:animationSlot.get_dataWithOwnerAccess(), vramRefs:animationSlot.vramRefs},
 		);
 
@@ -436,6 +449,16 @@
 			}
 		};
 
+		// type
+		let display_type = function(typeObj, typeFlag){
+			let ctx =  tlstArea.elems.screen.type_buffer.ctx;
+			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+			let palette = bpp === 8 ? pal256 : pal;
+			if(typeFlag === 'd')
+				gfx.draw_decodedTileset_NEW(typeObj,palette, 0,0, xtmax, ctx);
+			if(typeFlag === 'f')
+				gfx.draw_formatedTileset(typeObj,palette, 0,0, xtmax, ctx);
+		};
 
 		//////////////
 		// COLUMN 1 //
@@ -541,7 +564,17 @@
 		// COLUMN 5 //
 		//////////////
 
+		tlstArea.elems.btn.work_vramToType.onclick = function(){
+			TLST.update(
+				'decoded2','decoded4','decoded8','formated2','formated4','formated8',
+				'_4decoded2','_4decoded4','_4decoded8','_4formated2','_4formated4','_4formated8'
+			);
+			display_type( (TLST.type['decoded'+bpp]), 'd' );
+			//display_type( (TLST.type['_4decoded'+bpp]).n, 'd' );
 
+
+			_TLST = TLST;
+		};
 
 
 

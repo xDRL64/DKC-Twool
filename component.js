@@ -19,56 +19,59 @@ dkc2ldd.component = (function(app=dkc2ldd){
 	let doNothing = function(){};
 	let unsetLib = doNothing;
 
+	let readLib = app?.gfx?.fast || {};
+	let writeLib = app?.write || {};
+
 	gfxlib.palette = {
-		decode2 : app?.gfx?.fast?.decode_palette || unsetLib,
-		decode4 : app?.gfx?.fast?.decode_palette || unsetLib,
-		decode8 : app?.gfx?.fast?.decode_palette || unsetLib,
+		decode2 : readLib.decode_palette || unsetLib,
+		decode4 : readLib.decode_palette || unsetLib,
+		decode8 : readLib.decode_palette || unsetLib,
 
-		format2 : app?.gfx?.fast?.format_palette || unsetLib,
-		format4 : app?.gfx?.fast?.format_palette || unsetLib,
-		format8 : app?.gfx?.fast?.format_palette || unsetLib,
+		format2 : readLib.format_palette || unsetLib,
+		format4 : readLib.format_palette || unsetLib,
+		format8 : readLib.format_palette || unsetLib,
 
-		writeD2 : app?.write?.decodedPalette || unsetLib,
-		writeD4 : app?.write?.decodedPalette || unsetLib,
-		writeD8 : app?.write?.decodedPalette || unsetLib,
+		writeD2 : writeLib.decodedPalette || unsetLib,
+		writeD4 : writeLib.decodedPalette || unsetLib,
+		writeD8 : writeLib.decodedPalette || unsetLib,
 
-		writeF2 : app?.write?.formatedPalette || unsetLib,
-		writeF4 : app?.write?.formatedPalette || unsetLib,
-		writeF8 : app?.write?.formatedPalette || unsetLib,
+		writeF2 : writeLib.formatedPalette || unsetLib,
+		writeF4 : writeLib.formatedPalette || unsetLib,
+		writeF8 : writeLib.formatedPalette || unsetLib,
 	};
 
 	gfxlib.tileset = {
-		vramBackRef : app?.gfx?.fast?.animatedTiles_to_vramBackRef || unsetLib,
-		anim_vram : app?.gfx?.fast?.animatedTiles_to_vramTileset || unsetLib,
-		vram_anim : app?.gfx?.fast?.vramTileset_to_animatedTiles || unsetLib,
-		clampLen2 : app?.write?.get_clampedLength2 || unsetLib,
-		clampCopy : app?.write?.clampedCopy || unsetLib,
-		ignoreAnim : app?.write?.copy_byteToByte || unsetLib,
-		avoidAnim : app?.write?.copy_byteToByteWithSrcMask || unsetLib,
+		vramBackRef : readLib.animatedTiles_to_vramBackRef || unsetLib,
+		anim_vram : readLib.animatedTiles_to_vramTileset || unsetLib,
+		vram_anim : readLib.vramTileset_to_animatedTiles || unsetLib,
+		clampLen2 : writeLib.get_clampedLength2 || unsetLib,
+		clampCopy : writeLib.clampedCopy || unsetLib,
+		ignoreAnim : writeLib.copy_byteToByte || unsetLib,
+		avoidAnim : writeLib.copy_byteToByteWithSrcMask || unsetLib,
 
-		decode2 : null || unsetLib,
-		decode4 : null || unsetLib,
-		decode8 : null || unsetLib,
-		
-		_4decode2 : null || unsetLib,
-		_4decode4 : null || unsetLib,
-		_4decode8 : null || unsetLib,
+		decode2 : readLib.decode_2bppTileset || unsetLib,
+		decode4 : readLib.decode_4bppTileset_NEW || unsetLib,
+		decode8 : readLib.decode_8bppTileset || unsetLib,
 
-		format2 : null || unsetLib,
-		format4 : null || unsetLib,
-		format8 : null || unsetLib,
+		_4decode2 : readLib.create_4decoded2bppTileset || unsetLib,
+		_4decode4 : readLib.create_4decoded4bppTileset || unsetLib,
+		_4decode8 : readLib.create_4decoded8bppTileset || unsetLib,
 
-		_4format2 : null || unsetLib,
-		_4format4 : null || unsetLib,
-		_4format8 : null || unsetLib,
-		
-		writeD2 : null || unsetLib,
-		writeD4 : null || unsetLib,
-		writeD8 : null || unsetLib,
+		format2 : readLib.format_2bppTileset || unsetLib,
+		format4 : readLib.format_4bppTileset || unsetLib,
+		format8 : readLib.format_8bppTileset || unsetLib,
 
-		writeF2 : null || unsetLib,
-		writeF4 : null || unsetLib,
-		writeF8 : null || unsetLib,
+		_4format2 : readLib.create_4formated2bppTileset || unsetLib,
+		_4format4 : readLib.create_4formatedTileset || unsetLib,
+		_4format8 : readLib.create_4formated8bppTileset || unsetLib,
+
+		writeD2 : writeLib.decodedTileset || unsetLib,
+		writeD4 : writeLib.decodedTileset || unsetLib,
+		writeD8 : writeLib.decodedTileset || unsetLib,
+
+		writeF2 : writeLib.formatedTileset || unsetLib,
+		writeF4 : writeLib.formatedTileset || unsetLib,
+		writeF8 : writeLib.formatedTileset || unsetLib,
 	};
 
 	o.Palette = function(data, gfxlib=gfxlib.palette){
@@ -174,13 +177,11 @@ dkc2ldd.component = (function(app=dkc2ldd){
 
 		let obj = {};
 
-		let main = {};
-		// 1024 * 32 = 32768
-
 		let bufferSize = ({2:1024*16,4:1024*32,8:1024*64})[bpp];
-
+		
+		// 1024 * 32 = 32768
+		let main = {};
 		main.buffer = new Uint8Array(bufferSize);
-		obj.get_buffer = function(){return main.buffer};
 		main.src = data.ownerRefs;
 		main.offset = data.byteOffset || 0;
 		main.vramOfst = data.vramOffset || 0;
@@ -226,14 +227,66 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			anim.frame = 0;
 		}
 
-		/* obj.type = {
-			decoded2  : [null,null,null,null],
-			decoded4  : [null,null,null,null],
-			decoded8  : [null,null,null,null],
-			formated2 : [null,null,null,null],
-			formated4 : [null,null,null,null],
-			formated8 : [null,null,null,null],
-		}; */
+		let _4nullishedHard = [null,null,null,null];
+		_4nullishedHard.n = _4nullishedHard.h = _4nullishedHard.v = _4nullishedHard.a = null;
+
+		obj.type = {
+			decoded2 : null,
+			decoded4 : null,
+			decoded8 : null,
+
+			formated2 : null,
+			formated4 : null,
+			formated8 : null,
+
+			_4decoded2 : _4nullishedHard,
+			_4decoded4 : _4nullishedHard,
+			_4decoded8 : _4nullishedHard,
+			
+			_4formated2 : _4nullishedHard,
+			_4formated4 : _4nullishedHard,
+			_4formated8 : _4nullishedHard,
+		};
+
+
+		let get_typeUpdate = function(){
+			return {
+				// read and write :
+
+				decoded2  : {func:gfxlib.decode2, args:[vram.buffer]},
+				decoded4  : {func:gfxlib.decode4, args:[vram.buffer]},
+				decoded8  : {func:gfxlib.decode8, args:[vram.buffer]},
+
+				formated2 : {func:gfxlib.format2, args:[vram.buffer]},
+				formated4 : {func:gfxlib.format4, args:[vram.buffer]},
+				formated8 : {func:gfxlib.format8, args:[vram.buffer]},
+
+				// read only :
+
+				_4decoded2 : {func:gfxlib._4decode2, args:[vram.buffer]},
+				_4decoded4 : {func:gfxlib._4decode4, args:[vram.buffer]},
+				_4decoded8 : {func:gfxlib._4decode8, args:[vram.buffer]},
+				
+				_4formated2 : {func:gfxlib._4format2, args:[vram.buffer]},
+				_4formated4 : {func:gfxlib._4format4, args:[vram.buffer]},
+				_4formated8 : {func:gfxlib._4format8, args:[vram.buffer]},
+			};
+		};
+
+
+		let get_typeSync = function(){
+			let type = obj.type;
+			return {
+				decoded2  : {func:gfxlib.writeD2, args:[vram.buffer,type.decoded2,2]},
+				decoded4  : {func:gfxlib.writeD4, args:[vram.buffer,type.decoded4,4]},
+				decoded8  : {func:gfxlib.writeD8, args:[vram.buffer,type.decoded8,8]},
+
+				formated2 : {func:gfxlib.writeF2, args:[vram.buffer,type.formated2,2]},
+				formated4 : {func:gfxlib.writeF4, args:[vram.buffer,type.formated4,4]},
+				formated8 : {func:gfxlib.writeF8, args:[vram.buffer,type.formated8,8]},
+			};
+		};
+
 
 		let dataListToBuffer = {sens:0, copy:copy};
 		let bufferToDataList = {sens:1, copy:copy};
@@ -287,12 +340,19 @@ dkc2ldd.component = (function(app=dkc2ldd){
 
 		// from vram to type
 		obj.update = function(){
-
+			let typeName = arguments;
+			let typeUpdate = get_typeUpdate();
+			let name, update;
+			for(name of typeName){
+				update = typeUpdate[name];
+				obj.type[name] = update.func(...(update.args));
+			}
 		};
 
 		// from type to vram
 		obj.sync = function(typeName){
-
+			let sync = get_typeSync()[typeName];
+			sync.func(...(sync.args));
 		};
 
 		// from type to vram to buffer/buffers to src
@@ -317,13 +377,9 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		// debug
 		//
 
-		obj.get_vram = function(){
-			return vram;
-		};
-
-		obj.get_allBuffer = function(){
-			return {buffer:main.buffer, buffers:anim.buffers};
-		};
+		obj.get_buffer = function(){ return main.buffer };
+		obj.get_vram = function(){ return vram; };
+		obj.get_allBuffer = function(){ return {buffer:main.buffer, buffers:anim.buffers}; };
 
 		obj._vram = vram.buffer;
 		obj._buffer = main.buffer;
