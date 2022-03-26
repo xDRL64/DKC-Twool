@@ -22,24 +22,24 @@
 		
 		
 		
-		let split_workspaceInto2Areas = function(){
+		let split_workspaceInto2Areas = function(heightA, heightB){
 			let A = document.createElement('div');
 			let B = document.createElement('div');
 			let C = document.createElement('div');
 
-			let applyStyle_splittedWorkspaceArea = style => {
+			let applyStyle_splittedWorkspaceArea = (style, height="50%") => {
 				style.display = "flex";
 				style.width = "100%";
-				style.height = "50%";
+				style.height = height;
 				style.border = "2px solid black";
 				style.boxSizing = "border-box";
 				style.whiteSpace = "nowrap";
 			};
 			
-			applyStyle_splittedWorkspaceArea(A.style);
+			applyStyle_splittedWorkspaceArea(A.style, heightA);
 			A.style.border = "2px solid green";
 			
-			applyStyle_splittedWorkspaceArea(B.style);
+			applyStyle_splittedWorkspaceArea(B.style, heightB);
 			B.style.border = "2px solid yellow";
 
 			C.style.border = "2px solid red";
@@ -53,13 +53,6 @@
 			return {upside : A, downside : B, parent : C};
 		};
 
-		let areas = split_workspaceInto2Areas();
-		areas.upside.style.height = "30%";
-		areas.downside.style.height = "70%";
-		let palArea = areas.upside;
-		let tsArea = areas.downside;
-		workspace.elem.appendChild(areas.parent);
-
 		let applyStyle_grid = style => {
 			style.background = "rgb(155, 127, 177)";
 			style.display = "grid";
@@ -72,7 +65,6 @@
 			style.gridGap = "1%";
 		};
 		
-
 		let columnElemHeight = 10; // in %
 		let applyStyle_columnElem = style => {
 			style.width = "80%";
@@ -143,7 +135,8 @@
 
 			o.view.style.backgroundColor = "black";
 			o.view.style.backgroundImage = "url("+app.imgPack.alphaTex+")";
-			o.view.style.backgroundSize = "10%";
+			o.view.style.backgroundSize = "16px";
+
 			o.view.style.border = "2px solid red";
 			return o;
 		};
@@ -156,11 +149,94 @@
 
 			o.view.style.backgroundColor = "black";
 			o.view.style.backgroundImage = "url("+app.imgPack.alphaTex+")";
-			o.view.style.backgroundSize = "10%";
+			o.view.style.backgroundSize = "16px";
 
 			o.hoverBox.style.border = "2px solid red";
 			return o;
 		};
+
+		const xpcmax = 16; // xpalcolmax (never change)
+		let build_paletteArea = function(srcFileColorCount){
+			// grid elem
+			let grid = document.createElement('div');
+			applyStyle_grid(grid.style);
+			grid.style.gridTemplateColumns = "1fr 2fr 1fr 2fr 1fr 2fr";
+			grid.style.gridTemplateRows = "1fr 4fr 1fr";
+
+			let columnPan = {
+				srcFile :         document.createElement('div'),
+				srcFile__buffer : document.createElement('div'),
+				buffer__type :    document.createElement('div'),
+			};
+
+			applyStyle_columnPanel(columnPan.srcFile.style);
+			applyStyle_columnPanel(columnPan.srcFile__buffer.style);
+			applyStyle_columnPanel(columnPan.buffer__type.style);
+
+			let gfxPan = {
+				srcFile : document.createElement('div'),
+				buffer :  document.createElement('div'),
+				type :    document.createElement('div'),
+			};
+
+			applyStyle_gfxPanel(gfxPan.srcFile.style);
+			applyStyle_gfxPanel(gfxPan.buffer.style);
+			applyStyle_gfxPanel(gfxPan.type.style);
+
+			// grid item location :
+			let s;
+
+			s = columnPan.srcFile.style;         s.gridColumn = "1 / span 1"; s.gridRow = "2 / span 1";
+			s = gfxPan.srcFile.style;            s.gridColumn = "2 / span 1"; s.gridRow = "2 / span 1";
+			s = columnPan.srcFile__buffer.style; s.gridColumn = "3 / span 1"; s.gridRow = "2 / span 1";
+			s = gfxPan.buffer.style;             s.gridColumn = "4 / span 1"; s.gridRow = "2 / span 1";
+			s = columnPan.buffer__type.style;    s.gridColumn = "5 / span 1"; s.gridRow = "2 / span 1";
+			s = gfxPan.type.style;               s.gridColumn = "6 / span 1"; s.gridRow = "2 / span 1";
+
+			// I/O html elements
+			let W = xpcmax;
+			let H = Math.ceil(256/xpcmax);
+			let srcFileH = Math.ceil(srcFileColorCount/xpcmax);
+			let IO = {
+				btn : {
+					displaySrcFile : create_columnPanButton("display from files"),
+					srcFileToBuffer : create_columnPanButton("🡺"),
+					bufferToSrcFile : create_columnPanButton("🡸"),
+					bufferToType : create_columnPanButton("🡺"),
+					typeToBuffer : create_columnPanButton("🡸"),
+				},
+
+				screen : {
+					srcFile : create_outputDisplay(W,srcFileH, 16),
+					buffer : create_outputDisplay(W,H, 16),
+					type : create_ioDisplay(W,H, 16),
+				}
+
+			};
+
+			// to grid connexion
+			grid.appendChild(columnPan.srcFile);
+			grid.appendChild(columnPan.srcFile__buffer);
+			grid.appendChild(columnPan.buffer__type);
+			grid.appendChild(gfxPan.srcFile);
+			grid.appendChild(gfxPan.buffer);
+			grid.appendChild(gfxPan.type);
+
+			// to cells connexion (input panel)
+			columnPan.srcFile.appendChild(IO.btn.displaySrcFile);
+			columnPan.srcFile__buffer.appendChild(IO.btn.srcFileToBuffer);
+			columnPan.srcFile__buffer.appendChild(IO.btn.bufferToSrcFile);
+			columnPan.buffer__type.appendChild(IO.btn.bufferToType);
+			columnPan.buffer__type.appendChild(IO.btn.typeToBuffer);
+
+			// to cells connexion (output panel)
+			gfxPan.srcFile.appendChild(IO.screen.srcFile.elem);
+			gfxPan.buffer.appendChild(IO.screen.buffer.elem);
+			gfxPan.type.appendChild(IO.screen.type.hoverBox);
+
+			return {grid:grid, elems:IO};
+		};
+
 
 		let build_tilesetArea = function(xtmax, srcFileTileCount){
 
@@ -171,15 +247,14 @@
 			grid.style.gridTemplateRows = "1fr 4fr 4fr 1fr";
 			
 			// cell elems
-
-			let columnPan_A1 = document.createElement('div');
-			let columnPan_A2 = document.createElement('div');
-			let columnPan_A3 = document.createElement('div');
-			let columnPan_B1 = document.createElement('div');
-			let columnPan_B2 = document.createElement('div');
-			let columnPan_B3 = document.createElement('div');
-			let columnPan_C1 = document.createElement('div');
-			let columnPan_C2 = document.createElement('div');
+			let columnPan_A1 = document.createElement('div'); // tileset           srcFile
+			let columnPan_A2 = document.createElement('div'); // tileset/animation srcFile__buffer
+			let columnPan_A3 = document.createElement('div'); // tileset           buffer__vram
+			let columnPan_B1 = document.createElement('div'); // animation         srcFile
+			let columnPan_B2 = document.createElement('div'); // animation         prevFileNum
+			let columnPan_B3 = document.createElement('div'); // animation         buffer__vram
+			let columnPan_C1 = document.createElement('div'); // work              vramFrameNum
+			let columnPan_C2 = document.createElement('div'); // work              vram__type
 			
 			applyStyle_columnPanel(columnPan_A1.style);
 			applyStyle_columnPanel(columnPan_A2.style);
@@ -314,11 +389,80 @@
 			return {grid:grid, elems:IO};
 		};
 
+		//////////////
+		// WORKAREA //
+		//////////////
 
+		let areas = split_workspaceInto2Areas("30%", "70%");
 
-		// process
+		let palArea = areas.upside;
+		let tsArea = areas.downside;
+		workspace.elem.appendChild(areas.parent);
 
 		let bpp = 4;
+
+
+		//////////////////
+		// PALETTE AREA //
+		//////////////////
+
+		let paletteSlot = srcFilePanel.palette;
+		let palDataAccess = paletteSlot.get_dataWithOwnerAccess();
+
+		let palSize = 0;
+		for(let obj of palDataAccess)
+			palSize += obj.data.length;
+
+		let palColCount = palSize >> 1; // div by 2
+		let paletteArea = build_paletteArea(palColCount);
+		palArea.appendChild(paletteArea.grid);
+
+		let PAL = app.component.Palette( {ownerRefs:palDataAccess, byteOffset:0} );
+
+		// DISPLAY FUNCTIONS
+		//
+
+		// palette source files
+		let display_paletteSrcFile = function(){
+			let data = paletteSlot.get_data__OLD();
+			let ctx = paletteArea.elems.screen.srcFile.ctx;
+			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+			gfx.draw_snespal(data, ctx);
+		};
+
+		// palette buffer
+		let display_paletteBuffer = function(){
+			let data = PAL._buffer;
+			let ctx = paletteArea.elems.screen.buffer.ctx;
+			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+			gfx.draw_snespal(data, ctx);
+		};
+
+		// EVENT FUNCTIONS
+		//
+
+		// COLUMN 1 //
+		
+		// [UPDATE FROM FILE] palette button : display source files
+		paletteArea.elems.btn.displaySrcFile.onclick = function(){
+			// draw palette srcFile
+			display_paletteSrcFile();
+		};
+
+		// COLUMN 2 //
+		
+		// [🡺] palette button : source files to buffer/buffers
+		paletteArea.elems.btn.srcFileToBuffer.onclick = function(){
+			PAL.init();
+
+			// draw palette buffer
+			display_paletteBuffer();
+		};
+
+		//////////////////
+		// TILESET AREA //
+		//////////////////
+
 		let xtmax = 16;
 		let iAnimFile = 0;
 		let iAnimFrame = 0;
@@ -329,23 +473,19 @@
 		let tlstDataAccess = tilesetSlot.get_dataWithOwnerAccess();
 		let animDataAccess = animationSlot.get_dataWithOwnerAccess();
 
-		let len = tlstDataAccess.length;
 		let tlstSize = 0;
-		for(let i=0; i<len; i++)
-			tlstSize += tlstDataAccess[i].data.length;
+		for(let obj of tlstDataAccess)
+			tlstSize += obj.data.length;
 
-
-		let animFileCount = animDataAccess.length;
 		let animMaxSize = 0;
-		for(let i=0; i<animFileCount; i++)
-			animMaxSize = Math.max(animMaxSize, animDataAccess[i].data.length);
-
+		let animFileCount = animDataAccess.length;
+		for(let obj of animDataAccess)
+			animMaxSize = Math.max(animMaxSize, obj.data.length);
 
 		let srcFileMaxSize = Math.max(tlstSize, animMaxSize);
 		let maxTileCount = {2:srcFileMaxSize>>4, 4:srcFileMaxSize>>5, 8:srcFileMaxSize>>6}[bpp];
 
 		let tlstArea = build_tilesetArea(xtmax, maxTileCount);
-
 		tsArea.appendChild(tlstArea.grid);
 
 
@@ -359,9 +499,9 @@
 
 		let TLST = app.component.Tileset(
 			//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
-			{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:0},
+			{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:0},
 			bpp,
-			{ownerRefs:animationSlot.get_dataWithOwnerAccess(), vramRefs:animationSlot.vramRefs},
+			{ownerRefs:animDataAccess, vramRefs:animationSlot.vramRefs},
 		);
 
 
@@ -461,10 +601,13 @@
 				gfx.draw_formatedTileset(typeObj,palette, 0,0, xtmax, ctx);
 		};
 
-		//////////////
-		// COLUMN 1 //
-		//////////////
 
+		// EVENT FUNCTIONS
+		//
+
+		
+		// COLUMN 1 //
+		
 		// [UPDATE FROM FILE] tilset button : display source files
 		tlstArea.elems.btn.tlst_displaySrcFile.onclick = function(){
 			// draw tileset srcFile
@@ -477,10 +620,9 @@
 			display_animSrcFile();
 		};
 		
-		//////////////
+		
 		// COLUMN 2 //
-		//////////////
-
+		
 		// [###] animation input : file number
 		tlstArea.elems.inum.anim_fileNum.oninput = function(){
 			// change element value
@@ -510,10 +652,9 @@
 			display_animSrcFile();
 		};
 
-		//////////////
+		
 		// COLUMN 3 //
-		//////////////
-
+		
 		// [🡺] tileset button : buffer to vram
 		tlstArea.elems.btn.tlst_bufferToVram.onclick = function(){
 			TLST.load();
@@ -544,10 +685,9 @@
 			display_animBuffers();
 		};
 
-		//////////////
+		
 		// COLUMN 4 //
-		//////////////
-
+		
 		// [###] animation input : frame number
 		tlstArea.elems.inum.work_vramFrame.oninput = function(){
 			let maxFrame = 8;
@@ -561,10 +701,9 @@
 			display_vram();
 		};
 
-		//////////////
+		
 		// COLUMN 5 //
-		//////////////
-
+		
 		// [🡺] work botton : vram to type object
 		tlstArea.elems.btn.work_vramToType.onclick = function(){
 			TLST.update(
@@ -595,6 +734,7 @@
 
 			display_vram();
 		};
+
 
 		// DEBUG
 		window.debug_display = function(){

@@ -74,11 +74,13 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		writeF8 : writeLib.formatedTileset || unsetLib,
 	};
 
-	o.Palette = function(data, gfxlib=gfxlib.palette){
+	let gfxlibpalette = gfxlib.palette;
+
+	o.Palette = function(data, gfxlib=gfxlibpalette){
 
 		let obj = {};
 
-		let buffer = new Uint8Array(512); obj.get_buffer = function(){return buffer};
+		let buffer = new Uint8Array(512);
 		
 		let src = data.ownerRefs;
 
@@ -164,6 +166,9 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			bufferToDataList.copy(buffer, src, offset);
 		};
 		
+		// debug
+		obj.get_buffer = function(){return buffer};
+		obj._buffer = buffer;
 
 		return obj;
 
