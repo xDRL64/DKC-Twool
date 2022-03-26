@@ -247,23 +247,43 @@
 			grid.style.gridTemplateRows = "1fr 4fr 4fr 1fr";
 			
 			// cell elems
-			let columnPan_A1 = document.createElement('div'); // tileset           srcFile
-			let columnPan_A2 = document.createElement('div'); // tileset/animation srcFile__buffer
-			let columnPan_A3 = document.createElement('div'); // tileset           buffer__vram
-			let columnPan_B1 = document.createElement('div'); // animation         srcFile
-			let columnPan_B2 = document.createElement('div'); // animation         prevFileNum
-			let columnPan_B3 = document.createElement('div'); // animation         buffer__vram
-			let columnPan_C1 = document.createElement('div'); // work              vramFrameNum
-			let columnPan_C2 = document.createElement('div'); // work              vram__type
+
+			let columnPan = {
+				tlst : {
+					srcFile :      document.createElement('div'),
+					buffer__vram : document.createElement('div'),
+				},
+				anim : {
+					srcFile : document.createElement('div'),
+					buffer__vram : document.createElement('div'),
+					fileNum : document.createElement('div'),
+				},
+				both : {
+					srcFile__buffer : document.createElement('div'),
+				},
+				work : {
+					frameNum : document.createElement('div'),
+					vram__type : document.createElement('div'),
+				},
+			};
+
+			//let columnPan.tlst.srcFile = document.createElement('div'); // tileset           srcFile
+			//let columnPan.tlst.buffer__vram = document.createElement('div'); // tileset           buffer__vram
+			//let columnPan.anim.srcFile = document.createElement('div'); // animation         srcFile
+			//let columnPan.anim.buffer__vram = document.createElement('div'); // animation         buffer__vram
+			//let columnPan.anim.fileNum = document.createElement('div'); // animation         FileNum
+			//let columnPan.both.srcFile__buffer = document.createElement('div'); // both              srcFile__buffer
+			//let columnPan.work.frameNum = document.createElement('div'); // work              frameNum
+			//let columnPan.work.vram__type = document.createElement('div'); // work              vram__type
 			
-			applyStyle_columnPanel(columnPan_A1.style);
-			applyStyle_columnPanel(columnPan_A2.style);
-			applyStyle_columnPanel(columnPan_A3.style);
-			applyStyle_columnPanel(columnPan_B1.style);
-			applyStyle_columnPanel(columnPan_B2.style);
-			applyStyle_columnPanel(columnPan_B3.style);
-			applyStyle_columnPanel(columnPan_C1.style);
-			applyStyle_columnPanel(columnPan_C2.style);
+			applyStyle_columnPanel(columnPan.tlst.srcFile.style);
+			applyStyle_columnPanel(columnPan.both.srcFile__buffer.style);
+			applyStyle_columnPanel(columnPan.tlst.buffer__vram.style);
+			applyStyle_columnPanel(columnPan.anim.srcFile.style);
+			applyStyle_columnPanel(columnPan.anim.fileNum.style);
+			applyStyle_columnPanel(columnPan.anim.buffer__vram.style);
+			applyStyle_columnPanel(columnPan.work.frameNum.style);
+			applyStyle_columnPanel(columnPan.work.vram__type.style);
 
 			let gfxPan_ts_binprev = document.createElement('div');
 			let gfxPan_ts_buffer = document.createElement('div');
@@ -282,22 +302,22 @@
 			// grid item location :
 			let s;
 			
-			s = columnPan_A1.style;        s.gridColumn = "1 / span 1"; s.gridRow = "2 / span 1";
-			s = gfxPan_ts_binprev.style;   s.gridColumn = "2 / span 1"; s.gridRow = "2 / span 1";
-			s = columnPan_A2.style;        s.gridColumn = "3 / span 1"; s.gridRow = "2 / span 2"; // _2
-			s = gfxPan_ts_buffer.style;    s.gridColumn = "4 / span 1"; s.gridRow = "2 / span 1";
-			s = columnPan_A3.style;        s.gridColumn = "5 / span 1"; s.gridRow = "2 / span 1";
+			s = columnPan.tlst.srcFile.style;         s.gridColumn = "1 / span 1"; s.gridRow = "2 / span 1";
+			s = gfxPan_ts_binprev.style;              s.gridColumn = "2 / span 1"; s.gridRow = "2 / span 1";
+			s = columnPan.both.srcFile__buffer.style; s.gridColumn = "3 / span 1"; s.gridRow = "2 / span 2"; // overlap
+			s = gfxPan_ts_buffer.style;               s.gridColumn = "4 / span 1"; s.gridRow = "2 / span 1";
+			s = columnPan.tlst.buffer__vram.style;    s.gridColumn = "5 / span 1"; s.gridRow = "2 / span 1";
 		 
-			s = columnPan_B1.style;        s.gridColumn = "1 / span 1"; s.gridRow = "3 / span 1";
-			s = gfxPan_anim_binprev.style; s.gridColumn = "2 / span 1"; s.gridRow = "3 / span 1";
-			s = columnPan_B2.style;        s.gridColumn = "3 / span 1"; s.gridRow = "3 / span 1"; // _2
-			s = gfxPan_anim_buffer.style;  s.gridColumn = "4 / span 1"; s.gridRow = "3 / span 1";
-			s = columnPan_B3.style;        s.gridColumn = "5 / span 1"; s.gridRow = "3 / span 1";
+			s = columnPan.anim.srcFile.style;         s.gridColumn = "1 / span 1"; s.gridRow = "3 / span 1";
+			s = gfxPan_anim_binprev.style;            s.gridColumn = "2 / span 1"; s.gridRow = "3 / span 1";
+			s = columnPan.anim.fileNum.style;         s.gridColumn = "3 / span 1"; s.gridRow = "3 / span 1"; // overlap
+			s = gfxPan_anim_buffer.style;             s.gridColumn = "4 / span 1"; s.gridRow = "3 / span 1";
+			s = columnPan.anim.buffer__vram.style;    s.gridColumn = "5 / span 1"; s.gridRow = "3 / span 1";
 		 
-			s = columnPan_C1.style;        s.gridColumn = "6 / span 1"; s.gridRow = "1 / span 1";
-			s = gfxPan_vram.style;         s.gridColumn = "6 / span 1"; s.gridRow = "2 / span 2";
-			s = columnPan_C2.style;        s.gridColumn = "7 / span 1"; s.gridRow = "2 / span 2";
-			s = gfxPan_type.style;         s.gridColumn = "8 / span 1"; s.gridRow = "2 / span 2";
+			s = columnPan.work.frameNum.style;        s.gridColumn = "6 / span 1"; s.gridRow = "1 / span 1";
+			s = gfxPan_vram.style;                    s.gridColumn = "6 / span 1"; s.gridRow = "2 / span 2";
+			s = columnPan.work.vram__type.style;      s.gridColumn = "7 / span 1"; s.gridRow = "2 / span 2";
+			s = gfxPan_type.style;                    s.gridColumn = "8 / span 1"; s.gridRow = "2 / span 2";
 
 			// I/O html elements
 			let W = xtmax * 8;
@@ -340,14 +360,14 @@
 			};
 
 			// to grid connexion
-			grid.appendChild(columnPan_A1);
-			grid.appendChild(columnPan_A2);
-			grid.appendChild(columnPan_A3);
-			grid.appendChild(columnPan_B1);
-			grid.appendChild(columnPan_B2);
-			grid.appendChild(columnPan_B3);
-			grid.appendChild(columnPan_C1);
-			grid.appendChild(columnPan_C2);
+			grid.appendChild(columnPan.tlst.srcFile);
+			grid.appendChild(columnPan.both.srcFile__buffer);
+			grid.appendChild(columnPan.tlst.buffer__vram);
+			grid.appendChild(columnPan.anim.srcFile);
+			grid.appendChild(columnPan.anim.fileNum);
+			grid.appendChild(columnPan.anim.buffer__vram);
+			grid.appendChild(columnPan.work.frameNum);
+			grid.appendChild(columnPan.work.vram__type);
 			grid.appendChild(gfxPan_ts_binprev);
 			grid.appendChild(gfxPan_ts_buffer);
 			grid.appendChild(gfxPan_anim_binprev);
@@ -356,23 +376,21 @@
 			grid.appendChild(gfxPan_type);
 
 			// to cells connexion (input panel)
-			columnPan_A1.appendChild(IO.btn.tlst_displaySrcFile);
-			columnPan_A2.appendChild(IO.btn.tlst_srcFileToBuffer);
-			columnPan_A2.appendChild(IO.btn.tlst_bufferToSrcFile);
-			columnPan_A3.appendChild(IO.btn.tlst_bufferToVram);
-			columnPan_A3.appendChild(IO.btn.tlst_vramToBuffer);
+			columnPan.tlst.srcFile.appendChild(IO.btn.tlst_displaySrcFile);
+			columnPan.both.srcFile__buffer.appendChild(IO.btn.tlst_srcFileToBuffer);
+			columnPan.both.srcFile__buffer.appendChild(IO.btn.tlst_bufferToSrcFile);
+			columnPan.tlst.buffer__vram.appendChild(IO.btn.tlst_bufferToVram);
+			columnPan.tlst.buffer__vram.appendChild(IO.btn.tlst_vramToBuffer);
 
-			columnPan_B1.appendChild(IO.btn.anim_displaySrcFile);
-			columnPan_B2.appendChild(IO.inum.anim_fileNum);
-			/* columnPan_B2.appendChild(IO.btn.anim_srcFileToBuffer);
-			columnPan_B2.appendChild(IO.btn.anim_bufferToSrcFile); */
-			columnPan_B3.appendChild(IO.btn.anim_bufferToVram);
-			columnPan_B3.appendChild(IO.btn.anim_vramToBuffer);
+			columnPan.anim.srcFile.appendChild(IO.btn.anim_displaySrcFile);
+			columnPan.anim.fileNum.appendChild(IO.inum.anim_fileNum);
+			columnPan.anim.buffer__vram.appendChild(IO.btn.anim_bufferToVram);
+			columnPan.anim.buffer__vram.appendChild(IO.btn.anim_vramToBuffer);
 
-			columnPan_C1.appendChild(IO.inum.work_vramFrame);
+			columnPan.work.frameNum.appendChild(IO.inum.work_vramFrame);
 
-			columnPan_C2.appendChild(IO.btn.work_vramToType);
-			columnPan_C2.appendChild(IO.btn.work_typeToVram);
+			columnPan.work.vram__type.appendChild(IO.btn.work_vramToType);
+			columnPan.work.vram__type.appendChild(IO.btn.work_typeToVram);
 
 
 			// to cells connexion (output panel)
