@@ -16,6 +16,15 @@
 		// current workspace object
 		let o = {};
 
+		let calc_vramRef = function(){
+			let bpp = this.bpp;
+			if(bpp===2 || bpp===4 || bpp===8){
+				bpp = ({2:16,4:32,8:64})[bpp];
+				this.destOffset = this.dstIndex * bpp;
+				this.frameSize = this.animTiles * bpp;
+			}
+		};
+
 		// code ...
 
 
@@ -191,12 +200,22 @@
 			animation : [
 				{ name : 'ship mast flag animated tileset',
 					address: 0x3A5FC1, size: 0x1E00, compressed: false,
-					vram: {destOffset: 1*32, frameSize: 30*32, frameCount: 8, bpp:4}
+					//vram: {destOffset: 1*32, frameSize: 30*32, frameCount: 8, bpp:4}
+					vram: {
+						dstIndex: 1,      animTiles: 30,
+						destOffset: 1*32, frameSize: 30*32, frameCount: 8, bpp: 4,
+						calc_ref: calc_vramRef
+					}
 					// iFile iVRDest tLen fLen
 				},
 				{ name : 'ship mast rain animated tileset',
 					address: 0x336EE8, size: 0x1000, compressed: false,
-					vram: {destOffset: 752*32, frameSize: 16*32, frameCount: 8, bpp:4}
+					//vram: {destOffset: 752*32, frameSize: 16*32, frameCount: 8, bpp:4}
+					vram: {
+						dstIndex: 752,      animTiles: 16,
+						destOffset: 752*32, frameSize: 16*32, frameCount: 8, bpp:4,
+						calc_ref: calc_vramRef
+					}
 				}
 			],
 			// bg rain DATA_F641C1
@@ -205,12 +224,22 @@
 			bganimation : [
 				{ name : 'ship mast rain animated bg tileset',
 					address: 0x3641C1, size: 0x4000, compressed: false,
-					vram: {destOffset: 0*16, frameSize: 64*16, frameCount: 8, bpp:2}
+					//vram: {destOffset: 0*16, frameSize: 64*16, frameCount: 8, bpp:2}
+					vram: {
+						dstIndex: 0,      animTiles: 64,
+						destOffset: 0*16, frameSize: 64*16, frameCount: 8, bpp:2,
+						calc_ref: calc_vramRef
+					}
 				},
 				// test & debug
 				{ name : 'ship mast rain animated bg tileset',
 					address: 0x3641C1, size: 0x4000, compressed: false,
-					vram: {destOffset: 0*32, frameSize: 32*32, frameCount: 8, bpp:4}
+					//vram: {destOffset: 0*32, frameSize: 32*32, frameCount: 8, bpp:4}
+					vram: {
+						dstIndex: 0,      animTiles: 32,
+						destOffset: 0*32, frameSize: 32*32, frameCount: 8, bpp:4,
+						calc_ref: calc_vramRef
+					}
 				},
 			],
 			// E5:E0C8 ~ E5:F52D (0x2540) - Tilemap (8x8)
@@ -221,6 +250,9 @@
 				}
 			]
 		};
+
+		
+
 
 		/* 
 		DATA_D4FC2D	wasp_hive_bg_layer_3_8x8_tilemap

@@ -266,15 +266,6 @@
 					vram__type : document.createElement('div'),
 				},
 			};
-
-			//let columnPan.tlst.srcFile = document.createElement('div'); // tileset           srcFile
-			//let columnPan.tlst.buffer__vram = document.createElement('div'); // tileset           buffer__vram
-			//let columnPan.anim.srcFile = document.createElement('div'); // animation         srcFile
-			//let columnPan.anim.buffer__vram = document.createElement('div'); // animation         buffer__vram
-			//let columnPan.anim.fileNum = document.createElement('div'); // animation         FileNum
-			//let columnPan.both.srcFile__buffer = document.createElement('div'); // both              srcFile__buffer
-			//let columnPan.work.frameNum = document.createElement('div'); // work              frameNum
-			//let columnPan.work.vram__type = document.createElement('div'); // work              vram__type
 			
 			applyStyle_columnPanel(columnPan.tlst.srcFile.style);
 			applyStyle_columnPanel(columnPan.both.srcFile__buffer.style);
@@ -417,407 +408,439 @@
 		let tsArea = areas.downside;
 		workspace.elem.appendChild(areas.parent);
 
-		let bpp = 4;
+		let bpp = 8;
 
 
 		//////////////////
 		// PALETTE AREA //
 		//////////////////
 
-		let paletteSlot = srcFilePanel.palette;
-		let palDataAccess = paletteSlot.get_dataWithOwnerAccess();
+		(function(){
+			let paletteSlot = srcFilePanel.palette;
+			let palDataAccess = paletteSlot.get_dataWithOwnerAccess();
+	
+			let palSize = 0;
+			for(let obj of palDataAccess)
+				palSize += obj.data.length;
+	
+			let palColCount = palSize >> 1; // div by 2
+			let paletteArea = build_paletteArea(palColCount);
+			palArea.appendChild(paletteArea.grid);
+	
+			let PAL = app.component.Palette( {ownerRefs:palDataAccess, byteOffset:0} );
+	
+			// DISPLAY FUNCTIONS
+			//
+	
+			// palette source files
+			let display_paletteSrcFile = function(){
+				let data = paletteSlot.get_data__OLD();
+				let ctx = paletteArea.elems.screen.srcFile.ctx;
+				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+				gfx.draw_snespal(data, ctx);
+			};
+	
+			// palette buffer
+			let display_paletteBuffer = function(){
+				let data = PAL._buffer;
+				let ctx = paletteArea.elems.screen.buffer.ctx;
+				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+				gfx.draw_snespal(data, ctx);
+			};
+	
+			// palette type
+			let display_paletteType = function(typeObj, typeFlag){
+				let ctx =  paletteArea.elems.screen.type.ctx;
+				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+				if(typeFlag === 'd')
+					gfx.draw_decodedPalette(typeObj, ctx);
+				if(typeFlag === 'f')
+					gfx.draw_formatedPalette(typeObj, bpp, ctx);
+	
+			};
+	
+			// EVENT FUNCTIONS
+			//
+	
+			// COLUMN 1 //
+			
+			// [UPDATE FROM FILE] palette button : display source files
+			paletteArea.elems.btn.displaySrcFile.onclick = function(){
+				// draw palette srcFile
+				display_paletteSrcFile();
+			};
+	
+			// COLUMN 2 //
+			
+			// [🡺] palette button : source files to buffer
+			paletteArea.elems.btn.srcFileToBuffer.onclick = function(){
+				PAL.init();
+	
+				// draw palette buffer
+				display_paletteBuffer();
+			};
+	
+			// COLUMN 3 //
+	
+			// [🡺] palette button : buffer to type
+			paletteArea.elems.btn.bufferToType.onclick = function(){
+				PAL.update('decoded'+bpp,'formated'+bpp);
+				// draw palette type
+				//display_paletteType(PAL.type['decoded'+bpp], 'd');
+				display_paletteType(PAL.type['formated'+bpp], 'f');
+			};
 
-		let palSize = 0;
-		for(let obj of palDataAccess)
-			palSize += obj.data.length;
+		})();
 
-		let palColCount = palSize >> 1; // div by 2
-		let paletteArea = build_paletteArea(palColCount);
-		palArea.appendChild(paletteArea.grid);
 
-		let PAL = app.component.Palette( {ownerRefs:palDataAccess, byteOffset:0} );
 
-		// DISPLAY FUNCTIONS
-		//
-
-		// palette source files
-		let display_paletteSrcFile = function(){
-			let data = paletteSlot.get_data__OLD();
-			let ctx = paletteArea.elems.screen.srcFile.ctx;
-			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-			gfx.draw_snespal(data, ctx);
-		};
-
-		// palette buffer
-		let display_paletteBuffer = function(){
-			let data = PAL._buffer;
-			let ctx = paletteArea.elems.screen.buffer.ctx;
-			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-			gfx.draw_snespal(data, ctx);
-		};
-
-		// EVENT FUNCTIONS
-		//
-
-		// COLUMN 1 //
-		
-		// [UPDATE FROM FILE] palette button : display source files
-		paletteArea.elems.btn.displaySrcFile.onclick = function(){
-			// draw palette srcFile
-			display_paletteSrcFile();
-		};
-
-		// COLUMN 2 //
-		
-		// [🡺] palette button : source files to buffer/buffers
-		paletteArea.elems.btn.srcFileToBuffer.onclick = function(){
-			PAL.init();
-
-			// draw palette buffer
-			display_paletteBuffer();
-		};
 
 		//////////////////
 		// TILESET AREA //
 		//////////////////
 
-		let xtmax = 16;
-		let iAnimFile = 0;
-		let iAnimFrame = 0;
-
-		let tilesetSlot = srcFilePanel.tileset;
-		let animationSlot = srcFilePanel.animation;
-
-		let tlstDataAccess = tilesetSlot.get_dataWithOwnerAccess();
-		let animDataAccess = animationSlot.get_dataWithOwnerAccess();
-
-		let tlstSize = 0;
-		for(let obj of tlstDataAccess)
-			tlstSize += obj.data.length;
-
-		let animMaxSize = 0;
-		let animFileCount = animDataAccess.length;
-		for(let obj of animDataAccess)
-			animMaxSize = Math.max(animMaxSize, obj.data.length);
-
-		let srcFileMaxSize = Math.max(tlstSize, animMaxSize);
-		let maxTileCount = {2:srcFileMaxSize>>4, 4:srcFileMaxSize>>5, 8:srcFileMaxSize>>6}[bpp];
-
-		let tlstArea = build_tilesetArea(xtmax, maxTileCount);
-		tsArea.appendChild(tlstArea.grid);
-
-
-		let pal = app.gfx.defaultPalettes[1];
-		let _pal = app.gfx.defaultPalettes;
-		let pal256 = _pal[0].concat(_pal[1]).concat(_pal[2]).concat(_pal[3]).
-					concat(_pal[4]).concat(_pal[5]).concat(_pal[6]).concat(_pal[7]);
-		pal256 = pal256.concat(pal256);
-
-
-
-		let TLST = app.component.Tileset(
-			//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
-			{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:0},
-			bpp,
-			{ownerRefs:animDataAccess, vramRefs:animationSlot.vramRefs},
-		);
-
-
-		// DISPLAY FUNCTIONS
-		//
-
-		// tileset source files
-		let display_tlstSrcFile = function(){
-			let tlst = tilesetSlot.get_data__OLD();
-			let ctx = tlstArea.elems.screen.tlst_srcFile.ctx;
-			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-			if(bpp === 2){
-				let pal = app.gfx.defaultPalettes[1];
-				gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctx);
-			}
-			if(bpp === 4){
-				let pal = app.gfx.defaultPalettes[1];
-				gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctx);
-			}
-			if(bpp === 8){
-				gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctx);
-			}
-		};
-
-		// animation source files
-		let display_animSrcFile = function(){
-			let tlst = animationSlot.get_data()[iAnimFile];
-			let ctx =  tlstArea.elems.screen.anim_srcFile.ctx;
-			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-			if(bpp === 2){
-				gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctx);
-			}
-			if(bpp === 4){
-				gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctx);
-			}
-			if(bpp === 8){
-				gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctx);
-			}
-		};
-
-		// tileset buffer
-		let display_tlstBuffer = function(){
-			let tlst = TLST._buffer;
-			let ctxTlst =  tlstArea.elems.screen.tlst_buffer.ctx;
-			ctxTlst.clearRect(0,0,ctxTlst.canvas.width,ctxTlst.canvas.height);
-			if(bpp === 2){
-				gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctxTlst);
-			}
-			if(bpp === 4){
-				gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctxTlst);
-			}
-			if(bpp === 8){
-				gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctxTlst);
-			}
-		};
-
-		// animations buffers[#]
-		let display_animBuffers = function(){
-			let anim = TLST._buffers[iAnimFile];
-			let ctxAnim =  tlstArea.elems.screen.anim_buffer.ctx;
-			ctxAnim.clearRect(0,0,ctxAnim.canvas.width,ctxAnim.canvas.height);
-			if(bpp === 2){
-				gfx.draw_2bppTileset(anim,pal, 0,0, xtmax, ctxAnim);
-			}
-			if(bpp === 4){
-				gfx.draw_4bppTileset(anim,pal, 0,0, xtmax, ctxAnim);
-			}
-			if(bpp === 8){
-				gfx.draw_8bppTileset(anim,pal256, 0,0, xtmax, ctxAnim);
-			}
-		};
-
-		// vram buffer
-		let display_vram = function(){
-			let vram = TLST._vram;
-			let ctx =  tlstArea.elems.screen.vram_buffer.ctx;
-			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-			if(bpp === 2){
-				gfx.draw_2bppTileset(vram,pal, 0,0, xtmax, ctx);
-			}
-			if(bpp === 4){
-				gfx.draw_4bppTileset(vram,pal, 0,0, xtmax, ctx);
-			}
-			if(bpp === 8){
-				gfx.draw_8bppTileset(vram,pal256, 0,0, xtmax, ctx);
-			}
-		};
-
-		// type
-		let display_type = function(typeObj, typeFlag){
-			let ctx =  tlstArea.elems.screen.type_buffer.ctx;
-			ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-			let palette = bpp === 8 ? pal256 : pal;
-			if(typeFlag === 'd')
-				gfx.draw_decodedTileset_NEW(typeObj,palette, 0,0, xtmax, ctx);
-			if(typeFlag === 'f')
-				gfx.draw_formatedTileset(typeObj,palette, 0,0, xtmax, ctx);
-		};
-
-
-		// EVENT FUNCTIONS
-		//
-
-		
-		// COLUMN 1 //
-		
-		// [UPDATE FROM FILE] tilset button : display source files
-		tlstArea.elems.btn.tlst_displaySrcFile.onclick = function(){
-			// draw tileset srcFile
-			display_tlstSrcFile();
-		};
-
-		// [UPDATE FROM FILE] animation button : display source files[#]
-		tlstArea.elems.btn.anim_displaySrcFile.onclick = function(){
-			// draw animation srcFile
-			display_animSrcFile();
-		};
-		
-		
-		// COLUMN 2 //
-		
-		// [###] animation input : file number
-		tlstArea.elems.inum.anim_fileNum.oninput = function(){
-			// change element value
-			let value = parseInt(this.value) || 0;
-			iAnimFile = Math.min(animFileCount-1, Math.max(0,value));
-			this.value = iAnimFile;
-
-			// update linked elements
-			display_animSrcFile();
-			display_animBuffers();
-		};
-
-		// [🡺] tileset/animation button : source files to buffer/buffers
-		tlstArea.elems.btn.tlst_srcFileToBuffer.onclick = function(){
-			TLST.init();
-
-			// draw tileset buffer and animation buffers[#]
-			display_tlstBuffer();
-			display_animBuffers();
-		};
-		// [🡸] tileset/animation button : buffer/buffers to source files
-		tlstArea.elems.btn.tlst_bufferToSrcFile.onclick = function(){
-			TLST.write();
-
-			// draw tileset buffer and animation buffers[#]
-			display_tlstSrcFile();
-			display_animSrcFile();
-		};
-
-		
-		// COLUMN 3 //
-		
-		// [🡺] tileset button : buffer to vram
-		tlstArea.elems.btn.tlst_bufferToVram.onclick = function(){
-			TLST.load();
-
-			// draw tileset vram
-			display_vram();
-		};
-		// [🡸] tileset button : vram to buffer
-		tlstArea.elems.btn.tlst_vramToBuffer.onclick = function(){
-			TLST.vram(false);
-
-			// draw tileset buffer
-			display_tlstBuffer();
-		};
-
-		// [🡺] animation button : buffers[#] to vram
-		tlstArea.elems.btn.anim_bufferToVram.onclick = function(){
-			TLST.anim(iAnimFrame);
-
-			// draw tileset buffer and animation buffers[#]
-			display_vram();
-		};
-		// [🡸] animation button : vram to buffers[#]
-		tlstArea.elems.btn.anim_vramToBuffer.onclick = function(){
-			TLST.frame();
-
-			// draw tileset buffer
-			display_animBuffers();
-		};
-
-		
-		// COLUMN 4 //
-		
-		// [###] animation input : frame number
-		tlstArea.elems.inum.work_vramFrame.oninput = function(){
-			let maxFrame = 8;
-			// change element value
-			let value = parseInt(this.value) || 0;
-			iAnimFrame = Math.min(maxFrame-1, Math.max(0,value));
-			this.value = iAnimFrame;
-
-			// update linked elements
-			TLST.anim(iAnimFrame);
-			display_vram();
-		};
-
-		
-		// COLUMN 5 //
-		
-		// [🡺] work botton : vram to type object
-		tlstArea.elems.btn.work_vramToType.onclick = function(){
-			TLST.update(
-				'decoded2','decoded4','decoded8','formated2','formated4','formated8',
-				'_4decoded2','_4decoded4','_4decoded8','_4formated2','_4formated4','_4formated8'
+		(function(){
+			let xtmax = 16;
+			let iAnimFile = 0;
+			let iAnimFrame = 0;
+	
+			let tilesetSlot = srcFilePanel.tileset;
+			let animationSlot = srcFilePanel.animation;
+	
+			let tlstDataAccess = tilesetSlot.get_dataWithOwnerAccess();
+			let animDataAccess = animationSlot.get_dataWithOwnerAccess();
+	
+			let tlstSize = 0;
+			for(let obj of tlstDataAccess)
+				tlstSize += obj.data.length;
+	
+			let animMaxSize = 0;
+			let animFileCount = animDataAccess.length;
+			for(let obj of animDataAccess)
+				animMaxSize = Math.max(animMaxSize, obj.data.length);
+	
+			let srcFileMaxSize = Math.max(tlstSize, animMaxSize);
+			let maxTileCount = {2:srcFileMaxSize>>4, 4:srcFileMaxSize>>5, 8:srcFileMaxSize>>6}[bpp];
+	
+			let tlstArea = build_tilesetArea(xtmax, maxTileCount);
+			tsArea.appendChild(tlstArea.grid);
+	
+	
+			let pal = app.gfx.defaultPalettes[1];
+			let _pal = app.gfx.defaultPalettes;
+			let pal256 = _pal[0].concat(_pal[1]).concat(_pal[2]).concat(_pal[3]).
+						concat(_pal[4]).concat(_pal[5]).concat(_pal[6]).concat(_pal[7]);
+			pal256 = pal256.concat(pal256);
+	
+	
+	
+			let TLST = app.component.Tileset(
+				//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
+				{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:0},
+				bpp,
+				{ownerRefs:animDataAccess, vramRefs:animationSlot.vramRefs, srcBppPriority:true},
 			);
-
-			//display_type( (TLST.type['decoded'+bpp]), 'd' );
-			//display_type( (TLST.type['_4decoded'+bpp]).n, 'd' );
-			//display_type( (TLST.type['_4decoded'+bpp]).h, 'd' );
-			//display_type( (TLST.type['_4decoded'+bpp]).v, 'd' );
-			//display_type( (TLST.type['_4decoded'+bpp]).a, 'd' );
-
-			//display_type( (TLST.type['formated'+bpp]), 'f' );
-			//display_type( (TLST.type['_4formated'+bpp]).n, 'f' );
-			//display_type( (TLST.type['_4formated'+bpp]).h, 'f' );
-			//display_type( (TLST.type['_4formated'+bpp]).v, 'f' );
-			//display_type( (TLST.type['_4formated'+bpp]).a, 'f' );
-
-			start_miniEditor();
-
-			_TLST = TLST;
-		};
-
-		// [🡸] work botton : type object to vram
-		tlstArea.elems.btn.work_typeToVram.onclick = function(){
-			TLST.sync(miniEditor_currentType);
-
-			display_vram();
-		};
-
-
-		// DEBUG
-		window.debug_display = function(){
-			let test = window.debug_display.test;
-			if(test === 0) display_type( (TLST.type['decoded'+bpp]), 'd' );
-			if(test === 1) display_type( (TLST.type['_4decoded'+bpp]).n, 'd' );
-			if(test === 2) display_type( (TLST.type['_4decoded'+bpp]).h, 'd' );
-			if(test === 3) display_type( (TLST.type['_4decoded'+bpp]).v, 'd' );
-			if(test === 4) display_type( (TLST.type['_4decoded'+bpp]).a, 'd' );
-
-			if(test === 5) display_type( (TLST.type['formated'+bpp]), 'f' );
-			if(test === 6) display_type( (TLST.type['_4formated'+bpp]).n, 'f' );
-			if(test === 7) display_type( (TLST.type['_4formated'+bpp]).h, 'f' );
-			if(test === 8) display_type( (TLST.type['_4formated'+bpp]).v, 'f' );
-			if(test === 9) display_type( (TLST.type['_4formated'+bpp]).a, 'f' );
-			console.log("window.debug_display.test : ", window.debug_display.test);
-
-			window.debug_display.test++;
-			if(window.debug_display.test === 10) window.debug_display.test = 0;
-		};
-		window.debug_display.test = 0;
-		// END : DEBUG
-
-
-		// MINI EDITOR (test)
-		let miniEditor_currentType = 'formated'+bpp;
-		let miniEditor_typeFlag = 'f';
-		let start_miniEditor = function(){
-
-			let hoverPreview = tlstArea.elems.screen.type_buffer;
-			let type = TLST.type[miniEditor_currentType];
-			let iColor = 0;
-			let xtp, ytp, iTile;
-
-			let update_pos = function(xMousePos, yMousePos){
-				let x = xMousePos, y = yMousePos;
-				let xt = x >> 3 // div by 8
-				let yt = y >> 3 // div by 8
-				xtp = x - (xt<<3); // % 8
-				ytp = y - (yt<<3); // % 8
-				iTile = (yt * xtmax) + xt;
+	
+	
+			// DISPLAY FUNCTIONS
+			//
+	
+			// tileset source files
+			let display_tlstSrcFile = function(){
+				let tlst = tilesetSlot.get_data__OLD();
+				let ctx = tlstArea.elems.screen.tlst_srcFile.ctx;
+				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+				if(bpp === 2){
+					let pal = app.gfx.defaultPalettes[1];
+					gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctx);
+				}
+				if(bpp === 4){
+					let pal = app.gfx.defaultPalettes[1];
+					gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctx);
+				}
+				if(bpp === 8){
+					gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctx);
+				}
 			};
-
-			let get_pixel = function(){
-				iColor = type[iTile][ytp][xtp];
+	
+			// animation source files
+			let display_animSrcFile = function(){
+				let tlst = animationSlot.get_data()[iAnimFile];
+				let ctx =  tlstArea.elems.screen.anim_srcFile.ctx;
+				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+				if(bpp === 2){
+					gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctx);
+				}
+				if(bpp === 4){
+					gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctx);
+				}
+				if(bpp === 8){
+					gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctx);
+				}
 			};
-			let put_pixel = function(){
-				type[iTile][ytp][xtp] = iColor;
-				display_type(type, miniEditor_typeFlag);
+	
+			// tileset buffer
+			let display_tlstBuffer = function(){
+				let tlst = TLST._buffer;
+				let ctxTlst =  tlstArea.elems.screen.tlst_buffer.ctx;
+				ctxTlst.clearRect(0,0,ctxTlst.canvas.width,ctxTlst.canvas.height);
+				if(bpp === 2){
+					gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctxTlst);
+				}
+				if(bpp === 4){
+					gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctxTlst);
+				}
+				if(bpp === 8){
+					gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctxTlst);
+				}
 			};
-
-			tlstArea.elems.screen.type_buffer.hoverBox.onmousemove = function(e){
-				let pos = hoverPreview.get_mousePos(e);
-				update_pos(pos.x,pos.y);
-				if(e.buttons&0x1) put_pixel();
+	
+			// animations buffers[#]
+			let display_animBuffers = function(){
+				let anim = TLST._buffers[iAnimFile];
+				let ctxAnim =  tlstArea.elems.screen.anim_buffer.ctx;
+				ctxAnim.clearRect(0,0,ctxAnim.canvas.width,ctxAnim.canvas.height);
+				if(bpp === 2){
+					gfx.draw_2bppTileset(anim,pal, 0,0, xtmax, ctxAnim);
+				}
+				if(bpp === 4){
+					gfx.draw_4bppTileset(anim,pal, 0,0, xtmax, ctxAnim);
+				}
+				if(bpp === 8){
+					gfx.draw_8bppTileset(anim,pal256, 0,0, xtmax, ctxAnim);
+				}
 			};
-
-			tlstArea.elems.screen.type_buffer.hoverBox.onmousedown = function(e){
-				e.preventDefault();
-				if(e.buttons&0x1) put_pixel();
-				if(e.buttons&0x4) get_pixel();
+	
+			// vram buffer
+			let display_vram = function(){
+				let vram = TLST._vram;
+				let ctx =  tlstArea.elems.screen.vram_buffer.ctx;
+				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+				if(bpp === 2){
+					gfx.draw_2bppTileset(vram,pal, 0,0, xtmax, ctx);
+				}
+				if(bpp === 4){
+					gfx.draw_4bppTileset(vram,pal, 0,0, xtmax, ctx);
+				}
+				if(bpp === 8){
+					gfx.draw_8bppTileset(vram,pal256, 0,0, xtmax, ctx);
+				}
 			};
+	
+			// type
+			let display_type = function(typeObj, typeFlag){
+				let ctx =  tlstArea.elems.screen.type_buffer.ctx;
+				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+				let palette = bpp === 8 ? pal256 : pal;
+				if(typeFlag === 'd')
+					gfx.draw_decodedTileset_NEW(typeObj,palette, 0,0, xtmax, ctx);
+				if(typeFlag === 'f')
+					gfx.draw_formatedTileset(typeObj,palette, 0,0, xtmax, ctx);
+			};
+	
+	
+			// EVENT FUNCTIONS
+			//
+	
+			
+			// COLUMN 1 //
+			
+			// [UPDATE FROM FILE] tilset button : display source files
+			tlstArea.elems.btn.tlst_displaySrcFile.onclick = function(){
+				// draw tileset srcFile
+				display_tlstSrcFile();
+			};
+	
+			// [UPDATE FROM FILE] animation button : display source files[#]
+			tlstArea.elems.btn.anim_displaySrcFile.onclick = function(){
+				// draw animation srcFile
+				display_animSrcFile();
+			};
+			
+			
+			// COLUMN 2 //
+			
+			// [###] animation input : file number
+			tlstArea.elems.inum.anim_fileNum.oninput = function(){
+				// change element value
+				let value = parseInt(this.value) || 0;
+				iAnimFile = Math.min(animFileCount-1, Math.max(0,value));
+				this.value = iAnimFile;
+	
+				// update linked elements
+				display_animSrcFile();
+				display_animBuffers();
+			};
+	
+			// [🡺] tileset/animation button : source files to buffer/buffers
+			tlstArea.elems.btn.tlst_srcFileToBuffer.onclick = function(){
+				TLST.init();
+	
+				// draw tileset buffer and animation buffers[#]
+				display_tlstBuffer();
+				display_animBuffers();
+			};
+			// [🡸] tileset/animation button : buffer/buffers to source files
+			tlstArea.elems.btn.tlst_bufferToSrcFile.onclick = function(){
+				TLST.write();
+	
+				// draw tileset buffer and animation buffers[#]
+				display_tlstSrcFile();
+				display_animSrcFile();
+			};
+	
+			
+			// COLUMN 3 //
+			
+			// [🡺] tileset button : buffer to vram
+			tlstArea.elems.btn.tlst_bufferToVram.onclick = function(){
+				TLST.load();
+	
+				// draw tileset vram
+				display_vram();
+			};
+			// [🡸] tileset button : vram to buffer
+			tlstArea.elems.btn.tlst_vramToBuffer.onclick = function(){
+				TLST.vram(false);
+	
+				// draw tileset buffer
+				display_tlstBuffer();
+			};
+	
+			// [🡺] animation button : buffers[#] to vram
+			tlstArea.elems.btn.anim_bufferToVram.onclick = function(){
+				TLST.anim(iAnimFrame);
+	
+				// draw tileset buffer and animation buffers[#]
+				display_vram();
+			};
+			// [🡸] animation button : vram to buffers[#]
+			tlstArea.elems.btn.anim_vramToBuffer.onclick = function(){
+				TLST.frame();
+	
+				// draw tileset buffer
+				display_animBuffers();
+			};
+	
+			
+			// COLUMN 4 //
+			
+			// [###] animation input : frame number
+			tlstArea.elems.inum.work_vramFrame.oninput = function(){
+				let maxFrame = 8;
+				// change element value
+				let value = parseInt(this.value) || 0;
+				iAnimFrame = Math.min(maxFrame-1, Math.max(0,value));
+				this.value = iAnimFrame;
+	
+				// update linked elements
+				TLST.anim(iAnimFrame);
+				display_vram();
+			};
+	
+			
+			// COLUMN 5 //
+			
+			// [🡺] work botton : vram to type object
+			tlstArea.elems.btn.work_vramToType.onclick = function(){
+				TLST.update(
+					'decoded2','decoded4','decoded8','formated2','formated4','formated8',
+					'_4decoded2','_4decoded4','_4decoded8','_4formated2','_4formated4','_4formated8'
+				);
+	
+				//display_type( (TLST.type['decoded'+bpp]), 'd' );
+				//display_type( (TLST.type['_4decoded'+bpp]).n, 'd' );
+				//display_type( (TLST.type['_4decoded'+bpp]).h, 'd' );
+				//display_type( (TLST.type['_4decoded'+bpp]).v, 'd' );
+				//display_type( (TLST.type['_4decoded'+bpp]).a, 'd' );
+	
+				//display_type( (TLST.type['formated'+bpp]), 'f' );
+				//display_type( (TLST.type['_4formated'+bpp]).n, 'f' );
+				//display_type( (TLST.type['_4formated'+bpp]).h, 'f' );
+				//display_type( (TLST.type['_4formated'+bpp]).v, 'f' );
+				//display_type( (TLST.type['_4formated'+bpp]).a, 'f' );
+	
+				start_miniEditor();
+	
+				_TLST = TLST;
+			};
+	
+			// [🡸] work botton : type object to vram
+			tlstArea.elems.btn.work_typeToVram.onclick = function(){
+				TLST.sync(miniEditor_currentType);
+	
+				display_vram();
+			};
+	
+	
+			// DEBUG
+			window.debug_display = function(){
+				let test = window.debug_display.test;
+				if(test === 0) display_type( (TLST.type['decoded'+bpp]), 'd' );
+				if(test === 1) display_type( (TLST.type['_4decoded'+bpp]).n, 'd' );
+				if(test === 2) display_type( (TLST.type['_4decoded'+bpp]).h, 'd' );
+				if(test === 3) display_type( (TLST.type['_4decoded'+bpp]).v, 'd' );
+				if(test === 4) display_type( (TLST.type['_4decoded'+bpp]).a, 'd' );
+	
+				if(test === 5) display_type( (TLST.type['formated'+bpp]), 'f' );
+				if(test === 6) display_type( (TLST.type['_4formated'+bpp]).n, 'f' );
+				if(test === 7) display_type( (TLST.type['_4formated'+bpp]).h, 'f' );
+				if(test === 8) display_type( (TLST.type['_4formated'+bpp]).v, 'f' );
+				if(test === 9) display_type( (TLST.type['_4formated'+bpp]).a, 'f' );
+				console.log("window.debug_display.test : ", window.debug_display.test);
+	
+				window.debug_display.test++;
+				if(window.debug_display.test === 10) window.debug_display.test = 0;
+			};
+			window.debug_display.test = 0;
+			// END : DEBUG
+	
+	
+			// MINI EDITOR (test)
+			let miniEditor_currentType = 'formated'+bpp;
+			let miniEditor_typeFlag = 'f';
+			let start_miniEditor = function(){
+	
+				let hoverPreview = tlstArea.elems.screen.type_buffer;
+				let type = TLST.type[miniEditor_currentType];
+				let iColor = 0;
+				let xtp, ytp, iTile;
+	
+				let update_pos = function(xMousePos, yMousePos){
+					let x = xMousePos, y = yMousePos;
+					let xt = x >> 3 // div by 8
+					let yt = y >> 3 // div by 8
+					xtp = x - (xt<<3); // % 8
+					ytp = y - (yt<<3); // % 8
+					iTile = (yt * xtmax) + xt;
+				};
+	
+				let get_pixel = function(){
+					iColor = type[iTile][ytp][xtp];
+				};
+				let put_pixel = function(){
+					type[iTile][ytp][xtp] = iColor;
+					display_type(type, miniEditor_typeFlag);
+				};
+	
+				tlstArea.elems.screen.type_buffer.hoverBox.onmousemove = function(e){
+					let pos = hoverPreview.get_mousePos(e);
+					update_pos(pos.x,pos.y);
+					if(e.buttons&0x1) put_pixel();
+				};
+	
+				tlstArea.elems.screen.type_buffer.hoverBox.onmousedown = function(e){
+					e.preventDefault();
+					if(e.buttons&0x1) put_pixel();
+					if(e.buttons&0x4) get_pixel();
+				};
+	
+			};
+			// END : MINI EDITOR
 
-		};
-		// END : MINI EDITOR
+		})();
+
+
 
 
 		// update

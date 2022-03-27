@@ -12,7 +12,9 @@ dkc2ldd.component = (function(app=dkc2ldd){
 
 	let anim = {
 		ownerRefs : [], // array cell : {data,owner,index|prop}
-		vramRefs : []
+		vramRefs : [],
+		srcBppPriority : true // uses src bpp in mode_00 for destOffset and frameSize
+							  // if not, uses bpp Tileset Component arg
 	};
 
 	let gfxlib = {};
@@ -182,9 +184,12 @@ dkc2ldd.component = (function(app=dkc2ldd){
 
 		let obj = {};
 
-		let bufferSize = ({2:1024*16,4:1024*32,8:1024*64})[bpp];
+		let bppSize = ({2:16,4:32,8:64})[bpp];
+		// 2bpp : 1024 * 16 = 16384
+		// 4bpp : 1024 * 32 = 32768
+		// 8bpp : 1024 * 64 = 65536
+		let bufferSize = 1024 * bppSize;
 		
-		// 1024 * 32 = 32768
 		let main = {};
 		main.buffer = new Uint8Array(bufferSize);
 		main.src = data.ownerRefs;
@@ -195,8 +200,6 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		vram.buffer = new Uint8Array(bufferSize),  // [byte, ...]
 		vram.backRef = null;
 
-
-		
 		let anim = animated ? {} : null;
 		if(anim){
 			anim.buffers = [];
@@ -204,12 +207,26 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			let len = animated.ownerRefs.length;
 			anim.len = len;
 			anim.src = animated.ownerRefs;
-			anim.vramRefs = JSON.parse(JSON.stringify(animated.vramRefs));
-			anim._vramRefs = animated.vramRefs;
+
+			//anim.vramRefs = JSON.parse(JSON.stringify(animated.vramRefs));
+			//anim._vramRefs = animated.vramRefs;
+			anim.vramRefs = animated.vramRefs;
+
+			let vramRef;
 			for(let i=0; i<len; i++){
+				vramRef = anim.vramRefs[i];
+
 				anim.buffers[i] = new Uint8Array(bufferSize);
-				anim.maxFrame = Math.max(anim.maxFrame, anim.vramRefs[i].frameCount);
-				anim.vramRefs[i].destOffset += main.vramOfst;
+				anim.maxFrame = Math.max(anim.maxFrame, vramRef.frameCount);
+
+				// update : vram refs with bpp size
+				if(animated.srcBppPriority) vramRef.calc_ref();
+				else{
+					vramRef.destOffset = vramRef.dstIndex * bppSize;
+					vramRef.frameSize  = vramRef.animTiles * bppSize;
+				}
+				// update : vram dest offset + vram main offset
+				vramRef.destOffset += main.vramOfst;
 			}
 			
 			// vram
