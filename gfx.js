@@ -121,6 +121,13 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	})();
 
 
+	o.defPal8 = (function(){
+		let p = o.defaultPalettes;
+		let pal256 = p[0].concat(p[1]).concat(p[2]).concat(p[3]).concat(p[4]).concat(p[5]).concat(p[6]).concat(p[7]);
+		pal256 = pal256.concat(pal256);
+		return pal256;
+	})();
+
 
 
 

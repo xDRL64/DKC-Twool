@@ -220,7 +220,7 @@ dkc2ldd.component = (function(app=dkc2ldd){
 				anim.maxFrame = Math.max(anim.maxFrame, vramRef.frameCount);
 
 				// update : vram refs with bpp size
-				if(animated.srcBppPriority) vramRef.calc_ref();
+				if(animated.srcBppPriority) vramRef.calc_ref?.();
 				else{
 					vramRef.destOffset = vramRef.dstIndex * bppSize;
 					vramRef.frameSize  = vramRef.animTiles * bppSize;
