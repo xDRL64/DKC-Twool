@@ -412,18 +412,23 @@
 		let tsArea = areas.downside;
 		workspace.elem.appendChild(areas.parent);
 
-		const bpp = 8;
+		const bpp = 2;
+		const currentType = {
+			name : 'formated'+bpp,
+			flag : 'f'
+		};
 
 		
-
 		let sharedEditorMem = {
-			iCol : 0,
-			iPal : 0,
-
-			pal2 : app.gfx.defaultPalettes[1],
-			pal4 : app.gfx.defaultPalettes[1],
-			pal8 : app.gfx.defPal8
+				update_FromPalEditor : function(){},
+				update_FromTlstEditor : function(){},
+				display_allTlstViews : function(){},
+	
+				pal2 : app.gfx.defaultPalettes[1],
+				pal4 : app.gfx.defaultPalettes[1],
+				pal8 : app.gfx.defPal8
 		};
+
 
 		//////////////////
 		// PALETTE AREA //
@@ -503,21 +508,23 @@
 				//display_type(PAL.type['decoded'+bpp], 'd');
 				display_type(PAL.type['formated'+bpp], 'f');
 
-				start_miniEditor();
+				miniEditor.tigger_selectColor();
 			};
 
-			// MINI EDITOR (test)
-			let miniEditor_currentType = 'formated'+bpp;
-			let miniEditor_typeFlag = 'f';
-			let start_miniEditor = function(){
+			// MINI EDITOR (PALETTE)
+			let miniEditor = (function(){
+
+				let o = {};
 
 				let hoverPreview = paletteArea.elems.screen.type;
-				let type = PAL.type[miniEditor_currentType];
-				let xCol, yCol;
-				let xPal, yPal;
-				let iColor;
-				let iPalette;
-				let outOfPal;
+				let xCol = 0, yCol = 0;
+				let xPal = 0, yPal = 0;
+				let iColor = 0;
+				let iPalette = 0;
+				let outOfPal = false;
+
+				let xcCol, ycCol;
+				let xcPal = 0, ycPal = 0;
 
 				hoverPreview.cursor.pal.setColor("#ff0");
 
@@ -550,29 +557,51 @@
 					}
 				};
 
-				let sel_col = function(){
-					sharedEditorMem.iCol = iColor;
+				sharedEditorMem.update_FromTlstEditor = function(val){
+					iColor = val;
+					
+					if(bpp === 2){
+						xCol = (xcPal*4) + val;
+						yCol = ycPal;
+					}
+					if(bpp === 4){
+						xCol = xcPal + val;
+						yCol = ycPal;
+					}
+					if(bpp === 8){
+						xCol = val % 16;
+						yCol = val >> 4; // div by 16
+					}
+
+					hoverPreview.cursor.col.gridMove(xCol,yCol);
 				};
-				let sel_pal = function(){
-					sharedEditorMem.iPal = iPalette
+
+				let send_palFromType = function(){
+					let type = currentType.name;
+					let mem = sharedEditorMem;
+					mem['pal'+bpp] = PAL.type[type]?.[iPalette] || mem['pal'+bpp] ;
 				};
-				let set_sel = function(){
-					if(!outOfPal){
+
+				let set_cursors = function(){
 						hoverPreview.cursor.col.gridMove(xCol,yCol);
 						hoverPreview.cursor.pal.gridMove(xPal,yPal);
-						sel_col();
-						sel_pal();
-					}
+						xcPal = xPal; ycPal = yPal;
 				};
 				
+				let select_color = function(){
+					send_palFromType();
+					set_cursors();
+					sharedEditorMem.update_FromPalEditor(iColor);
+					sharedEditorMem.display_allTlstViews();
+				};
 
 				hoverPreview.hoverBox.onmousemove = function(e){
 					let pos = hoverPreview.get_mousePos(e);
 					update_pos(pos.x,pos.y);
 					
-					if(e.buttons&0x1) set_sel();
-
-					
+					if(!outOfPal){
+						if(e.buttons&0x1) select_color();
+					}
 
 					console.log(iColor, iPalette, outOfPal);
 				};
@@ -580,15 +609,18 @@
 				hoverPreview.hoverBox.onmousedown = function(e){
 					e.preventDefault();
 
-					if(e.buttons&0x1) set_sel();
-					
 					if(!outOfPal){
+						if(e.buttons&0x1) select_color();
 						//if(e.buttons&0x4) get_pixel();
 					}
 
 				};
 
-			};
+				o.tigger_selectColor = select_color;
+
+				return o;
+
+			})();
 			// END : MINI EDITOR
 
 		})();
@@ -627,11 +659,6 @@
 			tsArea.appendChild(tlstArea.grid);
 	
 	
-			let pal = app.gfx.defaultPalettes[1];
-			let pal256 = app.gfx.defPal8;
-	
-	
-	
 			let TLST = app.component.Tileset(
 				//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
 				{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:0},
@@ -642,103 +669,73 @@
 	
 			// DISPLAY FUNCTIONS
 			//
-
-			let defPal = sharedEditorMem.pal
 	
+			let draw_bppTileset = function(tlst, ctx){
+				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
+				let pal = sharedEditorMem['pal'+bpp];
+				if(tlst)
+					gfx['draw_'+bpp+'bppTileset']?.(tlst,pal, 0,0, xtmax, ctx);
+			};
+
 			// tileset source files
 			let display_tlstSrcFile = function(){
 				let tlst = tilesetSlot.get_data__OLD();
 				let ctx = tlstArea.elems.screen.tlst_srcFile.ctx;
-				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-				if(bpp === 2){
-					let pal = app.gfx.defaultPalettes[1];
-					gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctx);
-				}
-				if(bpp === 4){
-					let pal = app.gfx.defaultPalettes[1];
-					gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctx);
-				}
-				if(bpp === 8){
-					gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctx);
-				}
+				draw_bppTileset(tlst, ctx);
 			};
 	
 			// animation source files
 			let display_animSrcFile = function(){
 				let tlst = animationSlot.get_data()[iAnimFile];
 				let ctx =  tlstArea.elems.screen.anim_srcFile.ctx;
-				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-				if(bpp === 2){
-					gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctx);
-				}
-				if(bpp === 4){
-					gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctx);
-				}
-				if(bpp === 8){
-					gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctx);
-				}
+				draw_bppTileset(tlst, ctx);
 			};
 	
 			// tileset buffer
 			let display_tlstBuffer = function(){
 				let tlst = TLST._buffer;
-				let ctxTlst =  tlstArea.elems.screen.tlst_buffer.ctx;
-				ctxTlst.clearRect(0,0,ctxTlst.canvas.width,ctxTlst.canvas.height);
-				if(bpp === 2){
-					gfx.draw_2bppTileset(tlst,pal, 0,0, xtmax, ctxTlst);
-				}
-				if(bpp === 4){
-					gfx.draw_4bppTileset(tlst,pal, 0,0, xtmax, ctxTlst);
-				}
-				if(bpp === 8){
-					gfx.draw_8bppTileset(tlst,pal256, 0,0, xtmax, ctxTlst);
-				}
+				let ctx =  tlstArea.elems.screen.tlst_buffer.ctx;
+				draw_bppTileset(tlst, ctx);
 			};
 	
 			// animations buffers[#]
 			let display_animBuffers = function(){
-				let anim = TLST._buffers[iAnimFile];
-				let ctxAnim =  tlstArea.elems.screen.anim_buffer.ctx;
-				ctxAnim.clearRect(0,0,ctxAnim.canvas.width,ctxAnim.canvas.height);
-				if(bpp === 2){
-					gfx.draw_2bppTileset(anim,pal, 0,0, xtmax, ctxAnim);
-				}
-				if(bpp === 4){
-					gfx.draw_4bppTileset(anim,pal, 0,0, xtmax, ctxAnim);
-				}
-				if(bpp === 8){
-					gfx.draw_8bppTileset(anim,pal256, 0,0, xtmax, ctxAnim);
-				}
+				let tlst = TLST._buffers[iAnimFile];
+				let ctx =  tlstArea.elems.screen.anim_buffer.ctx;
+				draw_bppTileset(tlst, ctx);
 			};
 	
 			// vram buffer
 			let display_vram = function(){
-				let vram = TLST._vram;
+				let tlst = TLST._vram;
 				let ctx =  tlstArea.elems.screen.vram_buffer.ctx;
-				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-				if(bpp === 2){
-					gfx.draw_2bppTileset(vram,pal, 0,0, xtmax, ctx);
-				}
-				if(bpp === 4){
-					gfx.draw_4bppTileset(vram,pal, 0,0, xtmax, ctx);
-				}
-				if(bpp === 8){
-					gfx.draw_8bppTileset(vram,pal256, 0,0, xtmax, ctx);
-				}
+				draw_bppTileset(tlst, ctx);
 			};
 	
 			// type
-			let display_type = function(typeObj, typeFlag){
+			let display_type = function({name, flag}){
 				let ctx =  tlstArea.elems.screen.type_buffer.ctx;
 				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-				let palette = bpp === 8 ? pal256 : pal;
-				if(typeFlag === 'd')
-					gfx.draw_decodedTileset_NEW(typeObj,palette, 0,0, xtmax, ctx);
-				if(typeFlag === 'f')
-					gfx.draw_formatedTileset(typeObj,palette, 0,0, xtmax, ctx);
+				let pal = sharedEditorMem['pal'+bpp];
+
+				let type = TLST.type[name];
+				if(type){
+					if(flag === 'd')
+						gfx.draw_decodedTileset_NEW(type,pal, 0,0, xtmax, ctx);
+					if(flag === 'f')
+						gfx.draw_formatedTileset(type,pal, 0,0, xtmax, ctx);
+				}
 			};
 	
-	
+			let display_all = function(){
+				display_tlstSrcFile();
+				display_animSrcFile();
+				display_tlstBuffer();
+				display_animBuffers();
+				display_vram();
+				display_type(currentType);
+			};
+
 			// EVENT FUNCTIONS
 			//
 	
@@ -860,14 +857,15 @@
 				//display_type( (TLST.type['_4formated'+bpp]).v, 'f' );
 				//display_type( (TLST.type['_4formated'+bpp]).a, 'f' );
 	
-				start_miniEditor();
+				miniEditor.set_type(currentType.name);
+				display_type(currentType)
 	
 				_TLST = TLST;
 			};
 	
 			// [🡸] work botton : type object to vram
 			tlstArea.elems.btn.work_typeToVram.onclick = function(){
-				TLST.sync(miniEditor_currentType);
+				TLST.sync(currentType.name);
 	
 				display_vram();
 			};
@@ -896,13 +894,16 @@
 			// END : DEBUG
 	
 	
-			// MINI EDITOR (test)
-			let miniEditor_currentType = 'formated'+bpp;
-			let miniEditor_typeFlag = 'f';
-			let start_miniEditor = function(){
+			// MINI EDITOR (TILESET)
+			let miniEditor = (function(){
 	
+				let o = {};
+
 				let hoverPreview = tlstArea.elems.screen.type_buffer;
-				let type = TLST.type[miniEditor_currentType];
+
+				let type = null;
+				let setType = false;
+
 				let iColor = 0;
 				let xtp, ytp, iTile;
 	
@@ -916,13 +917,25 @@
 				};
 	
 				let get_pixel = function(){
-					iColor = type[iTile][ytp][xtp];
+					if(setType){
+						iColor = type[iTile][ytp][xtp];
+						sharedEditorMem.update_FromTlstEditor(iColor);
+					}
 				};
+
+				sharedEditorMem.update_FromPalEditor = function(val){
+					iColor = val;
+				};
+
+				sharedEditorMem.display_allTlstViews = display_all;
+
 				let put_pixel = function(){
-					type[iTile][ytp][xtp] = iColor;
-					display_type(type, miniEditor_typeFlag);
+					if(setType){
+						type[iTile][ytp][xtp] = iColor;
+						display_type(currentType);
+					}
 				};
-	
+
 				hoverPreview.hoverBox.onmousemove = function(e){
 					let pos = hoverPreview.get_mousePos(e);
 					update_pos(pos.x,pos.y);
@@ -934,8 +947,15 @@
 					if(e.buttons&0x1) put_pixel();
 					if(e.buttons&0x4) get_pixel();
 				};
+
+				o.set_type = function(name){
+					type = TLST.type[name];
+					if(type) setType = true;
+				};
 	
-			};
+				return o;
+			})();
+			
 			// END : MINI EDITOR
 
 		})();
