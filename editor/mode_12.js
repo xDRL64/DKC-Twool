@@ -412,7 +412,7 @@
 		let tsArea = areas.downside;
 		workspace.elem.appendChild(areas.parent);
 
-		const bpp = 2;
+		const bpp = 4;
 		const currentType = {
 			name : 'formated'+bpp,
 			flag : 'f'
@@ -468,13 +468,15 @@
 			};
 	
 			// palette type
-			let display_type = function(typeObj, typeFlag){
+			let display_type = function({name, flag}){
 				let ctx =  paletteArea.elems.screen.type.ctx;
 				ctx.clearRect(0,0,ctx.canvas.width,ctx.canvas.height);
-				if(typeFlag === 'd')
-					gfx.draw_decodedPalette(typeObj, ctx);
-				if(typeFlag === 'f')
-					gfx.draw_formatedPalette(typeObj, bpp, ctx);
+
+				let type = PAL.type[name];
+				if(flag === 'd')
+					gfx.draw_decodedPalette(type, ctx);
+				if(flag === 'f')
+					gfx.draw_formatedPalette(type, bpp, ctx);
 	
 			};
 	
@@ -506,17 +508,28 @@
 				PAL.update('decoded'+bpp,'formated'+bpp);
 				// draw palette type
 				//display_type(PAL.type['decoded'+bpp], 'd');
-				display_type(PAL.type['formated'+bpp], 'f');
-
+				//display_type(PAL.type['formated'+bpp], 'd');
+				
+				miniEditor.set_type(currentType.name);
 				miniEditor.tigger_selectColor();
+				
+				display_type(currentType);
+				_PAL = PAL; // debug
 			};
 
 			// MINI EDITOR (PALETTE)
+			// left click : select a palette ID and a color ID in palette editor to use in tileset editor
+			// middle click : sample rgb color value from pointed color in palette editor
+			// hold right + left click : write the previous sampled palette rgb color in palette editor
 			let miniEditor = (function(){
 
 				let o = {};
 
 				let hoverPreview = paletteArea.elems.screen.type;
+
+				let type = null;
+				let setType = false;
+
 				let xCol = 0, yCol = 0;
 				let xPal = 0, yPal = 0;
 				let iColor = 0;
@@ -525,6 +538,8 @@
 
 				let xcCol, ycCol;
 				let xcPal = 0, ycPal = 0;
+
+				let sample = new Uint8Array(3); // rgb
 
 				hoverPreview.cursor.pal.setColor("#ff0");
 
@@ -544,15 +559,15 @@
 					if(bpp === 4){
 						iColor   = x;
 						iPalette = y;
-						xPal = 0;
-						yPal = iPalette;
+						xPal     = 0;
+						yPal     = iPalette;
 						outOfPal = y < 8 ? false : true;
 					}
 					if(bpp === 8){
 						iColor   = (y * 16) + x;
 						iPalette = 0;
-						xPal = 0;
-						yPal = 0;
+						xPal     = 0;
+						yPal     = 0;
 						outOfPal = false;
 					}
 				};
@@ -577,9 +592,10 @@
 				};
 
 				let send_palFromType = function(){
-					let type = currentType.name;
-					let mem = sharedEditorMem;
-					mem['pal'+bpp] = PAL.type[type]?.[iPalette] || mem['pal'+bpp] ;
+					if(setType){
+						let mem = sharedEditorMem;
+						mem['pal'+bpp] = type[iPalette] || mem['pal'+bpp] ;
+					}
 				};
 
 				let set_cursors = function(){
@@ -595,12 +611,30 @@
 					sharedEditorMem.display_allTlstViews();
 				};
 
+				let sample_color = function(){
+					let color = type[iPalette][iColor];
+					sample[0] = color[0]; // r
+					sample[1] = color[1]; // g
+					sample[2] = color[2]; // b
+				};
+
+				let write_color = function(){
+					if(setType){
+						let color = type[iPalette][iColor];
+						color[0] = sample[0]; // r
+						color[1] = sample[1]; // g
+						color[2] = sample[2]; // b
+						display_type(currentType);
+						sharedEditorMem.display_allTlstViews();
+					}
+				};
+
 				hoverPreview.hoverBox.onmousemove = function(e){
 					let pos = hoverPreview.get_mousePos(e);
 					update_pos(pos.x,pos.y);
 					
 					if(!outOfPal){
-						if(e.buttons&0x1) select_color();
+						if((e.buttons&0x1) === 1) select_color(); // left click
 					}
 
 					console.log(iColor, iPalette, outOfPal);
@@ -610,13 +644,24 @@
 					e.preventDefault();
 
 					if(!outOfPal){
-						if(e.buttons&0x1) select_color();
-						//if(e.buttons&0x4) get_pixel();
+						if((e.buttons&0x1) === 1) select_color(); // left click
+						if((e.buttons&0x4) === 4) sample_color(); // middle click
+						if((e.buttons&0x3) === 3) write_color();  // right + left click
 					}
 
 				};
 
+				hoverPreview.hoverBox.oncontextmenu = function(e){
+					e.preventDefault();
+					e.stopPropagation();
+				};
+
 				o.tigger_selectColor = select_color;
+
+				o.set_type = function(name){
+					type = PAL.type[name];
+					if(type) setType = true;
+				};
 
 				return o;
 
@@ -858,9 +903,9 @@
 				//display_type( (TLST.type['_4formated'+bpp]).a, 'f' );
 	
 				miniEditor.set_type(currentType.name);
-				display_type(currentType)
-	
-				_TLST = TLST;
+				
+				display_type(currentType);
+				_TLST = TLST; // debug
 			};
 	
 			// [🡸] work botton : type object to vram
@@ -895,6 +940,10 @@
 	
 	
 			// MINI EDITOR (TILESET)
+			// left click : draw pixel with the shared color ID between the editors
+			// middle click : get pixel color ID from tileset editor and show selected color ID in palette editor
+			// hold right + middle click : sample tile from tileset editor
+			// hold right + left click : wirte previous sampled tile in tileset editor
 			let miniEditor = (function(){
 	
 				let o = {};
@@ -906,6 +955,18 @@
 
 				let iColor = 0;
 				let xtp, ytp, iTile;
+
+				let sample = (function(){
+					let o;
+					if(currentType.flag === 'd')
+						o = new Uint8Array(64);
+					if(currentType.flag === 'f'){
+						o = new Array(8);
+						for(let i=0; i<8; i++)
+							o[i] = new Uint8Array(8);
+					}
+					return o; 
+				})();
 	
 				let update_pos = function(xMousePos, yMousePos){
 					let x = xMousePos, y = yMousePos;
@@ -918,7 +979,8 @@
 	
 				let get_pixel = function(){
 					if(setType){
-						iColor = type[iTile][ytp][xtp];
+						if(currentType.flag === 'f')
+							iColor = type[iTile][ytp][xtp];
 						sharedEditorMem.update_FromTlstEditor(iColor);
 					}
 				};
@@ -931,7 +993,31 @@
 
 				let put_pixel = function(){
 					if(setType){
-						type[iTile][ytp][xtp] = iColor;
+						if(currentType.flag === 'f')
+							type[iTile][ytp][xtp] = iColor;
+						display_type(currentType);
+					}
+				};
+
+				let sample_tile = function(){
+					if(setType){
+						if(currentType.flag === 'f'){
+							let tile = type[iTile];
+							for(let r=0; r<8; r++)
+							for(let p=0; p<8; p++)
+								sample[r][p] = tile[r][p];
+						}
+					}
+				};
+
+				let write_tile = function(){
+					if(setType){
+						if(currentType.flag === 'f'){
+							let tile = type[iTile];
+							for(let r=0; r<8; r++)
+							for(let p=0; p<8; p++)
+								tile[r][p] = sample[r][p];
+						}
 						display_type(currentType);
 					}
 				};
@@ -944,8 +1030,15 @@
 	
 				hoverPreview.hoverBox.onmousedown = function(e){
 					e.preventDefault();
-					if(e.buttons&0x1) put_pixel();
-					if(e.buttons&0x4) get_pixel();
+					if((e.buttons&0x1) === 1) put_pixel(); // left click
+					if((e.buttons&0x4) === 4) get_pixel(); // middle click
+					if((e.buttons&0x6) === 6) sample_tile(); // right + middle click
+					if((e.buttons&0x3) === 3) write_tile(); // right + left click
+				};
+
+				hoverPreview.hoverBox.oncontextmenu = function(e){
+					e.preventDefault();
+					e.stopPropagation();
 				};
 
 				o.set_type = function(name){
