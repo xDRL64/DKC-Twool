@@ -10,6 +10,7 @@
 	gfx.safe = gfx.safe || {};
 	let safe = gfx.safe;
 
+
 	fast.decode_2bppTileset = function(data, hFlip=0,vFlip=0){
 
 		// OVERFLOW : get zero values ?
@@ -93,7 +94,7 @@
 		return tileset;
 	};
 
-	fast.decode_4bppTileset_NEW = function(data, hFlip=0,vFlip=0){
+	fast.decode_4bppTileset = function(data, hFlip=0,vFlip=0){
 
 		// OVERFLOW : get zero values ?
 		// WRONGDAT : get zero values ?
@@ -297,7 +298,7 @@
 		return tileset;
 	};
 
-	fast.draw_decodedTileset_NEW = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
+	fast.draw_decodedTileset = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
 		
 		// OVERFLOW : crash function
 		// WRONGDAT : crash function
@@ -392,12 +393,6 @@
 
 
 
-
-
-
-
-
-
 	fast.format_2bppTileset = function(data, hFlip=0,vFlip=0){
 
 		// OVERFLOW : get zero values ?
@@ -485,8 +480,93 @@
 		return tileset;
 	};
 
+	fast.format_4bppTileset = function(data, hFlip=0,vFlip=0){
 
+		// OVERFLOW : get zero values
+		// WRONGDAT : get zero values
 
+		let tOffset; // 8x8 tile offset
+		let rOffset; // 8x8 row offset
+		let bOffsets // 8x8 byte offsets
+		let b0, b1, b2, b3;
+		let tileset = [];
+
+		let col;
+
+		let len = data.length / 32;
+		
+		if( (hFlip|vFlip) === 0 ){
+
+			for(let iTile=0; iTile<len; iTile++){
+				tileset.push( [] );
+				tOffset = iTile * 32;
+				// by row
+				for(let row=0; row<8; row++){
+		
+					tileset[iTile].push( [] );
+
+					rOffset = row * 2; // row offset
+					bOffsets = [ rOffset, rOffset+1, rOffset+16, rOffset+17 ]; // byte offset
+					
+					b0 = data[ tOffset + bOffsets[0] ];
+					b1 = data[ tOffset + bOffsets[1] ];
+					b2 = data[ tOffset + bOffsets[2] ];
+					b3 = data[ tOffset + bOffsets[3] ];
+				
+					// by row pixel
+					for(let pix=0x80; pix>0x00; pix=pix>>1){
+				
+						col = 0;
+						
+						col += b0 & pix ? 0x1 : 0x0;
+						col += b1 & pix ? 0x2 : 0x0;
+						col += b2 & pix ? 0x4 : 0x0;
+						col += b3 & pix ? 0x8 : 0x0;
+						
+						tileset[iTile][row].push(col);
+					}
+				}
+			}
+
+		}else{
+
+			let flip8 = app.ref.get_flipTable(8);
+			let flipB = app.ref.get_flipTable('byte');
+			let fPix;
+
+			for(let iTile=0; iTile<len; iTile++){
+				tileset.push( [] );
+				tOffset = iTile * 32;
+				// by row
+				for(let row=0; row<8; row++){
+		
+					tileset[iTile].push( [] );
+
+					rOffset = flip8[vFlip][row] * 2; // row offset
+					bOffsets = [ rOffset, rOffset+1, rOffset+16, rOffset+17 ]; // byte offset
+					
+					b0 = data[ tOffset + bOffsets[0] ];
+					b1 = data[ tOffset + bOffsets[1] ];
+					b2 = data[ tOffset + bOffsets[2] ];
+					b3 = data[ tOffset + bOffsets[3] ];
+				
+					// by row pixel
+					for(let pix=0x80; pix>0x00; pix=pix>>1){
+						fPix = flipB[hFlip][pix];
+						col = 0;
+						col += b0 & fPix ? 0x1 : 0x0;
+						col += b1 & fPix ? 0x2 : 0x0;
+						col += b2 & fPix ? 0x4 : 0x0;
+						col += b3 & fPix ? 0x8 : 0x0;
+						
+						tileset[iTile][row].push(col);
+					}
+				}
+			}
+		}
+
+		return tileset;
+	};
 
 	fast.format_8bppTileset = function(data, hFlip=0,vFlip=0){
 
@@ -605,8 +685,94 @@
 		return tileset;
 	};
 
+	fast.draw_formatedTileset = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
+		
+		// OVERFLOW : crash function
+		// WRONGDAT : crash function
 
+		let len = data.length;
+		let ytmax = Math.ceil(len / xtmax);
 
+		let w = xtmax * 8;
+		let h = ytmax * 8;
+
+		let pix;
+		let pixels = ctx.createImageData(w, h);
+		let c;
+
+		let xp, yp;
+
+		let iTile;
+		
+		let ytlast = ytmax-1;
+		let xtlast = len - (ytlast*xtmax);
+		let A = {}; A[ytlast] = xtlast; A[undefined] = xtmax;
+		let B = {}; B[ytlast] = ytlast;
+		
+		let xtlen;
+
+		if( (hFlip|vFlip) === 0 ){
+
+			for(let yt=0; yt<ytmax; yt++){
+			xtlen = A[ B[yt] ];
+			for(let xt=0; xt<xtlen; xt++){
+	
+				iTile = (yt*xtmax) + xt;
+	
+				for(let ytp=0; ytp<8; ytp++)
+				for(let xtp=0; xtp<8; xtp++){
+		
+					c = palette[ data[iTile][ytp][xtp] ];
+		
+					xp = (xt*8) + xtp;
+					yp = (yt*8) + ytp;
+	
+					pix = ((yp*w) + xp) * 4;
+	
+					pixels.data[pix  ] = c[0];
+					pixels.data[pix+1] = c[1];
+					pixels.data[pix+2] = c[2];
+					pixels.data[pix+3] = 255;
+				}
+			}
+			}
+
+		}else{
+
+			let flip8 = app.ref.get_flipTable(8);
+			let _xtp, _ytp;
+
+			for(let yt=0; yt<ytmax; yt++){
+			xtlen = A[ B[yt] ];
+			for(let xt=0; xt<xtlen; xt++){
+	
+				iTile = (yt*xtmax) + xt;
+	
+				for(let ytp=0; ytp<8; ytp++)
+				for(let xtp=0; xtp<8; xtp++){
+		
+					_xtp = flip8[hFlip][xtp];
+					_ytp = flip8[vFlip][ytp];
+
+					c = palette[ data[iTile][_ytp][_xtp] ];
+		
+					xp = (xt*8) + xtp;
+					yp = (yt*8) + ytp;
+	
+					pix = ((yp*w) + xp) * 4;
+	
+					pixels.data[pix  ] = c[0];
+					pixels.data[pix+1] = c[1];
+					pixels.data[pix+2] = c[2];
+					pixels.data[pix+3] = 255;
+				}
+			}
+			}
+
+		}
+
+		ctx.putImageData(pixels, x,y);
+	};
 
 
 
@@ -1001,9 +1167,6 @@
 
 		ctx.putImageData(pixels, x,y);
 	};
-
-
-
 
 
 })();

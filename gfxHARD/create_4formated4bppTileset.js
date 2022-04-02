@@ -1,7 +1,7 @@
 
 (function(app=dkc2ldd){
 
-	app.gfx.fast.create_4formatedTileset = function(rawTileset){
+	app.gfx.fast.create_4formated4bppTileset = function(rawTileset){
 
 		// _4formatedTileset [tileIndex] [flip(4)] [yPixel(8)] [xPixel(8)]
 		// _4formatedTileset .n|.h|.v|.a [tileIndex] [yPixel(8)] [xPixel(8)]

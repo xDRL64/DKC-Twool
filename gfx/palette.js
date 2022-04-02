@@ -26,7 +26,7 @@
 	// FIXED SIZE PALETTE (bit depth : 2 4 8) //
 	////////////////////////////////////////////
 
-
+	// use it just for palette drawing
 	fast.decode_palette = function(snespal, bitDepth){
 		let o = [], c, t = gfx._5to8;
 		let data = snespal || [];
@@ -39,6 +39,7 @@
 	};
 	fast.decode_snespal = fast.decode_palette;
 
+	// use it for palette editing or for color getting in tileset using
 	fast.format_palette = function(snespal, bitDepth){
 
 		if(bitDepth === 8) return [fast.decode_palette(snespal, 8)];

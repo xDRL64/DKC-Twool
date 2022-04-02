@@ -54,7 +54,7 @@
 		
 		let decoded2bpp = app.gfx.fast.decode_2bppTileset(tileset);
 		let d2 = decoded2bpp;
-		let decoded4bpp = app.gfx.fast.decode_4bppTileset_NEW(tileset);
+		let decoded4bpp = app.gfx.fast.decode_4bppTileset(tileset);
 		let d4 = decoded4bpp;
 		let decoded8bpp = app.gfx.fast.decode_8bppTileset(tileset);
 		let d8 = decoded8bpp;
@@ -75,15 +75,15 @@
 
 		//app.write.decodedTileset(tileset, test2, 2);
 		//decoded2bpp = app.gfx.fast.decode_2bppTileset(tileset);
-		//app.gfx.fast.draw_decodedTileset_NEW(decoded2bpp, pal, 0,0, xtmax, ctx);
+		//app.gfx.fast.draw_decodedTileset(decoded2bpp, pal, 0,0, xtmax, ctx);
 
 		//app.write.decodedTileset(tileset, test4, 4);
-		//decoded4bpp = app.gfx.fast.decode_4bppTileset_NEW(tileset);
-		//app.gfx.fast.draw_decodedTileset_NEW(decoded4bpp, pal, 0,0, xtmax, ctx);
+		//decoded4bpp = app.gfx.fast.decode_4bppTileset(tileset);
+		//app.gfx.fast.draw_decodedTileset(decoded4bpp, pal, 0,0, xtmax, ctx);
 
 		//app.write.decodedTileset(tileset, test8, 8);
 		decoded8bpp = app.gfx.fast.decode_8bppTileset(tileset, 1,1);
-		app.gfx.fast.draw_decodedTileset_NEW(decoded8bpp, pal256, 0,0, xtmax, ctx);
+		app.gfx.fast.draw_decodedTileset(decoded8bpp, pal256, 0,0, xtmax, ctx);
 
 		/*
 		let iframe = 0;

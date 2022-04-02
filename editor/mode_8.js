@@ -35,7 +35,7 @@
 		let tileset = srcFilePanel.tileset.get_data()[0];
 		let mapchip = srcFilePanel.mapchip.get_data()[0];
 
-		let _4tileset = dkc2ldd.gfx.fast.create_4formatedTileset(tileset);
+		let _4tileset = dkc2ldd.gfx.fast.create_4formated4bppTileset(tileset);
 
 		let time0, time1;
 		time0 = performance.now();

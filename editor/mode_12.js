@@ -766,7 +766,7 @@
 				let type = TLST.type[name];
 				if(type){
 					if(flag === 'd')
-						gfx.draw_decodedTileset_NEW(type,pal, 0,0, xtmax, ctx);
+						gfx.draw_decodedTileset(type,pal, 0,0, xtmax, ctx);
 					if(flag === 'f')
 						gfx.draw_formatedTileset(type,pal, 0,0, xtmax, ctx);
 				}

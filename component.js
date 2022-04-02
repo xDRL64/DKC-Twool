@@ -52,7 +52,7 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		avoidAnim : writeLib.copy_byteToByteWithSrcMask || unsetLib,
 
 		decode2 : readLib.decode_2bppTileset || unsetLib,
-		decode4 : readLib.decode_4bppTileset_NEW || unsetLib,
+		decode4 : readLib.decode_4bppTileset || unsetLib,
 		decode8 : readLib.decode_8bppTileset || unsetLib,
 
 		_4decode2 : readLib.create_4decoded2bppTileset || unsetLib,
@@ -64,7 +64,7 @@ dkc2ldd.component = (function(app=dkc2ldd){
 		format8 : readLib.format_8bppTileset || unsetLib,
 
 		_4format2 : readLib.create_4formated2bppTileset || unsetLib,
-		_4format4 : readLib.create_4formatedTileset || unsetLib,
+		_4format4 : readLib.create_4formated4bppTileset || unsetLib,
 		_4format8 : readLib.create_4formated8bppTileset || unsetLib,
 
 		writeD2 : writeLib.decodedTileset || unsetLib,

@@ -71,10 +71,10 @@
 		let ctx_d2ts = viewport_d2ts.ctx;
 		viewport_d2ts.elem.appendChild(makelabel('D2 : '+timeC,h*2));
 
-		app.gfx.fast.draw_decodedTileset_NEW(nflip, pal, 0,0, xtmax, ctx_d2ts,0,0);
-		app.gfx.fast.draw_decodedTileset_NEW(hflip, pal, 0,0, xtmax, ctx_d2ts,w,0);
-		app.gfx.fast.draw_decodedTileset_NEW(vflip, pal, 0,0, xtmax, ctx_d2ts,w*2,0);
-		app.gfx.fast.draw_decodedTileset_NEW(aflip, pal, 0,0, xtmax, ctx_d2ts,w*3,0);
+		app.gfx.fast.draw_decodedTileset(nflip, pal, 0,0, xtmax, ctx_d2ts,0,0);
+		app.gfx.fast.draw_decodedTileset(hflip, pal, 0,0, xtmax, ctx_d2ts,w,0);
+		app.gfx.fast.draw_decodedTileset(vflip, pal, 0,0, xtmax, ctx_d2ts,w*2,0);
+		app.gfx.fast.draw_decodedTileset(aflip, pal, 0,0, xtmax, ctx_d2ts,w*3,0);
 
 
 		// create_4decoded2bppTileset() preview
@@ -88,10 +88,10 @@
 		let ctx_4d2ts = viewport_4d2ts.ctx;
 		viewport_4d2ts.elem.appendChild(makelabel('4D2 : '+timeC,h*2));
 		
-		app.gfx.fast.draw_decodedTileset_NEW(_4dts2bpp.n, pal, 0,0, xtmax, ctx_4d2ts,0,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4dts2bpp.h, pal, 0,0, xtmax, ctx_4d2ts,w,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4dts2bpp.v, pal, 0,0, xtmax, ctx_4d2ts,w*2,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4dts2bpp.a, pal, 0,0, xtmax, ctx_4d2ts,w*3,0);
+		app.gfx.fast.draw_decodedTileset(_4dts2bpp.n, pal, 0,0, xtmax, ctx_4d2ts,0,0);
+		app.gfx.fast.draw_decodedTileset(_4dts2bpp.h, pal, 0,0, xtmax, ctx_4d2ts,w,0);
+		app.gfx.fast.draw_decodedTileset(_4dts2bpp.v, pal, 0,0, xtmax, ctx_4d2ts,w*2,0);
+		app.gfx.fast.draw_decodedTileset(_4dts2bpp.a, pal, 0,0, xtmax, ctx_4d2ts,w*3,0);
 
 
 		// 4 format_2bppTileset() preview
@@ -136,24 +136,24 @@
 		//////////
 
 
-		// 4 decode_4bppTileset_NEW() preview
+		// 4 decode_4bppTileset() preview
 		timeA = performance.now();
-		nflip = app.gfx.fast.decode_4bppTileset_NEW(ts, 0,0);
-		hflip = app.gfx.fast.decode_4bppTileset_NEW(ts, 1,0);
-		vflip = app.gfx.fast.decode_4bppTileset_NEW(ts, 0,1);
-		aflip = app.gfx.fast.decode_4bppTileset_NEW(ts, 1,1);
+		nflip = app.gfx.fast.decode_4bppTileset(ts, 0,0);
+		hflip = app.gfx.fast.decode_4bppTileset(ts, 1,0);
+		vflip = app.gfx.fast.decode_4bppTileset(ts, 0,1);
+		aflip = app.gfx.fast.decode_4bppTileset(ts, 1,1);
 		timeB = performance.now();
 		timeC = timeB-timeA;
-		console.log("4 decode_4bppTileset_NEW() : ", timeB-timeA);
+		console.log("4 decode_4bppTileset() : ", timeB-timeA);
 
 		let viewport_d4ts = wLib.create_preview(w*4,h, 1);
 		let ctx_d4ts = viewport_d4ts.ctx;
 		viewport_d4ts.elem.appendChild(makelabel('D4 : '+timeC,h));
 
-		app.gfx.fast.draw_decodedTileset_NEW(nflip, pal, 0,0, xtmax, ctx_d4ts,0,0);
-		app.gfx.fast.draw_decodedTileset_NEW(hflip, pal, 0,0, xtmax, ctx_d4ts,w,0);
-		app.gfx.fast.draw_decodedTileset_NEW(vflip, pal, 0,0, xtmax, ctx_d4ts,w*2,0);
-		app.gfx.fast.draw_decodedTileset_NEW(aflip, pal, 0,0, xtmax, ctx_d4ts,w*3,0);
+		app.gfx.fast.draw_decodedTileset(nflip, pal, 0,0, xtmax, ctx_d4ts,0,0);
+		app.gfx.fast.draw_decodedTileset(hflip, pal, 0,0, xtmax, ctx_d4ts,w,0);
+		app.gfx.fast.draw_decodedTileset(vflip, pal, 0,0, xtmax, ctx_d4ts,w*2,0);
+		app.gfx.fast.draw_decodedTileset(aflip, pal, 0,0, xtmax, ctx_d4ts,w*3,0);
 		
 
 		// create_4decoded4bppTileset() preview
@@ -167,10 +167,10 @@
 		let ctx_4d4ts = viewport_4d4ts.ctx;
 		viewport_4d4ts.elem.appendChild(makelabel('4D4 : '+timeC,h));
 		
-		app.gfx.fast.draw_decodedTileset_NEW(_4d4ts.n, pal, 0,0, xtmax, ctx_4d4ts,0,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4d4ts.h, pal, 0,0, xtmax, ctx_4d4ts,w,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4d4ts.v, pal, 0,0, xtmax, ctx_4d4ts,w*2,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4d4ts.a, pal, 0,0, xtmax, ctx_4d4ts,w*3,0);
+		app.gfx.fast.draw_decodedTileset(_4d4ts.n, pal, 0,0, xtmax, ctx_4d4ts,0,0);
+		app.gfx.fast.draw_decodedTileset(_4d4ts.h, pal, 0,0, xtmax, ctx_4d4ts,w,0);
+		app.gfx.fast.draw_decodedTileset(_4d4ts.v, pal, 0,0, xtmax, ctx_4d4ts,w*2,0);
+		app.gfx.fast.draw_decodedTileset(_4d4ts.a, pal, 0,0, xtmax, ctx_4d4ts,w*3,0);
 
 
 		// 4 format_4bppTileset() preview
@@ -193,12 +193,12 @@
 		app.gfx.fast.draw_formatedTileset(aflip, pal, 0,0, xtmax, ctx_f4ts,w*3,0);
 
 
-		// create_4formatedTileset() preview
+		// create_4formated4bppTileset() preview
 		timeA = performance.now();
-		let _4f4ts = app.gfx.fast.create_4formatedTileset(ts);
+		let _4f4ts = app.gfx.fast.create_4formated4bppTileset(ts);
 		timeB = performance.now();
 		timeC = timeB-timeA;
-		console.log("create_4formatedTileset() : ", timeB-timeA);
+		console.log("create_4formated4bppTileset() : ", timeB-timeA);
 
 		let viewport_4f4ts = wLib.create_preview(w*4,h, 1);
 		let ctx_4f4ts = viewport_4f4ts.ctx;
@@ -231,10 +231,10 @@
 		viewport_d8ts.elem.appendChild(makelabel('D8 : '+timeC,h/2));
 
 		let d8ts_pal = _8bppPal;
-		app.gfx.fast.draw_decodedTileset_NEW(nflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,0,0);
-		app.gfx.fast.draw_decodedTileset_NEW(hflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,w,0);
-		app.gfx.fast.draw_decodedTileset_NEW(vflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,w*2,0);
-		app.gfx.fast.draw_decodedTileset_NEW(aflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,w*3,0);
+		app.gfx.fast.draw_decodedTileset(nflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,0,0);
+		app.gfx.fast.draw_decodedTileset(hflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,w,0);
+		app.gfx.fast.draw_decodedTileset(vflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,w*2,0);
+		app.gfx.fast.draw_decodedTileset(aflip, d8ts_pal, 0,0, xtmax, ctx_d8ts,w*3,0);
 
 
 		// create_4decoded8bppTileset() preview
@@ -249,10 +249,10 @@
 		viewport_4d8ts.elem.appendChild(makelabel('4D8 : '+timeC,h/2));
 		
 		let _4d8ts_pal = _8bppPal;
-		app.gfx.fast.draw_decodedTileset_NEW(_4d8ts.n, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,0,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4d8ts.h, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,w,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4d8ts.v, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,w*2,0);
-		app.gfx.fast.draw_decodedTileset_NEW(_4d8ts.a, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,w*3,0);
+		app.gfx.fast.draw_decodedTileset(_4d8ts.n, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,0,0);
+		app.gfx.fast.draw_decodedTileset(_4d8ts.h, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,w,0);
+		app.gfx.fast.draw_decodedTileset(_4d8ts.v, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,w*2,0);
+		app.gfx.fast.draw_decodedTileset(_4d8ts.a, _4d8ts_pal, 0,0, xtmax, ctx_4d8ts,w*3,0);
 
 
 		// 4 format_8bppTileset() preview
