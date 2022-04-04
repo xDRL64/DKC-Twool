@@ -20,10 +20,10 @@
 		if(!data) return [];
 
 		let len = data.length >> 4; // div by 16
-		let tileset = [];
+		let tile, tileset = [];
 
 		let iT, tOffset, rOfst, rLen;
-		let iPix, pix, col;
+		let iPix, pix;
 
 		let b0, b1;
 
@@ -31,7 +31,8 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tileset.push( new Uint8Array(64) );
+				tile = new Uint8Array(64);
+				tileset.push( tile );
 				tOffset = iT << 4; // mul by 16
 				iPix = 0;
 				rLen = tOffset + 16;
@@ -44,7 +45,7 @@
 					// by row pixel
 					for(pix=0x80; pix>0x00; pix=pix>>1){
 				
-						tileset[iT][iPix] = 
+						tile[iPix] = 
 							(b0 & pix ? 0x1 : 0x0) +
 							(b1 & pix ? 0x2 : 0x0) ;
 
@@ -61,7 +62,8 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tileset.push( new Uint8Array(64) );
+				tile = new Uint8Array(64);
+				tileset.push( tile );
 				tOffset = iT << 4; // mul by 16
 				iPix = 0;
 
@@ -76,7 +78,7 @@
 					for(pix=0x80; pix>0x00; pix=pix>>1){
 						fPix = flipB[pix];
 
-						tileset[iT][iPix] = 
+						tile[iPix] = 
 							(b0 & fPix ? 0x1 : 0x0) +
 							(b1 & fPix ? 0x2 : 0x0) ;
 
@@ -94,10 +96,10 @@
 		if(!data) return [];
 
 		let len = data.length >> 5; // div by 32
-		let tileset = [];
+		let tile, tileset = [];
 
 		let iT, tOffset, rOfst, rLen;
-		let iPix, pix, col;
+		let iPix, pix;
 
 		let b0, b1, b2, b3;
 
@@ -105,7 +107,8 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tileset.push( new Uint8Array(64) );
+				tile = new Uint8Array(64);
+				tileset.push( tile );
 				tOffset = iT << 5; // mul by 32
 				iPix = 0;
 				rLen = tOffset + 16;
@@ -119,7 +122,7 @@
 					// by row pixel
 					for(pix=0x80; pix>0x00; pix=pix>>1){
 				
-						tileset[iT][iPix] =
+						tile[iPix] =
 							(b0 & pix ? 0x1 : 0x0) +
 							(b1 & pix ? 0x2 : 0x0) +
 							(b2 & pix ? 0x4 : 0x0) +
@@ -138,7 +141,8 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tileset.push( new Uint8Array(64) );
+				tile = new Uint8Array(64);
+				tileset.push( tile );
 				tOffset = iT << 5; // mul by 32
 				iPix = 0;
 
@@ -154,7 +158,7 @@
 					for(pix=0x80; pix>0x00; pix=pix>>1){
 						fPix = flipB[pix];
 
-						tileset[iT][iPix] =
+						tile[iPix] =
 							(b0 & fPix ? 0x1 : 0x0) +
 							(b1 & fPix ? 0x2 : 0x0) +
 							(b2 & fPix ? 0x4 : 0x0) +
@@ -174,10 +178,10 @@
 		if(!data) return [];
 
 		let len = data.length >> 6; // div by 64
-		let tileset = [];
+		let tile, tileset = [];
 
 		let iT, tOffset, rOfst, rLen;
-		let iPix, pix, col;
+		let iPix, pix;
 
 		let b0, b1, b2, b3, b4, b5, b6, b7;
 
@@ -185,7 +189,8 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tileset.push( new Uint8Array(64) );
+				tile = new Uint8Array(64);
+				tileset.push( tile );
 				tOffset = iT << 6; // mul by 64
 				iPix = 0;
 				rLen = tOffset + 16;
@@ -201,7 +206,7 @@
 					// by row pixel
 					for(pix=0x80; pix>0x00; pix=pix>>1){
 				
-						tileset[iT][iPix] =
+						tile[iPix] =
 							(b0 & pix ? 0x01 : 0x0) +
 							(b1 & pix ? 0x02 : 0x0) +
 							(b2 & pix ? 0x04 : 0x0) +
@@ -224,7 +229,8 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tileset.push( new Uint8Array(64) );
+				tile = new Uint8Array(64);
+				tileset.push( tile );
 				tOffset = iT << 6; // mul by 64
 				iPix = 0;
 
@@ -242,7 +248,7 @@
 					for(pix=0x80; pix>0x00; pix=pix>>1){
 						fPix = flipB[pix];
 
-						tileset[iT][iPix] =
+						tile[iPix] =
 							(b0 & fPix ? 0x01 : 0x0) +
 							(b1 & fPix ? 0x02 : 0x0) +
 							(b2 & fPix ? 0x04 : 0x0) +
