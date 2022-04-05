@@ -272,19 +272,20 @@
 		// OVERFLOW : crash function
 		// WRONGDAT : crash function
 
+		if(!data) return [];
+
 		let len = data.length;
 		let ytmax = Math.ceil(len / xtmax);
 
-		let w = xtmax * 8;
-		let h = ytmax * 8;
+		let w = xtmax << 3; // mul by 8
+		let h = ytmax << 3; // mul by 8
 
-		let pix;
+		let c, pix;
 		let pixels = ctx.createImageData(w, h);
-		let c;
 
-		let xp, yp;
+		let tile;
 
-		let iTile, iPix;
+		let xt, yt, xtp, ytp;
 		
 		let ytlast = ytmax-1;
 		let xtlast = len - (ytlast*xtmax);
@@ -295,23 +296,20 @@
 
 		if( (hFlip|vFlip) === 0 ){
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 	
-				iTile = (yt*xtmax) + xt;
+				tile = data[ (yt*xtmax)+xt ]; // data[iTile] // iTile=(yt*xtmax)+xt;
 	
-				for(let ytp=0; ytp<8; ytp++)
-				for(let xtp=0; xtp<8; xtp++){
+				for(ytp=0; ytp<8; ytp++)
+				for(xtp=0; xtp<8; xtp++){
 		
-					iPix = (ytp*8) + xtp;
-	
-					c = palette[ data[iTile][iPix] ];
+					//                    *8           // iPix = (ytp*8) + xtp;
+					c = palette[ tile[(ytp<<3)+xtp] ]; // tile[iPix]
 		
-					xp = (xt*8) + xtp;
-					yp = (yt*8) + ytp;
-	
-					pix = ((yp*w) + xp) * 4;
+					//           *8                *8          * 4  // xp=(xt*8)+xtp; yp=(yt*8)+ytp
+					pix = ( (((yt<<3)+ytp)*w) + (xt<<3)+xtp ) << 2; // ((yp*w) + xp) * 4
 	
 					pixels.data[pix  ] = c[0];
 					pixels.data[pix+1] = c[1];
@@ -324,28 +322,22 @@
 		}else{
 
 			let flip8 = app.ref.get_flipTable(8);
-			let _xtp, _ytp;
+			let xf8 = flip8[hFlip], yf8 = flip8[vFlip];
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
-	
-				iTile = (yt*xtmax) + xt;
-	
-				for(let ytp=0; ytp<8; ytp++)
-				for(let xtp=0; xtp<8; xtp++){
-		
-					_xtp = flip8[hFlip][xtp];
-					_ytp = flip8[vFlip][ytp];
+			for(xt=0; xt<xtlen; xt++){
 
-					iPix = (_ytp*8) + _xtp;
+				tile = data[ (yt*xtmax)+xt ]; // data[iTile] // iTile=(yt*xtmax)+xt;
 	
-					c = palette[ data[iTile][iPix] ];
+				for(ytp=0; ytp<8; ytp++)
+				for(xtp=0; xtp<8; xtp++){
+
+					//                         *8                // iPix = (yf8[ytp]*8) + xf8[xtp]
+					c = palette[ tile[(yf8[ytp]<<3)+xf8[xtp]] ]; // tile[iPix]
 		
-					xp = (xt*8) + xtp;
-					yp = (yt*8) + ytp;
-	
-					pix = ((yp*w) + xp) * 4;
+					//           *8                *8          * 4  // xp=(xt*8)+xtp; yp=(yt*8)+ytp
+					pix = ( (((yt<<3)+ytp)*w) + (xt<<3)+xtp ) << 2; // ((yp*w) + xp) * 4
 	
 					pixels.data[pix  ] = c[0];
 					pixels.data[pix+1] = c[1];
