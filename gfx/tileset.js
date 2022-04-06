@@ -291,7 +291,6 @@
 		let xtlast = len - (ytlast*xtmax);
 		let A = {}; A[ytlast] = xtlast; A[undefined] = xtmax;
 		let B = {}; B[ytlast] = ytlast;
-		
 		let xtlen;
 
 		if( (hFlip|vFlip) === 0 ){
@@ -651,45 +650,43 @@
 		// OVERFLOW : crash function
 		// WRONGDAT : crash function
 
+		if(!data) return [];
+
 		let len = data.length;
 		let ytmax = Math.ceil(len / xtmax);
 
-		let w = xtmax * 8;
-		let h = ytmax * 8;
+		let w = xtmax << 3; // mul by 8
+		let h = ytmax << 3; // mul by 8
 
-		let pix;
+		let c, pix;
 		let pixels = ctx.createImageData(w, h);
-		let c;
 
-		let xp, yp;
+		let tile;
 
-		let iTile;
-		
+		let xt, yt, xtp, ytp;
+
 		let ytlast = ytmax-1;
 		let xtlast = len - (ytlast*xtmax);
 		let A = {}; A[ytlast] = xtlast; A[undefined] = xtmax;
 		let B = {}; B[ytlast] = ytlast;
-		
 		let xtlen;
 
 		if( (hFlip|vFlip) === 0 ){
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 	
-				iTile = (yt*xtmax) + xt;
+				tile = data[ (yt*xtmax)+xt ]; // data[iTile] // iTile=(yt*xtmax)+xt;
 	
-				for(let ytp=0; ytp<8; ytp++)
-				for(let xtp=0; xtp<8; xtp++){
+				for(ytp=0; ytp<8; ytp++)
+				for(xtp=0; xtp<8; xtp++){
 		
-					c = palette[ data[iTile][ytp][xtp] ];
+					c = palette[ tile[ytp][xtp] ];
 		
-					xp = (xt*8) + xtp;
-					yp = (yt*8) + ytp;
-	
-					pix = ((yp*w) + xp) * 4;
-	
+					//           *8                *8          * 4  // xp=(xt*8)+xtp; yp=(yt*8)+ytp
+					pix = ( (((yt<<3)+ytp)*w) + (xt<<3)+xtp ) << 2; // ((yp*w) + xp) * 4
+
 					pixels.data[pix  ] = c[0];
 					pixels.data[pix+1] = c[1];
 					pixels.data[pix+2] = c[2];
@@ -701,26 +698,21 @@
 		}else{
 
 			let flip8 = app.ref.get_flipTable(8);
-			let _xtp, _ytp;
+			let xf8 = flip8[hFlip], yf8 = flip8[vFlip];
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 	
-				iTile = (yt*xtmax) + xt;
-	
-				for(let ytp=0; ytp<8; ytp++)
-				for(let xtp=0; xtp<8; xtp++){
-		
-					_xtp = flip8[hFlip][xtp];
-					_ytp = flip8[vFlip][ytp];
+				tile = data[ (yt*xtmax)+xt ]; // data[iTile] // iTile=(yt*xtmax)+xt;
 
-					c = palette[ data[iTile][_ytp][_xtp] ];
+				for(ytp=0; ytp<8; ytp++)
+				for(xtp=0; xtp<8; xtp++){
 		
-					xp = (xt*8) + xtp;
-					yp = (yt*8) + ytp;
-	
-					pix = ((yp*w) + xp) * 4;
+					c = palette[ tile[yf8[ytp]][xf8[xtp]] ];
+		
+					//           *8                *8          * 4  // xp=(xt*8)+xtp; yp=(yt*8)+ytp
+					pix = ( (((yt<<3)+ytp)*w) + (xt<<3)+xtp ) << 2; // ((yp*w) + xp) * 4
 	
 					pixels.data[pix  ] = c[0];
 					pixels.data[pix+1] = c[1];
@@ -742,27 +734,24 @@
 		// OVERFLOW : display zero values ?
 		// WRONGDAT : display zero values ?
 
-		let tOffset; // 8x8 tile offset
-		let offset;
-		let b0, b1;
+		if(!data) return [];
 
 		let len = data.length >> 4; // div by 16
-
 		let ytmax = Math.ceil(len / xtmax);
-
-		let w = xtmax * 8;
-		let h = ytmax * 8;
-
-		let c;
-		let _pix;
+		
+		let w = xtmax << 3; // mul by 8
+		let h = ytmax << 3; // mul by 8
+		
+		let c, _pix;
 		let pixels = ctx.createImageData(w, h);
 
+		let tOffset, rOfst;
+		let b0, b1;
+		
 		let bit = app.ref.bitvalToPixnum;
 
-		let xp, yp;
+		let xt, yt, row, pix;
 
-		let iTile;
-		
 		let ytlast = ytmax-1;
 		let xtlast = len - (ytlast*xtmax);
 		let A = {}; A[ytlast] = xtlast; A[undefined] = xtmax;
@@ -772,33 +761,29 @@
 		
 		if( (hFlip|vFlip) === 0 ){
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 
-				iTile = (yt*xtmax) + xt;
+				tOffset = ((yt*xtmax)+xt) << 4; // iTile*16 // iTile=(yt*xtmax)+xt
 
-				tOffset = iTile << 4; // mul by 16
 				// by row
-				for(let row=0; row<8; row++){
+				for(row=0; row<8; row++){
 		
-					offset = tOffset + (row<<1);
+					rOfst = tOffset + (row<<1); // mul by 2
 					
-					b0 = data[ offset     ];
-					b1 = data[ offset + 1 ];
+					b0 = data[rOfst]; b1 = data[rOfst+1];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 				
-						c = (b0 & pix ? 0x1 : 0x0)
-						  + (b1 & pix ? 0x2 : 0x0);
-						
-						c = palette[c];
+						c = palette[
+							(b0 & pix ? 0x1 : 0x0) +
+							(b1 & pix ? 0x2 : 0x0)
+						];
 
-						xp = (xt*8) + bit[pix];
-						yp = (yt*8) + row;
-		
-						_pix = ((yp*w) + xp) * 4;
+						//            *8                *8               * 4  // xp=(xt*8)+bit[pix]; yp=(yt*8)+row
+						_pix = ( (((yt<<3)+row)*w) + (xt<<3)+bit[pix] ) << 2; // _pix = ((yp*w) + xp) * 4;
 					
 						pixels.data[_pix  ] = c[0];
 						pixels.data[_pix+1] = c[1];
@@ -815,34 +800,30 @@
 			let flipB = app.ref.get_flipTable('byte')[hFlip];
 			let fPix;
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 
-				iTile = (yt*xtmax) + xt;
+				tOffset = ((yt*xtmax)+xt) << 4; // iTile*16 // iTile=(yt*xtmax)+xt
 
-				tOffset = iTile << 4; // mul by 16
 				// by row
-				for(let row=0; row<8; row++){
+				for(row=0; row<8; row++){
 		
-					offset = tOffset + (flip8[row]<<1);
+					rOfst = tOffset + (flip8[row]<<1); // mul by 2
 					
-					b0 = data[ offset     ];
-					b1 = data[ offset + 1 ];
+					b0 = data[rOfst]; b1 = data[rOfst+1];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 						fPix = flipB[pix];
 
-						c = (b0 & fPix ? 0x1 : 0x0)
-						  + (b1 & fPix ? 0x2 : 0x0);
-						
-						c = palette[c];
+						c = palette[
+							(b0 & fPix ? 0x1 : 0x0) +
+							(b1 & fPix ? 0x2 : 0x0)
+						];
 
-						xp = (xt*8) + bit[pix];
-						yp = (yt*8) + row;
-		
-						_pix = ((yp*w) + xp) * 4;
+						//            *8                *8               * 4  // xp=(xt*8)+bit[pix]; yp=(yt*8)+row
+						_pix = ( (((yt<<3)+row)*w) + (xt<<3)+bit[pix] ) << 2; // _pix = ((yp*w) + xp) * 4;
 					
 						pixels.data[_pix  ] = c[0];
 						pixels.data[_pix+1] = c[1];
@@ -862,27 +843,24 @@
 		// OVERFLOW : display zero values ?
 		// WRONGDAT : display zero values ?
 
-		let tOffset; // 8x8 tile offset
-		let offset;
-		let b0, b1, b2, b3;
+		if(!data) return [];
 
 		let len = data.length >> 5; // div by 32
-
 		let ytmax = Math.ceil(len / xtmax);
-
-		let w = xtmax * 8;
-		let h = ytmax * 8;
-
-		let c;
-		let _pix;
+		
+		let w = xtmax << 3; // mul by 8
+		let h = ytmax << 3; // mul by 8
+		
+		let c, _pix;
 		let pixels = ctx.createImageData(w, h);
+		
+		let tOffset, rOfst;
+		let b0, b1, b2, b3;
 
 		let bit = app.ref.bitvalToPixnum;
 
-		let xp, yp;
+		let xt, yt, row, pix;
 
-		let iTile;
-		
 		let ytlast = ytmax-1;
 		let xtlast = len - (ytlast*xtmax);
 		let A = {}; A[ytlast] = xtlast; A[undefined] = xtmax;
@@ -892,37 +870,32 @@
 		
 		if( (hFlip|vFlip) === 0 ){
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 
-				iTile = (yt*xtmax) + xt;
+				tOffset = ((yt*xtmax)+xt) << 5; // iTile*32 // iTile=(yt*xtmax)+xt
 
-				tOffset = iTile << 5; // mul by 32
 				// by row
-				for(let row=0; row<8; row++){
+				for(row=0; row<8; row++){
 		
-					offset = tOffset + (row<<1);
+					rOfst = tOffset + (row<<1); // mul by 2
 					
-					b0 = data[ offset      ];
-					b1 = data[ offset +  1 ];
-					b2 = data[ offset + 16 ];
-					b3 = data[ offset + 17 ];
+					b0 = data[rOfst   ]; b1 = data[rOfst+1 ];
+					b2 = data[rOfst+16]; b3 = data[rOfst+17];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 				
-						c = (b0 & pix ? 0x1 : 0x0)
-						  + (b1 & pix ? 0x2 : 0x0)
-						  + (b2 & pix ? 0x4 : 0x0)
-						  + (b3 & pix ? 0x8 : 0x0);
-						
-						c = palette[c];
+						c = palette[
+							(b0 & pix ? 0x1 : 0x0) +
+							(b1 & pix ? 0x2 : 0x0) +
+							(b2 & pix ? 0x4 : 0x0) +
+							(b3 & pix ? 0x8 : 0x0)
+						];
 
-						xp = (xt*8) + bit[pix];
-						yp = (yt*8) + row;
-		
-						_pix = ((yp*w) + xp) * 4;
+						//            *8                *8               * 4  // xp=(xt*8)+bit[pix]; yp=(yt*8)+row
+						_pix = ( (((yt<<3)+row)*w) + (xt<<3)+bit[pix] ) << 2; // _pix = ((yp*w) + xp) * 4;
 					
 						pixels.data[_pix  ] = c[0];
 						pixels.data[_pix+1] = c[1];
@@ -939,38 +912,33 @@
 			let flipB = app.ref.get_flipTable('byte')[hFlip];
 			let fPix;
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 
-				iTile = (yt*xtmax) + xt;
+				tOffset = ((yt*xtmax)+xt) << 5; // iTile*32 // iTile=(yt*xtmax)+xt
 
-				tOffset = iTile << 5; // mul by 32
 				// by row
-				for(let row=0; row<8; row++){
-		
-					offset = tOffset + (flip8[row]<<1);
-					
-					b0 = data[ offset      ];
-					b1 = data[ offset +  1 ];
-					b2 = data[ offset + 16 ];
-					b3 = data[ offset + 17 ];
-				
+				for(row=0; row<8; row++){
+
+					rOfst = tOffset + (flip8[row]<<1); // mul by 2
+
+					b0 = data[rOfst   ]; b1 = data[rOfst+1 ];
+					b2 = data[rOfst+16]; b3 = data[rOfst+17];
+
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 						fPix = flipB[pix];
 
-						c = (b0 & fPix ? 0x1 : 0x0)
-						  + (b1 & fPix ? 0x2 : 0x0)
-						  + (b2 & fPix ? 0x4 : 0x0)
-						  + (b3 & fPix ? 0x8 : 0x0);
-						
-						c = palette[c];
+						c = palette[
+							(b0 & fPix ? 0x1 : 0x0) +
+							(b1 & fPix ? 0x2 : 0x0) +
+							(b2 & fPix ? 0x4 : 0x0) +
+							(b3 & fPix ? 0x8 : 0x0)
+						];
 
-						xp = (xt*8) + bit[pix];
-						yp = (yt*8) + row;
-		
-						_pix = ((yp*w) + xp) * 4;
+						//            *8                *8               * 4  // xp=(xt*8)+bit[pix]; yp=(yt*8)+row
+						_pix = ( (((yt<<3)+row)*w) + (xt<<3)+bit[pix] ) << 2; // _pix = ((yp*w) + xp) * 4;
 					
 						pixels.data[_pix  ] = c[0];
 						pixels.data[_pix+1] = c[1];
@@ -990,26 +958,23 @@
 		// OVERFLOW : display zero values ?
 		// WRONGDAT : display zero values ?
 
-		let tOffset; // 8x8 tile offset
-		let offset;
-		let b0, b1, b2, b3, b4, b5, b6, b7;
+		if(!data) return [];
 
 		let len = data.length >> 6; // div by 64
-
 		let ytmax = Math.ceil(len / xtmax);
-
-		let w = xtmax * 8;
-		let h = ytmax * 8;
-
-		let c;
-		let _pix;
+		
+		let w = xtmax << 3; // mul by 8
+		let h = ytmax << 3; // mul by 8
+		
+		let c, _pix;
 		let pixels = ctx.createImageData(w, h);
+		
+		let tOffset, rOfst;
+		let b0, b1, b2, b3, b4, b5, b6, b7;
 
 		let bit = app.ref.bitvalToPixnum;
 
-		let xp, yp;
-
-		let iTile;
+		let xt, yt, row, pix;
 		
 		let ytlast = ytmax-1;
 		let xtlast = len - (ytlast*xtmax);
@@ -1020,45 +985,38 @@
 		
 		if( (hFlip|vFlip) === 0 ){
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 
-				iTile = (yt*xtmax) + xt;
+				tOffset = ((yt*xtmax)+xt) << 6; // iTile*64 // iTile=(yt*xtmax)+xt
 
-				tOffset = iTile << 6; // mul by 64
 				// by row
-				for(let row=0; row<8; row++){
+				for(row=0; row<8; row++){
 		
-					offset = tOffset + (row<<1);
+					rOfst = tOffset + (row<<1); // mul by 2
 					
-					b0 = data[ offset      ];
-					b1 = data[ offset +  1 ];
-					b2 = data[ offset + 16 ];
-					b3 = data[ offset + 17 ];
-					b4 = data[ offset + 32 ];
-					b5 = data[ offset + 33 ];
-					b6 = data[ offset + 48 ];
-					b7 = data[ offset + 49 ];
+					b0 = data[rOfst   ]; b1 = data[rOfst+1 ];
+					b2 = data[rOfst+16]; b3 = data[rOfst+17];
+					b4 = data[rOfst+32]; b5 = data[rOfst+33];
+					b6 = data[rOfst+48]; b7 = data[rOfst+49];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
-				
-						c = (b0 & pix ? 0x01 : 0x0)
-						  + (b1 & pix ? 0x02 : 0x0)
-						  + (b2 & pix ? 0x04 : 0x0)
-						  + (b3 & pix ? 0x08 : 0x0)
-						  + (b4 & pix ? 0x10 : 0x0)
-						  + (b5 & pix ? 0x20 : 0x0)
-						  + (b6 & pix ? 0x40 : 0x0)
-						  + (b7 & pix ? 0x80 : 0x0);
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 						
-						c = palette[c];
+						c = palette[
+							(b0 & pix ? 0x01 : 0x0) +
+							(b1 & pix ? 0x02 : 0x0) +
+							(b2 & pix ? 0x04 : 0x0) +
+							(b3 & pix ? 0x08 : 0x0) +
+							(b4 & pix ? 0x10 : 0x0) +
+							(b5 & pix ? 0x20 : 0x0) +
+							(b6 & pix ? 0x40 : 0x0) +
+							(b7 & pix ? 0x80 : 0x0)
+						];
 
-						xp = (xt*8) + bit[pix];
-						yp = (yt*8) + row;
-		
-						_pix = ((yp*w) + xp) * 4;
+						//            *8                *8               * 4  // xp=(xt*8)+bit[pix]; yp=(yt*8)+row
+						_pix = ( (((yt<<3)+row)*w) + (xt<<3)+bit[pix] ) << 2; // _pix = ((yp*w) + xp) * 4;
 					
 						pixels.data[_pix  ] = c[0];
 						pixels.data[_pix+1] = c[1];
@@ -1075,46 +1033,39 @@
 			let flipB = app.ref.get_flipTable('byte')[hFlip];
 			let fPix;
 
-			for(let yt=0; yt<ytmax; yt++){
+			for(yt=0; yt<ytmax; yt++){
 			xtlen = A[ B[yt] ];
-			for(let xt=0; xt<xtlen; xt++){
+			for(xt=0; xt<xtlen; xt++){
 
-				iTile = (yt*xtmax) + xt;
+				tOffset = ((yt*xtmax)+xt) << 6; // iTile*64 // iTile=(yt*xtmax)+xt
 
-				tOffset = iTile << 6; // mul by 64
 				// by row
-				for(let row=0; row<8; row++){
+				for(row=0; row<8; row++){
 		
-					offset = tOffset + (flip8[row]<<1);
+					rOfst = tOffset + (flip8[row]<<1); // mul by 2
 					
-					b0 = data[ offset      ];
-					b1 = data[ offset +  1 ];
-					b2 = data[ offset + 16 ];
-					b3 = data[ offset + 17 ];
-					b4 = data[ offset + 32 ];
-					b5 = data[ offset + 33 ];
-					b6 = data[ offset + 48 ];
-					b7 = data[ offset + 49 ];
+					b0 = data[rOfst   ]; b1 = data[rOfst+1 ];
+					b2 = data[rOfst+16]; b3 = data[rOfst+17];
+					b4 = data[rOfst+32]; b5 = data[rOfst+33];
+					b6 = data[rOfst+48]; b7 = data[rOfst+49];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 						fPix = flipB[pix];
-
-						c = (b0 & fPix ? 0x01 : 0x0)
-						  + (b1 & fPix ? 0x02 : 0x0)
-						  + (b2 & fPix ? 0x04 : 0x0)
-						  + (b3 & fPix ? 0x08 : 0x0)
-						  + (b4 & fPix ? 0x10 : 0x0)
-						  + (b5 & fPix ? 0x20 : 0x0)
-						  + (b6 & fPix ? 0x40 : 0x0)
-						  + (b7 & fPix ? 0x80 : 0x0);
 						
-						c = palette[c];
+						c = palette[
+							(b0 & fPix ? 0x01 : 0x0) +
+							(b1 & fPix ? 0x02 : 0x0) +
+							(b2 & fPix ? 0x04 : 0x0) +
+							(b3 & fPix ? 0x08 : 0x0) +
+							(b4 & fPix ? 0x10 : 0x0) +
+							(b5 & fPix ? 0x20 : 0x0) +
+							(b6 & fPix ? 0x40 : 0x0) +
+							(b7 & fPix ? 0x80 : 0x0)
+						];
 
-						xp = (xt*8) + bit[pix];
-						yp = (yt*8) + row;
-		
-						_pix = ((yp*w) + xp) * 4;
+						//            *8                *8               * 4  // xp=(xt*8)+bit[pix]; yp=(yt*8)+row
+						_pix = ( (((yt<<3)+row)*w) + (xt<<3)+bit[pix] ) << 2; // _pix = ((yp*w) + xp) * 4;
 					
 						pixels.data[_pix  ] = c[0];
 						pixels.data[_pix+1] = c[1];
