@@ -20,7 +20,7 @@
 		if(!data) return [];
 
 		let len = data.length >> 4; // div by 16
-		let tile, tileset = [];
+		let tile, tileset = new Array(len);
 
 		let iT, tOffset, rOfst, rLen;
 		let iPix, pix;
@@ -31,8 +31,7 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tile = new Uint8Array(64);
-				tileset.push( tile );
+				tileset[iT] = tile = new Uint8Array(64);
 				tOffset = iT << 4; // mul by 16
 				iPix = 0;
 				rLen = tOffset + 16;
@@ -62,8 +61,7 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tile = new Uint8Array(64);
-				tileset.push( tile );
+				tileset[iT] = tile = new Uint8Array(64);
 				tOffset = iT << 4; // mul by 16
 				iPix = 0;
 
@@ -107,8 +105,7 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tile = new Uint8Array(64);
-				tileset.push( tile );
+				tileset[iT] = tile = new Uint8Array(64);
 				tOffset = iT << 5; // mul by 32
 				iPix = 0;
 				rLen = tOffset + 16;
@@ -141,8 +138,7 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tile = new Uint8Array(64);
-				tileset.push( tile );
+				tileset[iT] = tile = new Uint8Array(64);
 				tOffset = iT << 5; // mul by 32
 				iPix = 0;
 
@@ -189,8 +185,7 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tile = new Uint8Array(64);
-				tileset.push( tile );
+				tileset[iT] = tile = new Uint8Array(64);
 				tOffset = iT << 6; // mul by 64
 				iPix = 0;
 				rLen = tOffset + 16;
@@ -229,8 +224,7 @@
 
 			for(iT=0; iT<len; iT++){
 
-				tile = new Uint8Array(64);
-				tileset.push( tile );
+				tileset[iT] = tile = new Uint8Array(64);
 				tOffset = iT << 6; // mul by 64
 				iPix = 0;
 
@@ -358,44 +352,43 @@
 		// OVERFLOW : get zero values ?
 		// WRONGDAT : get zero values ?
 
+		if(!data) return [];
+
 		let len = data.length >> 4; // div by 16
 		let tileset = new Array(len);
 
 		let tile, row;
 		
-		let offset = 0;
+		let rOfst = 0;
 		let b0, b1;
-		let col;
 
-		let iPix;
-
+		let iTile, iRow, pix, iPix;
+		
 		if( (hFlip|vFlip) === 0 ){
 
-			for(let iTile=0; iTile<len; iTile++){
+			for(iTile=0; iTile<len; iTile++){
 
-				tile = tileset[iTile] = new Array(8);
+				tileset[iTile] = tile = new Array(8);
 				
 				// by row
-				for(let iRow=0; iRow<8; iRow++){
+				for(iRow=0; iRow<8; iRow++){
 		
-					row = tile[iRow] = new Uint8Array(8);
+					tile[iRow] = row = new Uint8Array(8);
 					iPix = 0;
 
-					b0 = data[ offset     ];
-					b1 = data[ offset + 1 ];
+					b0 = data[rOfst]; b1 = data[rOfst+1];
 
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 				
-						col = 0;
-						col += b0 & pix ? 0x1 : 0x0;
-						col += b1 & pix ? 0x2 : 0x0;
-						row[iPix] = col;
+						row[iPix] =
+							(b0 & pix ? 0x1 : 0x0) +
+						    (b1 & pix ? 0x2 : 0x0) ;
 
 						iPix++;
 					}
 
-					offset += 2;
+					rOfst += 2;
 				}
 			}
 
@@ -403,34 +396,31 @@
 
 			let flip8 = app.ref.get_flipTable(8)[vFlip];
 			let flipB = app.ref.get_flipTable('byte')[hFlip];
-			let tOffset; // 8x8 tile offset
-			let fPix;
+			let tOffset, fPix;
 
-			for(let iTile=0; iTile<len; iTile++){
+			for(iTile=0; iTile<len; iTile++){
 
-				tile = tileset[iTile] = new Array(8);
+				tileset[iTile] = tile = new Array(8);
 				tOffset = iTile << 4; // mul by 16
 
 				// by row
-				for(let iRow=0; iRow<8; iRow++){
+				for(iRow=0; iRow<8; iRow++){
 		
-					row = tile[iRow] = new Uint8Array(8);
+					tile[iRow] = row = new Uint8Array(8);
 					iPix = 0;
 
-					offset = tOffset + (flip8[iRow] << 1); // row offset
+					rOfst = tOffset + (flip8[iRow] << 1);
 
-					b0 = data[ offset     ];
-					b1 = data[ offset + 1 ];
+					b0 = data[rOfst]; b1 = data[rOfst+1];
 
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 						fPix = flipB[pix];
 
-						col = 0;
-						col += b0 & fPix ? 0x1 : 0x0;
-						col += b1 & fPix ? 0x2 : 0x0;
+						row[iPix] =
+							(b0 & fPix ? 0x1 : 0x0) +
+						    (b1 & fPix ? 0x2 : 0x0) ;
 
-						row[iPix] = col;
 						iPix++;
 					}
 				}
@@ -445,81 +435,83 @@
 		// OVERFLOW : get zero values
 		// WRONGDAT : get zero values
 
-		let tOffset; // 8x8 tile offset
-		let rOffset; // 8x8 row offset
-		let bOffsets // 8x8 byte offsets
+		if(!data) return [];
+
+		let len = data.length >> 5; // div by 32
+		let tileset = new Array(len);
+
+		let tile, row;
+
+		let rOfst = 0;
 		let b0, b1, b2, b3;
-		let tileset = [];
 
-		let col;
+		let iTile, iRow, pix, iPix;
 
-		let len = data.length / 32;
-		
 		if( (hFlip|vFlip) === 0 ){
 
-			for(let iTile=0; iTile<len; iTile++){
-				tileset.push( [] );
-				tOffset = iTile * 32;
-				// by row
-				for(let row=0; row<8; row++){
-		
-					tileset[iTile].push( [] );
+			for(iTile=0; iTile<len; iTile++){
 
-					rOffset = row * 2; // row offset
-					bOffsets = [ rOffset, rOffset+1, rOffset+16, rOffset+17 ]; // byte offset
-					
-					b0 = data[ tOffset + bOffsets[0] ];
-					b1 = data[ tOffset + bOffsets[1] ];
-					b2 = data[ tOffset + bOffsets[2] ];
-					b3 = data[ tOffset + bOffsets[3] ];
+				tileset[iTile] = tile = new Array(8);
+
+				// by row
+				for(iRow=0; iRow<8; iRow++){
+
+					tile[iRow] = row = new Uint8Array(8);
+					iPix = 0;
+
+					b0 = data[rOfst   ]; b1 = data[rOfst+1 ];
+					b2 = data[rOfst+16]; b3 = data[rOfst+17];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 				
-						col = 0;
-						
-						col += b0 & pix ? 0x1 : 0x0;
-						col += b1 & pix ? 0x2 : 0x0;
-						col += b2 & pix ? 0x4 : 0x0;
-						col += b3 & pix ? 0x8 : 0x0;
-						
-						tileset[iTile][row].push(col);
+						row[iPix] =
+							(b0 & pix ? 0x1 : 0x0) +
+							(b1 & pix ? 0x2 : 0x0) +
+							(b2 & pix ? 0x4 : 0x0) +
+							(b3 & pix ? 0x8 : 0x0) ;
+
+						iPix++;
 					}
+
+					rOfst += 2;
 				}
+				rOfst += 16;
 			}
 
 		}else{
 
-			let flip8 = app.ref.get_flipTable(8);
-			let flipB = app.ref.get_flipTable('byte');
-			let fPix;
+			let flip8 = app.ref.get_flipTable(8)[vFlip];
+			let flipB = app.ref.get_flipTable('byte')[hFlip];
+			let tOffset, fPix;
 
-			for(let iTile=0; iTile<len; iTile++){
-				tileset.push( [] );
-				tOffset = iTile * 32;
+			for(iTile=0; iTile<len; iTile++){
+
+				tileset[iTile] = tile = new Array(8);
+				tOffset = iTile << 5; // mul by 32
+
 				// by row
-				for(let row=0; row<8; row++){
+				for(iRow=0; iRow<8; iRow++){
 		
-					tileset[iTile].push( [] );
+					tile[iRow] = row = new Uint8Array(8);
+					iPix = 0;
 
-					rOffset = flip8[vFlip][row] * 2; // row offset
-					bOffsets = [ rOffset, rOffset+1, rOffset+16, rOffset+17 ]; // byte offset
-					
-					b0 = data[ tOffset + bOffsets[0] ];
-					b1 = data[ tOffset + bOffsets[1] ];
-					b2 = data[ tOffset + bOffsets[2] ];
-					b3 = data[ tOffset + bOffsets[3] ];
+					rOfst = tOffset + (flip8[iRow] << 1); // mul by 2
+
+					b0 = data[rOfst   ]; b1 = data[rOfst+1 ];
+					b2 = data[rOfst+16]; b3 = data[rOfst+17];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
-						fPix = flipB[hFlip][pix];
-						col = 0;
-						col += b0 & fPix ? 0x1 : 0x0;
-						col += b1 & fPix ? 0x2 : 0x0;
-						col += b2 & fPix ? 0x4 : 0x0;
-						col += b3 & fPix ? 0x8 : 0x0;
-						
-						tileset[iTile][row].push(col);
+					for(pix=0x80; pix>0x00; pix=pix>>1){
+						fPix = flipB[pix];
+
+						row[iPix] =
+							(b0 & fPix ? 0x1 : 0x0) +
+							(b1 & fPix ? 0x2 : 0x0) +
+							(b2 & fPix ? 0x4 : 0x0) +
+							(b3 & fPix ? 0x8 : 0x0) ;
+
+						iPix++;
 					}
 				}
 			}
@@ -533,108 +525,92 @@
 		// OVERFLOW : get zero values ?
 		// WRONGDAT : get zero values ?
 
-		let tOffset; // 8x8 tile offset
-		let rOffset; // 8x8 row offset
-		let bOffsets // 8x8 byte offsets
-		let b0, b1, b2, b3, b4, b5, b6, b7;
-		let tileset = [];
-
-		let col;
+		if(!data) return [];
 
 		let len = data.length >> 6; // div by 64
-		
-		let iPix;
+		let tileset = new Array(len);
 
+		let tile, row;
+
+		let rOfst = 0;
+		let b0, b1, b2, b3, b4, b5, b6, b7;
+
+		let iTile, iRow, pix, iPix;
 
 		if( (hFlip|vFlip) === 0 ){
 
-			for(let iTile=0; iTile<len; iTile++){
-				tileset.push( [] );
-				tOffset = iTile << 6; // mul by 64
+			for(iTile=0; iTile<len; iTile++){
+
+				tileset[iTile] = tile = new Array(8);
 
 				// by row
-				for(let row=0; row<8; row++){
+				for(iRow=0; iRow<8; iRow++){
 		
-					tileset[iTile].push( new Uint8Array(8) );
+					tile[iRow] = row = new Uint8Array(8);
 					iPix = 0;
 
-					rOffset = tOffset + (row << 1); // row offset
-					
-					b0 = data[ rOffset      ];
-					b1 = data[ rOffset + 1  ];
-					b2 = data[ rOffset + 16 ];
-					b3 = data[ rOffset + 17 ];
-				
-					b4 = data[ rOffset + 32 ];
-					b5 = data[ rOffset + 33 ];
-					b6 = data[ rOffset + 48 ];
-					b7 = data[ rOffset + 49 ];
+					b0 = data[rOfst   ]; b1 = data[rOfst+1 ];
+					b2 = data[rOfst+16]; b3 = data[rOfst+17];
+					b4 = data[rOfst+32]; b5 = data[rOfst+33];
+					b6 = data[rOfst+48]; b7 = data[rOfst+49];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
+					for(pix=0x80; pix>0x00; pix=pix>>1){
 				
-						col = 0;
-						
-						col += b0 & pix ? 0x01 : 0x0;
-						col += b1 & pix ? 0x02 : 0x0;
-						col += b2 & pix ? 0x04 : 0x0;
-						col += b3 & pix ? 0x08 : 0x0;
-
-						col += b4 & pix ? 0x10 : 0x0;
-						col += b5 & pix ? 0x20 : 0x0;
-						col += b6 & pix ? 0x40 : 0x0;
-						col += b7 & pix ? 0x80 : 0x0;
-						
-						tileset[iTile][row][iPix] = col;
+						row[iPix] =
+							(b0 & pix ? 0x01 : 0x0) +
+							(b1 & pix ? 0x02 : 0x0) +
+							(b2 & pix ? 0x04 : 0x0) +
+							(b3 & pix ? 0x08 : 0x0) +
+							(b4 & pix ? 0x10 : 0x0) +
+							(b5 & pix ? 0x20 : 0x0) +
+							(b6 & pix ? 0x40 : 0x0) +
+							(b7 & pix ? 0x80 : 0x0) ;
 
 						iPix++;
 					}
+					rOfst += 2;
 				}
+				rOfst += 48;
 			}
 
 		}else{
 
-			let flip8 = app.ref.get_flipTable(8);
-			let flipB = app.ref.get_flipTable('byte');
-			let fPix;
+			let flip8 = app.ref.get_flipTable(8)[vFlip];
+			let flipB = app.ref.get_flipTable('byte')[hFlip];
+			let tOffset, fPix;
 
-			for(let iTile=0; iTile<len; iTile++){
-				tileset.push( [] );
+			for(iTile=0; iTile<len; iTile++){
+
+				tileset[iTile] = tile = new Array(8);
 				tOffset = iTile << 6; // mul by 64
+
 				// by row
-				for(let row=0; row<8; row++){
+				for(iRow=0; iRow<8; iRow++){
 		
-					tileset[iTile].push( new Uint8Array(8) );
+					tile[iRow] = row = new Uint8Array(8);
 					iPix = 0;
 
-					rOffset = tOffset + (flip8[vFlip][row] << 1); // row offset
+					rOfst = tOffset + (flip8[iRow] << 1); // mul by 2
 				
-					b0 = data[ rOffset      ];
-					b1 = data[ rOffset + 1  ];
-					b2 = data[ rOffset + 16 ];
-					b3 = data[ rOffset + 17 ];
-				
-					b4 = data[ rOffset + 32 ];
-					b5 = data[ rOffset + 33 ];
-					b6 = data[ rOffset + 48 ];
-					b7 = data[ rOffset + 49 ];
+					b0 = data[rOfst   ]; b1 = data[rOfst+1 ];
+					b2 = data[rOfst+16]; b3 = data[rOfst+17];
+					b4 = data[rOfst+32]; b5 = data[rOfst+33];
+					b6 = data[rOfst+48]; b7 = data[rOfst+49];
 				
 					// by row pixel
-					for(let pix=0x80; pix>0x00; pix=pix>>1){
-						fPix = flipB[hFlip][pix];
-						col = 0;
+					for(pix=0x80; pix>0x00; pix=pix>>1){
+						fPix = flipB[pix];
 
-						col += b0 & fPix ? 0x01 : 0x0;
-						col += b1 & fPix ? 0x02 : 0x0;
-						col += b2 & fPix ? 0x04 : 0x0;
-						col += b3 & fPix ? 0x08 : 0x0;
-
-						col += b4 & fPix ? 0x10 : 0x0;
-						col += b5 & fPix ? 0x20 : 0x0;
-						col += b6 & fPix ? 0x40 : 0x0;
-						col += b7 & fPix ? 0x80 : 0x0;
-						
-						tileset[iTile][row][iPix] = col;
+						row[iPix] =
+							(b0 & fPix ? 0x01 : 0x0) +
+							(b1 & fPix ? 0x02 : 0x0) +
+							(b2 & fPix ? 0x04 : 0x0) +
+							(b3 & fPix ? 0x08 : 0x0) +
+							(b4 & fPix ? 0x10 : 0x0) +
+							(b5 & fPix ? 0x20 : 0x0) +
+							(b6 & fPix ? 0x40 : 0x0) +
+							(b7 & fPix ? 0x80 : 0x0) ;
 
 						iPix++;
 					}
