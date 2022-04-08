@@ -10,10 +10,15 @@
 	gfx.safe = gfx.safe || {};
 	let safe = gfx.safe;
 
+	
 	// UNDEFDAT : return empty array
 	// NOLENGTH : return empty array
 	// OVERFLOW : clip data overflow
 	// WRONGVAL : get zero values
+
+	// draw functions need a palette checking
+
+
 
 	fast.decode_2bppTileset = function(data, hFlip=0,vFlip=0){
 
@@ -262,9 +267,6 @@
 	};
 
 	fast.draw_decodedTileset = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
-		
-		// OVERFLOW : crash function
-		// WRONGDAT : crash function
 
 		if(!data) return [];
 
@@ -349,9 +351,6 @@
 
 	fast.format_2bppTileset = function(data, hFlip=0,vFlip=0){
 
-		// OVERFLOW : get zero values ?
-		// WRONGDAT : get zero values ?
-
 		if(!data) return [];
 
 		let len = data.length >> 4; // div by 16
@@ -431,9 +430,6 @@
 	};
 
 	fast.format_4bppTileset = function(data, hFlip=0,vFlip=0){
-
-		// OVERFLOW : get zero values
-		// WRONGDAT : get zero values
 
 		if(!data) return [];
 
@@ -521,9 +517,6 @@
 	};
 
 	fast.format_8bppTileset = function(data, hFlip=0,vFlip=0){
-
-		// OVERFLOW : get zero values ?
-		// WRONGDAT : get zero values ?
 
 		if(!data) return [];
 
@@ -622,9 +615,6 @@
 	};
 
 	fast.draw_formatedTileset = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
-		
-		// OVERFLOW : crash function
-		// WRONGDAT : crash function
 
 		if(!data) return [];
 
@@ -706,9 +696,6 @@
 
 
 	fast.draw_2bppTileset = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
-
-		// OVERFLOW : display zero values ?
-		// WRONGDAT : display zero values ?
 
 		if(!data) return [];
 
@@ -815,9 +802,6 @@
 	};
 
 	fast.draw_4bppTileset = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
-
-		// OVERFLOW : display zero values ?
-		// WRONGDAT : display zero values ?
 
 		if(!data) return [];
 
@@ -930,9 +914,6 @@
 	};
 
 	fast.draw_8bppTileset = function(data, palette, hFlip=0,vFlip=0, xtmax, ctx,x=0,y=0){
-
-		// OVERFLOW : display zero values ?
-		// WRONGDAT : display zero values ?
 
 		if(!data) return [];
 
