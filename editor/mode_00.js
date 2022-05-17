@@ -164,11 +164,23 @@
 				}
 			],
 			// DATA_F52BA7	ship_deck_rigging_layer_3_tiledata
-			tileset : [
+			/* tileset : [
 				{ name:'ship deck rigging fg',
 					address: 0xF52BA7-0xC00000, size: 1024*32*2, compressed: true
 				}
+			], */
+			// ship_deck_tiles_level	1F8116	5421	GFX	YES
+			tileset : [
+				{ name:'ship deck tileset',
+					address: 0x1F8116, size: 0x5421, compressed: true
+				}
 			],
+			// ship_deck_tilemap_8x8	25C627	1AA1	MAP	YES
+			mapchip : [
+				{ name:'ship deck mapchip',
+					address: 0x25C627, size: 0x1AA1, compressed: true
+				}
+			]
 		};
 
 
@@ -330,9 +342,9 @@
 		//let lvlRef = rareware;
 		//let lvlRef = wireframelogo;
 		//let lvlRef = flashBG3;
-		let lvlRef = shipmast;
+		//let lvlRef = shipmast;
 		//let lvlRef = hive;
-		//let lvlRef = shipdeck;
+		let lvlRef = shipdeck;
 		//let lvlRef = debugPaletteClass;
 
 

@@ -1,38 +1,49 @@
 
 (function(app=dkc2ldd){
 
-	// return : mapchipGfxBuffer [chipIndex] [flip(4)] = CanvasRenderingContext2D
+	// return : mapchipGfxBuffer [chipIndex] [flip(4)] = CanvasRenderingContext2D(32x32)
 	//
 	//
+
+	// This version of create_mapchipGfxBuffer uses ImageData type in "tile cache",
+	// and returns CanvasRenderingContext2D type elements that are stored in the output result.
+
+	// Tiles of "tile cache" data is copied with a built-in method to the output result (in the hardcoded part).
+	// The way to copy is : CanvasRenderingContext2D.putImageData(ImageData, x,y)
+	// CanvasRenderingContext2D type elements of the output result must be created at first in the FORLOOP.
 	
+	// This version of create_mapchipGfxBuffer is an hybrid version that hardcodes built-in instruction calls.
+	// To copy tiles it is only : 16(chiptile) * 4(flip) = 64 js instructions,
+	// but since it needs to create a CanvasRenderingContext2D with its linked Canvas Html element for
+	// each element of its output result, that is too much havy as js memory allocation,
+	// and so, it is not the most optimised and fastest way.
+
 	app.gfx.fast.create_mapchipGfxBuffer_OLD_1 = function(rawMapchip, _4formatedTileset, palettes){
 
 		let _4ts = _4formatedTileset;
 		let tsLen = _4ts.length;
 
-		// tileCache [tileIndex] [palette(8)] [flip(4)] = ImageData
+		// tileCache [tileIndex] [palette(8)] [flip(4)] = ImageData(8x8)
 		let tileCache = new Array(tsLen); // tile index dimension
-		let pal;
 		for(let i=0; i<tsLen; i++){
-			pal = tileCache[i] = new Array(8); // palette dimension
+			tileCache[i] = new Array(8); // palette dimension
 		}
 
-		let data = rawMapchip;
-		let len = data.length;
-		let mcLen =  /*Math.floor*/(len / 32);
+		let count =  rawMapchip.length >> 5; // div by 32
+		let len = count << 5; // mul by 32
 
 		let ctx = document.createElement("canvas").getContext('2d');
 
-		// o/mapchipGfxBuffer [chipIndex] [flip(4)] = CanvasRenderingContext2D
-		let o = new Array(mcLen); // chip dimension
-		o.n = new Array(mcLen);
-		o.h = new Array(mcLen);
-		o.v = new Array(mcLen);
-		o.a = new Array(mcLen);
+		// o/mapchipGfxBuffer [chipIndex] [flip(4)] = CanvasRenderingContext2D(32x32)
+		let o = new Array(count); // chip dimension
+		o.n = new Array(count);
+		o.h = new Array(count);
+		o.v = new Array(count);
+		o.a = new Array(count);
 
 
 		let iChip = 0;
-		let d = data;
+		let d = rawMapchip;
 		let A,B, t, p, f;
 		let chip, nChip, hChip, vChip, aChip;
 		let flipTile, nTile, hTile, vTile, aTile;
@@ -399,7 +410,7 @@
 
 		};
 
-		for(let cOfst=0; cOfst<len; cOfst+=32){
+		for(let cOfst=0; cOfst<len; cOfst+=32,iChip++){
 
 			chip = o[iChip] = new Array(4); // flip dimension
 
@@ -667,7 +678,6 @@
 			div.textContent = str;
 			*/
 
-			iChip++
 		}
 
 		return o;

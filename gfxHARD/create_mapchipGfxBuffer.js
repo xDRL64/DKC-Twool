@@ -1,38 +1,49 @@
 
 (function(app=dkc2ldd){
 
-	// return : mapchipGfxBuffer [chipIndex] [flip(4)] = ImageData
+	// return : mapchipGfxBuffer [chipIndex] [flip(4)] = ImageData(32x32)
 	//
 	//
+
+	// This version of create_mapchipGfxBuffer uses ImageData type in "tile cache",
+	// and returns ImageData type elements that are stored in the output result.
+
+	// Tiles of "tile cache" data are copied with a built-in method to the output result (in the hardcoded part).
+	// The way to copy is : CanvasRenderingContext2D.putImageData(ImageData, x,y),
+	// and then : CanvasRenderingContext2D.getImageData(0,0, 32,32)
+	// 4 CanvasRenderingContext2D are created (one for each of the 4 chip flips) before the FORLOOP.
+	// ImageData type elements of the output result must be created at last in the FORLOOP.
+
+	// This version of create_mapchipGfxBuffer is the final version that hardcodes built-in instruction calls,
+	// and it shards the objects that own built-in functions called during hardcoded process.
+	// To copy tiles it is : 16(chiptile) * 4(flip) = 64 js instructions.
 
 	app.gfx.fast.create_mapchipGfxBuffer = function(rawMapchip, _4formatedTileset, palettes){
 
 		let _4ts = _4formatedTileset;
 		let tsLen = _4ts.length;
 
-		// tileCache [tileIndex] [palette(8)] [flip(4)] = ImageData
+		// tileCache [tileIndex] [palette(8)] [flip(4)] = ImageData(8x8)
 		let tileCache = new Array(tsLen); // tile index dimension
-		let pal;
 		for(let i=0; i<tsLen; i++){
-			pal = tileCache[i] = new Array(8); // palette dimension
+			tileCache[i] = new Array(8); // palette dimension
 		}
 
-		let data = rawMapchip;
-		let len = data.length;
-		let mcLen =  /*Math.floor*/(len / 32);
+		let count =  rawMapchip.length >> 5; // div by 32
+		let len = count << 5; // mul by 32
 
 		let ctx = document.createElement("canvas").getContext('2d');
 
-		// o/mapchipGfxBuffer [chipIndex] [flip(4)] = ImageData
-		let o = new Array(mcLen); // chip dimension
-		o.n = new Array(mcLen);
-		o.h = new Array(mcLen);
-		o.v = new Array(mcLen);
-		o.a = new Array(mcLen);
+		// o/mapchipGfxBuffer [chipIndex] [flip(4)] = ImageData(32x32)
+		let o = new Array(count); // chip dimension
+		o.n = new Array(count);
+		o.h = new Array(count);
+		o.v = new Array(count);
+		o.a = new Array(count);
 
 
 		let iChip = 0;
-		let d = data;
+		let d = rawMapchip;
 		let A,B, t, p, f;
 		let chip, nChip, hChip, vChip, aChip;
 		let flipTile, nTile, hTile, vTile, aTile;
@@ -583,6 +594,7 @@
 			vChip.putImageData(vTile,  24,0);
 			aChip.putImageData(aTile, 0,0);
 
+			// END OF LOOP
 			
 			chip = o[iChip] = new Array(4); // flip dimension
 
@@ -591,6 +603,7 @@
 			o.v[iChip] = chip[2] = vChip.getImageData(0,0, 32,32);
 			o.a[iChip] = chip[3] = aChip.getImageData(0,0, 32,32);
 			
+			iChip++;
 
 			// HARD CODE LOGIC
 			/*
@@ -669,7 +682,6 @@
 			div.textContent = str;
 			*/
 
-			iChip++
 		}
 
 		return o;
