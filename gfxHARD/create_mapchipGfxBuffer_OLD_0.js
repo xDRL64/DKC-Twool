@@ -5723,9 +5723,12 @@
 				fragOfst += 2;
 			}
 
+			// DISPLAY TO COPY
+			document.body.textContent = "";
 			let div = document.createElement("div");
 			div.style.position = "absolute";
 			div.style.whiteSpace = "pre";
+			div.style.fontFamily = "monospace";
 			div.style.left = 0;
 			div.style.right = 0;
 			document.body.appendChild(div);

@@ -422,177 +422,162 @@
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  0, 0);
-			hChip.putImageData(hTile, 24, 0);
-			vChip.putImageData(vTile,  0,24);
-			aChip.putImageData(aTile, 24,24);
+			nChip.putImageData(flipTile[f  ],  0, 0);
+			hChip.putImageData(flipTile[f^1], 24, 0);
+			vChip.putImageData(flipTile[f^2],  0,24);
+			aChip.putImageData(flipTile[f^3], 24,24);
 
 			A = d[cOfst+2]; B = d[cOfst+3];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  8, 0);
-			hChip.putImageData(hTile, 16, 0);
-			vChip.putImageData(vTile,  8,24);
-			aChip.putImageData(aTile, 16,24);
+			nChip.putImageData(flipTile[f  ],  8, 0);
+			hChip.putImageData(flipTile[f^1], 16, 0);
+			vChip.putImageData(flipTile[f^2],  8,24);
+			aChip.putImageData(flipTile[f^3], 16,24);
 
 			A = d[cOfst+4]; B = d[cOfst+5];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  16, 0);
-			hChip.putImageData(hTile, 8, 0);
-			vChip.putImageData(vTile,  16,24);
-			aChip.putImageData(aTile, 8,24);
+			nChip.putImageData(flipTile[f  ],  16, 0);
+			hChip.putImageData(flipTile[f^1], 8, 0);
+			vChip.putImageData(flipTile[f^2],  16,24);
+			aChip.putImageData(flipTile[f^3], 8,24);
 
 			A = d[cOfst+6]; B = d[cOfst+7];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  24, 0);
-			hChip.putImageData(hTile, 0, 0);
-			vChip.putImageData(vTile,  24,24);
-			aChip.putImageData(aTile, 0,24);
+			nChip.putImageData(flipTile[f  ],  24, 0);
+			hChip.putImageData(flipTile[f^1], 0, 0);
+			vChip.putImageData(flipTile[f^2],  24,24);
+			aChip.putImageData(flipTile[f^3], 0,24);
 
 			A = d[cOfst+8]; B = d[cOfst+9];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  0, 8);
-			hChip.putImageData(hTile, 24, 8);
-			vChip.putImageData(vTile,  0,16);
-			aChip.putImageData(aTile, 24,16);
+			nChip.putImageData(flipTile[f  ],  0, 8);
+			hChip.putImageData(flipTile[f^1], 24, 8);
+			vChip.putImageData(flipTile[f^2],  0,16);
+			aChip.putImageData(flipTile[f^3], 24,16);
 
 			A = d[cOfst+10]; B = d[cOfst+11];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  8, 8);
-			hChip.putImageData(hTile, 16, 8);
-			vChip.putImageData(vTile,  8,16);
-			aChip.putImageData(aTile, 16,16);
+			nChip.putImageData(flipTile[f  ],  8, 8);
+			hChip.putImageData(flipTile[f^1], 16, 8);
+			vChip.putImageData(flipTile[f^2],  8,16);
+			aChip.putImageData(flipTile[f^3], 16,16);
 
 			A = d[cOfst+12]; B = d[cOfst+13];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  16, 8);
-			hChip.putImageData(hTile, 8, 8);
-			vChip.putImageData(vTile,  16,16);
-			aChip.putImageData(aTile, 8,16);
+			nChip.putImageData(flipTile[f  ],  16, 8);
+			hChip.putImageData(flipTile[f^1], 8, 8);
+			vChip.putImageData(flipTile[f^2],  16,16);
+			aChip.putImageData(flipTile[f^3], 8,16);
 
 			A = d[cOfst+14]; B = d[cOfst+15];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  24, 8);
-			hChip.putImageData(hTile, 0, 8);
-			vChip.putImageData(vTile,  24,16);
-			aChip.putImageData(aTile, 0,16);
+			nChip.putImageData(flipTile[f  ],  24, 8);
+			hChip.putImageData(flipTile[f^1], 0, 8);
+			vChip.putImageData(flipTile[f^2],  24,16);
+			aChip.putImageData(flipTile[f^3], 0,16);
 
 			A = d[cOfst+16]; B = d[cOfst+17];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  0, 16);
-			hChip.putImageData(hTile, 24, 16);
-			vChip.putImageData(vTile,  0,8);
-			aChip.putImageData(aTile, 24,8);
+			nChip.putImageData(flipTile[f  ],  0, 16);
+			hChip.putImageData(flipTile[f^1], 24, 16);
+			vChip.putImageData(flipTile[f^2],  0,8);
+			aChip.putImageData(flipTile[f^3], 24,8);
 
 			A = d[cOfst+18]; B = d[cOfst+19];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  8, 16);
-			hChip.putImageData(hTile, 16, 16);
-			vChip.putImageData(vTile,  8,8);
-			aChip.putImageData(aTile, 16,8);
+			nChip.putImageData(flipTile[f  ],  8, 16);
+			hChip.putImageData(flipTile[f^1], 16, 16);
+			vChip.putImageData(flipTile[f^2],  8,8);
+			aChip.putImageData(flipTile[f^3], 16,8);
 
 			A = d[cOfst+20]; B = d[cOfst+21];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  16, 16);
-			hChip.putImageData(hTile, 8, 16);
-			vChip.putImageData(vTile,  16,8);
-			aChip.putImageData(aTile, 8,8);
+			nChip.putImageData(flipTile[f  ],  16, 16);
+			hChip.putImageData(flipTile[f^1], 8, 16);
+			vChip.putImageData(flipTile[f^2],  16,8);
+			aChip.putImageData(flipTile[f^3], 8,8);
 
 			A = d[cOfst+22]; B = d[cOfst+23];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  24, 16);
-			hChip.putImageData(hTile, 0, 16);
-			vChip.putImageData(vTile,  24,8);
-			aChip.putImageData(aTile, 0,8);
+			nChip.putImageData(flipTile[f  ],  24, 16);
+			hChip.putImageData(flipTile[f^1], 0, 16);
+			vChip.putImageData(flipTile[f^2],  24,8);
+			aChip.putImageData(flipTile[f^3], 0,8);
 
 			A = d[cOfst+24]; B = d[cOfst+25];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  0, 24);
-			hChip.putImageData(hTile, 24, 24);
-			vChip.putImageData(vTile,  0,0);
-			aChip.putImageData(aTile, 24,0);
+			nChip.putImageData(flipTile[f  ],  0, 24);
+			hChip.putImageData(flipTile[f^1], 24, 24);
+			vChip.putImageData(flipTile[f^2],  0,0);
+			aChip.putImageData(flipTile[f^3], 24,0);
 
 			A = d[cOfst+26]; B = d[cOfst+27];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  8, 24);
-			hChip.putImageData(hTile, 16, 24);
-			vChip.putImageData(vTile,  8,0);
-			aChip.putImageData(aTile, 16,0);
+			nChip.putImageData(flipTile[f  ],  8, 24);
+			hChip.putImageData(flipTile[f^1], 16, 24);
+			vChip.putImageData(flipTile[f^2],  8,0);
+			aChip.putImageData(flipTile[f^3], 16,0);
 
 			A = d[cOfst+28]; B = d[cOfst+29];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  16, 24);
-			hChip.putImageData(hTile, 8, 24);
-			vChip.putImageData(vTile,  16,0);
-			aChip.putImageData(aTile, 8,0);
+			nChip.putImageData(flipTile[f  ],  16, 24);
+			hChip.putImageData(flipTile[f^1], 8, 24);
+			vChip.putImageData(flipTile[f^2],  16,0);
+			aChip.putImageData(flipTile[f^3], 8,0);
 
 			A = d[cOfst+30]; B = d[cOfst+31];
 			t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);
 			if(!tileCache[t][p]) make_tileFlipCache();
 			flipTile = tileCache[t][p];
-			nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
 
-			nChip.putImageData(nTile,  24, 24);
-			hChip.putImageData(hTile, 0, 24);
-			vChip.putImageData(vTile,  24,0);
-			aChip.putImageData(aTile, 0,0);
+			nChip.putImageData(flipTile[f  ],  24, 24);
+			hChip.putImageData(flipTile[f^1], 0, 24);
+			vChip.putImageData(flipTile[f^2],  24,0);
+			aChip.putImageData(flipTile[f^3], 0,0);
+
 
 			// END OF LOOP
 			
@@ -615,24 +600,23 @@
 				let _xf = 3 - xf, _yf = 3 - yf;
 				let i = 0;
 
-				// print
-				A = d[cOfst+fragOfst]; B = d[cOfst+fragOfst+1];
-				t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6); // f = h + v
-
-				if(!tileCache[t][p]) make_tileFlipCache();
-
-				flipTile = tileCache[t][p];
-				nTile=flipTile[f  ]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];
-				// end print
-
 				let xcp = xf*8, _xcp = _xf*8;
 				let ycp = yf*8, _ycp = _yf*8;
 
-				nChip.putImageData(nTile,  xcp, ycp);
-				hChip.putImageData(hTile, _xcp, ycp);
-				vChip.putImageData(vTile,  xcp,_ycp);
-				aChip.putImageData(aTile, _xcp,_ycp);
+				// print
+					A = d[cOfst+fragOfst]; B = d[cOfst+fragOfst+1];
+					t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6); // f = h + v
 
+					if(!tileCache[t][p]) make_tileFlipCache();
+
+					flipTile = tileCache[t][p];
+
+					nChip.putImageData(flipTile[f  ],  xcp, ycp);
+					hChip.putImageData(flipTile[f^1], _xcp, ycp);
+					vChip.putImageData(flipTile[f^2],  xcp,_ycp);
+					aChip.putImageData(flipTile[f^3], _xcp,_ycp);
+				// end print
+				
 				fragOfst += 2;
 			}
 			*/
@@ -648,34 +632,35 @@
 				let _xf = 3 - xf, _yf = 3 - yf;
 				let i = 0;
 
-				// print
-				str += `A = d[cOfst+${fragOfst}]; B = d[cOfst+${fragOfst+1}];\n`;
-				str += `t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);\n`;
-
-				str += `if(!tileCache[t][p]) make_tileFlipCache();\n`;
-
-				str += `flipTile = tileCache[t][p];\n`;
-				str += `nTile=flipTile[f]; hTile=flipTile[f^1]; vTile=flipTile[f^2]; aTile=flipTile[f^3];\n`;
-
-				str += '\n';
-				// end print
-
 				let xcp = xf*8, _xcp = _xf*8;
 				let ycp = yf*8, _ycp = _yf*8;
 
 				// print
-				str += `nChip.putImageData(nTile,  ${xcp}, ${ycp});\n`;
-				str += `hChip.putImageData(hTile, ${_xcp}, ${ycp});\n`;
-				str += `vChip.putImageData(vTile,  ${xcp},${_ycp});\n`;
-				str += `aChip.putImageData(aTile, ${_xcp},${_ycp});\n`;
-				str += '\n';
+					str += `A = d[cOfst+${fragOfst}]; B = d[cOfst+${fragOfst+1}];\n`;
+					str += `t = ((B&0x03)<<8)+A; p = (B&0x1C)>>2; f = ((B&0x40)>>6) + ((B&0x80)>>6);\n`;
+
+					str += `if(!tileCache[t][p]) make_tileFlipCache();\n`;
+
+					str += `flipTile = tileCache[t][p];\n`;
+
+					str += '\n';
+					
+					str += `nChip.putImageData(flipTile[f  ],  ${xcp}, ${ycp});\n`;
+					str += `hChip.putImageData(flipTile[f^1], ${_xcp}, ${ycp});\n`;
+					str += `vChip.putImageData(flipTile[f^2],  ${xcp},${_ycp});\n`;
+					str += `aChip.putImageData(flipTile[f^3], ${_xcp},${_ycp});\n`;
+					str += '\n';
 				// end print
 
 				fragOfst += 2;
 			}
+
+			// DISPLAY TO COPY
+			document.body.textContent = "";
 			let div = document.createElement("div");
 			div.style.position = "absolute";
 			div.style.whiteSpace = "pre";
+			div.style.fontFamily = "monospace";
 			div.style.left = 0;
 			div.style.right = 0;
 			document.body.appendChild(div);
