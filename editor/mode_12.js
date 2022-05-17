@@ -500,6 +500,14 @@
 				// draw palette buffer
 				display_buffer();
 			};
+
+			// [🡸] palette button : buffer to source files
+			paletteArea.elems.btn.bufferToSrcFile.onclick = function(){
+				PAL.write();
+	
+				// draw palette buffer
+				display_srcFile();
+			};
 	
 			// COLUMN 3 //
 	
@@ -516,6 +524,16 @@
 				display_type(currentType);
 				_PAL = PAL; // debug
 			};
+
+			// [🡸] palette button : type to buffer
+			paletteArea.elems.btn.typeToBuffer.onclick = function(){
+				PAL.sync(currentType.name);
+
+				// draw palette buffer
+				display_buffer();
+			};
+
+
 
 			// MINI EDITOR (PALETTE)
 			// left click : select a palette ID and a color ID in palette editor to use in tileset editor
