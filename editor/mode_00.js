@@ -27,6 +27,71 @@
 
 		// code ...
 
+		let refSets = null;
+		let loadState = 'not loaded';
+
+		let button_loadRefFromJson = document.createElement('button');
+		button_loadRefFromJson.textContent = "Load ref : from JSON5 file";
+		button_loadRefFromJson.style.width = 'fit-content';
+		button_loadRefFromJson.style.height = 'fit-content';
+
+		let list_refSets = document.createElement('select');
+		list_refSets.style.width = 300;
+		list_refSets.style.height = 30;
+
+		workspace.elem.appendChild(button_loadRefFromJson);
+		workspace.elem.appendChild(list_refSets);
+
+		button_loadRefFromJson.onclick = function(){
+
+			// get JSON5 file
+			let jsonFile = srcFilePanel.rom.fileData?.[1] || [];
+			let jsonText = String.fromCharCode(...jsonFile);
+
+			// create object from file
+			refSets = JSON5.parse(
+				jsonText,
+				// add calc_vramRef method while JSON parsing
+				(function(k,v){ // each calc_ref propety with 'true' value, is set to the calc_vramRef js object 
+					if(k==='calc_ref' && v===true) return calc_vramRef;
+					else return v;
+				})
+			);
+
+			// if JSON5 parsing crashes, it does not reach next js instruction
+			loadState = 'successful';
+
+			// empty the list
+			list_refSets.textContent = '';
+
+			// (re)fill the list
+			for(nameSet in refSets){
+				let listItem = document.createElement('option');
+				listItem.textContent = listItem.value = nameSet;
+				list_refSets.appendChild(listItem);
+			}
+
+			// load the first set in the list
+			select_listItem();
+
+		};
+
+		list_refSets.onchange = (function(e){
+			//console.log(e, this);
+			console.log(this.value);
+			select_listItem();
+		});
+
+
+		let select_listItem = function(){
+			if(list_refSets.value){
+				lvlRef = refSets[list_refSets.value] || {};
+				load_ref();
+			}
+		};
+
+
+		// hard reference sets (debug and test)
 
 		let rareware = {
 			// H4v0c21 Ref                      address     size     type   compressed
@@ -350,43 +415,47 @@
 
 		// app to srcFile Panel
 
-
-		for(let dataType in lvlRef){
-
-			let dataRefs = lvlRef[dataType];
-
-			let len = dataRefs.length;
-			let last, ref, name, address, size, compressed, data, romRef, vramRef, dataFile, slot;
-			for(let i=0; i<len; i++){
-				last = (i === len-1);
-
-				ref = dataRefs[i];
-				name = ref.name;
-				address = ref.address;
-				size = ref.size;
-				compressed = ref.compressed;
-				data = ROM.slice(address, address+size);
-
-				romRef = {address:address, size:size};
-				vramRef = ref.vram;
-				
-				dataFile = {name:name, data:data, useDec:compressed, romRef:romRef, vramRef:vramRef};
-				slot = srcFilePanel[dataType];
-				slot.set_oneDataFile(dataFile, last);
-
-				// todo : to move in an update method (build all from srcFilePanel once everything is loaded)
-				// TEST FEATURE : animated data type : parameters input update
-				if(vramRef){
-					let obj = {d:vramRef.destOffset, t:vramRef.frameSize, f:vramRef.frameCount};
-					slot.parameters.value += JSON.stringify(obj) + (last ? '' : ', ');
+		let load_ref = function(){
+			for(let dataType in lvlRef){
+	
+				let dataRefs = lvlRef[dataType];
+	
+				let len = dataRefs.length;
+				let last, ref, name, address, size, compressed, data, romRef, vramRef, dataFile, slot;
+				for(let i=0; i<len; i++){
+					last = (i === len-1);
+	
+					ref = dataRefs[i];
+					name = ref.name;
+					address = ref.address;
+					size = ref.size;
+					compressed = ref.compressed;
+					data = ROM.slice(address, address+size);
+	
+					romRef = {address:address, size:size};
+					vramRef = ref.vram;
+					
+					dataFile = {name:name, data:data, useDec:compressed, romRef:romRef, vramRef:vramRef};
+					slot = srcFilePanel[dataType];
+					slot.set_oneDataFile(dataFile, last);
+	
+					// todo : to move in an update method (build all from srcFilePanel once everything is loaded)
+					// TEST FEATURE : animated data type : parameters input update
+					if(vramRef){
+						let obj = {d:vramRef.destOffset, t:vramRef.frameSize, f:vramRef.frameCount};
+						slot.parameters.value += JSON.stringify(obj) + (last ? '' : ', ');
+					}
+					if(vramRef === null){ // important nullish type
+						slot.parameters.value += 'null' + (last ? '' : ', ');
+					}
+					// END TEST FEATURE
 				}
-				if(vramRef === null){ // important nullish type
-					slot.parameters.value += 'null' + (last ? '' : ', ');
-				}
-				// END TEST FEATURE
+	
 			}
+		};
 
-		}
+		// debug
+		load_ref();
 
 
 		// update

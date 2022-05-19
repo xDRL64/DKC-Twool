@@ -1758,8 +1758,8 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 				for(let i=0; i<frameBytes; i++){
 					// back ref
 					backRef.isAnim[dstOfst] = 1;
-					backRef.isAnim[dstOfst] = iAnim;
-					backRef.isAnim[dstOfst] = i;
+					backRef.iAnim[dstOfst] = iAnim;
+					backRef.iByte[dstOfst] = i;
 					dstOfst++;
 				}
 			}
@@ -1801,8 +1801,8 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 						// back ref
 						backRef.isAnim[dstOfst] = 1;
-						backRef.isAnim[dstOfst] = iAnim;
-						backRef.isAnim[dstOfst] = i;
+						backRef.iAnim[dstOfst] = iAnim;
+						backRef.iByte[dstOfst] = i;
 
 						srcOfst++;
 						dstOfst++;
