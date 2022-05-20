@@ -723,10 +723,10 @@
 	
 	
 			let TLST = app.component.Tileset(
-				//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
+				//{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
 				{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:0},
 				bpp,
-				{ownerRefs:animDataAccess, vramRefs:animationSlot.vramRefs, srcBppPriority:true},
+				{ownerRefs:animDataAccess, vramRefs:animationSlot.vramRefs}
 			);
 	
 	

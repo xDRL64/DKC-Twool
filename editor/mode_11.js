@@ -39,7 +39,7 @@
 			//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:32*32},
 			{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
 			8,
-			{ownerRefs:animationSlot.get_dataWithOwnerAccess(), vramRefs:animationSlot.vramRefs, srcBppPriority:true},
+			{ownerRefs:animationSlot.get_dataWithOwnerAccess(), vramRefs:animationSlot.vramRefs}
 		);
 
 		TST.init();

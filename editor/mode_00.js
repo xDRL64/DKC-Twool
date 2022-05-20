@@ -1,11 +1,4 @@
 
-// : - bpp prop stays in vram prop in .json5
-// : - remove calc_ref prop in .json5
-// : - remove calc_vramRef in objects
-// : - calc vramRef at json5 loading
-// : - remove srcBppPriority arg, to force bpp component
-// : - component now must have its own vramRef
-
 (function(app=dkc2ldd){
 
 	app.mode = app.mode || [];
@@ -23,12 +16,20 @@
 		// current workspace object
 		let o = {};
 
-		let calc_vramRef = function(){
+		let _calc_vramRef = function(){
 			let bpp = this.bpp;
 			if(bpp===2 || bpp===4 || bpp===8){
 				bpp = ({2:16,4:32,8:64})[bpp];
 				this.destOffset = this.dstIndex * bpp;
 				this.frameSize = this.animTiles * bpp;
+			}
+		};
+		let calc_vramRef = function(ref){
+			let bpp = ref.bpp;
+			if(bpp===2 || bpp===4 || bpp===8){
+				bpp = ({2:16,4:32,8:64})[bpp]; // bppSize
+				ref.destOffset = ref.dstIndex * bpp;
+				ref.frameSize = ref.animTiles * bpp;
 			}
 		};
 
@@ -56,13 +57,13 @@
 			let jsonText = String.fromCharCode(...jsonFile);
 
 			// create object from file
-			refSets = JSON5.parse(
-				jsonText,
-				// add calc_vramRef method while JSON parsing
-				(function(k,v){ // each calc_ref propety with 'true' value, is set to the calc_vramRef js object 
-					if(k==='calc_ref' && v===true) return calc_vramRef;
+			refSets = JSON5.parse( jsonText
+				/* ,
+				// add _calc_vramRef method while JSON parsing
+				(function(k,v){ // each calc_ref propety with 'true' value, is set to the _calc_vramRef js object 
+					if(k==='calc_ref' && v===true) return _calc_vramRef;
 					else return v;
-				})
+				}) */
 			);
 
 			// if JSON5 parsing crashes, it does not reach next js instruction
@@ -288,7 +289,7 @@
 					vram: {
 						dstIndex: 1,      animTiles: 30,
 						destOffset: 1*32, frameSize: 30*32, frameCount: 8, bpp: 4,
-						calc_ref: calc_vramRef
+						//calc_ref: _calc_vramRef
 					}
 					// iFile iVRDest tLen fLen
 				},
@@ -298,7 +299,7 @@
 					vram: {
 						dstIndex: 752,      animTiles: 16,
 						destOffset: 752*32, frameSize: 16*32, frameCount: 8, bpp:4,
-						calc_ref: calc_vramRef
+						//calc_ref: _calc_vramRef
 					}
 				}
 			],
@@ -312,7 +313,7 @@
 					vram: {
 						dstIndex: 0,      animTiles: 64,
 						destOffset: 0*16, frameSize: 64*16, frameCount: 8, bpp:2,
-						calc_ref: calc_vramRef
+						//calc_ref: _calc_vramRef
 					}
 				},
 				// test & debug
@@ -322,7 +323,7 @@
 					vram: {
 						dstIndex: 0,      animTiles: 32,
 						destOffset: 0*32, frameSize: 32*32, frameCount: 8, bpp:4,
-						calc_ref: calc_vramRef
+						//calc_ref: _calc_vramRef
 					}
 				},
 			],
@@ -441,6 +442,7 @@
 	
 					romRef = {address:address, size:size};
 					vramRef = ref.vram;
+					if(vramRef) calc_vramRef(vramRef);
 					
 					dataFile = {name:name, data:data, useDec:compressed, romRef:romRef, vramRef:vramRef};
 					slot = srcFilePanel[dataType];
