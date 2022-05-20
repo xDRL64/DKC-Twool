@@ -208,6 +208,8 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			anim.len = len;
 			anim.src = animated.ownerRefs;
 
+			anim.frame = 0;
+
 			//anim.vramRefs = JSON.parse(JSON.stringify(animated.vramRefs));
 			//anim._vramRefs = animated.vramRefs;
 			anim.vramRefs = animated.vramRefs;
@@ -234,19 +236,23 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			vram.backRef = {
 				// 0 : use main.buffer, 1 : use anim.buffers
 				isAnim: new Uint8Array(bufferSize),
+				
+				// maybe useful in future features (not used for now) :
+
 				// ref to an index in anim.buffers; use like that : anim.buffers[backRef.iAnim[i]]
 				iAnim:  new Uint8Array(bufferSize),
-				// ref to an index in anim.buffers[]; use like that : anim.buffers[backRef.iAnim[i]][backRef.iByte[i]]
+				// ref to nth byte for one animation frame
 				iByte:  new Uint16Array(bufferSize),
+				// ref to an index in anim.buffers[][]; use like that : anim.buffers[backRef.iAnim[i]][backRef.iOfst[i]]
+				iOfst:  new Uint16Array(bufferSize),
 			};
 			let backRef = vram.backRef;
 			backRef.isAnim.fill(0);
 			backRef.iAnim.fill(0);
 			backRef.iByte.fill(0);
-			gfxlib.vramBackRef(anim.buffers, anim.vramRefs, backRef);
+			backRef.iOfst.fill(0);
+			gfxlib.vramBackRef(anim.buffers, anim.vramRefs, anim.frame, backRef);
 
-			// Tileset obj
-			anim.frame = 0;
 		}
 
 		let _4nullishedHard = [null,null,null,null];

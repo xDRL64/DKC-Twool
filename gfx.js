@@ -1740,26 +1740,44 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
-	
+	// SET OF ANIMATION VRAM FUNCTIONS
+	// //////////////////////////////
+	// animatedTiles_to_vramBackRef()
+	// animatedTiles_to_vramTileset()
+	// vramTileset_to_animatedTiles()
+	// //////////////////////////////
+	// 1. To set 'tileset vram byte buffer' from 'animated tileset byte buffers'.
+	// 2. To save back from 'tileset vram byte buffer' to 'animated tileset byte buffers'
+	// 3. And to set anim byte mask buffer as backRef, useful in processes conserning the "not animated tiles".
+	// It only transfers the precised animated tile bytes between 'animated tileset byte buffers' and 'tileset vram byte buffer',
+	// so it is necessary to copy "not animated tile" bytes in 'tileset vram byte buffer' at first,
+	// and then to use these anim vram functions.
+	//
+	// Normally animation vram refs should never change after init, so in general,
+	// use animatedTiles_to_vramBackRef at first as init step to set backRef if it is necessary,
+	// and use animatedTiles_to_vramTileset at each time animation frame number changed to update 'tileset vram byte buffer'.
+	// Then after editting step on 'tileset vram byte buffer', use vramTileset_to_animatedTiles to save back to original anim buffer(s).
+	// During "not animated tile" save back step, enjoy to use backRef to avoid to copy tile bytes that correspond to animated tiles.
+	// (Copy of animated tile bytes while "not animated tiles" copy, could be useless and maybe not wished)
 
-
-
-
-
-
-	o.fast.animatedTiles_to_vramBackRef = function(animations, vramRefs, backRef){
+	// To set only the object as backRef arg.
+	// Use it for "static vram refs" while editting step (use once at init step)
+	// (Does not afect tileset vram byte buffer.)
+	o.fast.animatedTiles_to_vramBackRef = function(animations, vramRefs, iFrame, backRef){
 
 		let len = animations.length;
 		for(let iAnim=0; iAnim<len; iAnim++){
 			let anim = vramRefs[iAnim];
 			if(anim){
 				let frameBytes = anim.frameSize;
+				let srcOfst = iFrame * frameBytes;
 				let dstOfst = anim.destOffset;
 				for(let i=0; i<frameBytes; i++){
 					// back ref
 					backRef.isAnim[dstOfst] = 1;
 					backRef.iAnim[dstOfst] = iAnim;
 					backRef.iByte[dstOfst] = i;
+					backRef.iOfst[dstOfst] = srcOfst + i;
 					dstOfst++;
 				}
 			}
@@ -1767,6 +1785,9 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		
 	};
 
+	// To set 'tileset vram byte buffer' from 'animated byte buffers'
+	// Use it for "dynamic vram refs" while editting step, to use with the backRef arg.
+	// Or use it in cases where you need to update backRef.iOfst (at every frame number change)
 	o.fast.animatedTiles_to_vramTileset = function(animations, vramRefs, vramTileset, iFrame, backRef=null){
 
 		// normal working : does not set backRef
@@ -1786,7 +1807,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 					}
 				}
 			}
-		// special : sets backRef in the same time
+		// special : sets/updates backRef in the same time
 		}else{
 			let len = animations.length;
 			for(let iAnim=0; iAnim<len; iAnim++){
@@ -1803,6 +1824,7 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 						backRef.isAnim[dstOfst] = 1;
 						backRef.iAnim[dstOfst] = iAnim;
 						backRef.iByte[dstOfst] = i;
+						backRef.iOfst[dstOfst] = srcOfst + i;
 
 						srcOfst++;
 						dstOfst++;
@@ -1813,6 +1835,9 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 	};
 
+	
+
+	// To set 'animated byte buffers' from 'tileset vram byte buffer'
 	o.fast.vramTileset_to_animatedTiles = function(animations, vramRefs, vramTileset, iFrame){
 		let len = animations.length;
 		for(let iAnim=0; iAnim<len; iAnim++){

@@ -1,4 +1,11 @@
 
+// : - bpp prop stays in vram prop in .json5
+// : - remove calc_ref prop in .json5
+// : - remove calc_vramRef in objects
+// : - calc vramRef at json5 loading
+// : - remove srcBppPriority arg, to force bpp component
+// : - component now must have its own vramRef
+
 (function(app=dkc2ldd){
 
 	app.mode = app.mode || [];
