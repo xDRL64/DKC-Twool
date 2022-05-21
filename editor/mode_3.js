@@ -71,6 +71,9 @@
                 //palettes = [pal256,pal256,pal256,pal256, pal256,pal256,pal256,pal256,];
 
                 // draw background
+                bgtileset = app.gfx.fast.format_2bppTileset(bgtileset);
+                //bgtileset = app.gfx.fast.format_4bppTileset(bgtileset);
+                //bgtileset = app.gfx.fast.format_8bppTileset(bgtileset);
                 app.gfx.draw_background(bgtileset, background, palettes, xtmax, o.viewport.ctx);
                 //app.gfx.draw_background16x8(bgtileset, background, palettes, xtmax, o.viewport.ctx);
             }

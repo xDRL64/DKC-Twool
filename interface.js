@@ -523,20 +523,21 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			// edit mode slot
 		
 			let slots = {
-				test_  : ["rom manager",                  'mode_',  null],
-				test0  : ["palette displayer",            'mode0',  ['wearethere','butalwaysnotused']],
-				test1  : ["tileset displayer",            'mode1',  null],
-				test2  : ["mapchip displayer",            'mode2',  null],
-				test3  : ["background displayer",         'mode3',  null],
-				test4  : ["level tilemap displayer",      'mode4',  ['something','whatyouwant']],
-				test5  : ["test selection",               'mode5',  null],
-				test6  : ["test collisionmap",            'mode6',  null],
-				test7  : ["test 4formatedTileset",        'mode7',  null],
-				test8  : ["test create_mapchipGfxBuffer", 'mode8',  null],
-				test9  : ["test animated background",     'mode9',  null],
-				test10 : ["test PALETTE type & ext func", 'mode10', null],
-				test11 : ["test TILESET type",            'mode11', null],
-				test12 : ["test types",                   'mode12', null]
+				test_   : ["rom manager",                  'mode_',   null],
+				test0   : ["palette displayer",            'mode0',   ['wearethere','butalwaysnotused']],
+				test1   : ["tileset displayer",            'mode1',   null],
+				test2   : ["mapchip displayer",            'mode2',   null],
+				test3   : ["background displayer",         'mode3',   null],
+				test3b  : ["background displayer 2",       'mode3b',  null],
+				test4   : ["level tilemap displayer",      'mode4',   ['something','whatyouwant']],
+				test5   : ["test selection",               'mode5',   null],
+				test6   : ["test collisionmap",            'mode6',   null],
+				test7   : ["test 4formatedTileset",        'mode7',   null],
+				test8   : ["test create_mapchipGfxBuffer", 'mode8',   null],
+				test9   : ["test animated background",     'mode9',   null],
+				test10  : ["test PALETTE type & ext func", 'mode10',  null],
+				test11  : ["test TILESET type",            'mode11',  null],
+				test12  : ["test types",                   'mode12',  null]
 
 			};
 
@@ -618,6 +619,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 		
 		// bg tilemap
 		workspace.list_generator['mode3'] = app.mode[3];
+
+		// bg tilemap 2
+		workspace.list_generator['mode3b'] = app.mode['3b'];
 		
 		// level tilemap
 		workspace.list_generator['mode4'] = app.mode[4];

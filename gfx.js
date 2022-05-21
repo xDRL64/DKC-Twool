@@ -2040,9 +2040,10 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	// draw_background8x8
 	o.draw_background = function(tileset, bgtilemap, palettes, xtmax, ctx){
 	
-		let tiles = o.fast.format_2bppTileset(tileset);
+		//let tiles = o.fast.format_2bppTileset(tileset);
 		//let tiles = o.fast.format_4bppTileset(tileset);
 		//let tiles = o.fast.format_8bppTileset(tileset);
+		let tiles = tileset;
 	
 		let len = bgtilemap.length / 2;
 		

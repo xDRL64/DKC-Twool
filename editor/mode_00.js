@@ -151,7 +151,10 @@
 
 				// rareware_screen_unknown_6	    0x2B2B84	0x31C	 GFX	YES
 				{ name:'H4v0c21 rareware_screen_unknown_6',
-					address: 0x2B2B84, size: 0x31C, compressed: true
+					address: 0x2B2B84, size: 0x31C, compressed: true,
+					vram : {
+						bpp : 2
+					}
 				},
 
 			],
@@ -185,7 +188,10 @@
 				// mine_tiles_bg_3	2B2B84	31C	GFX	YES	
 			bgtileset : [
 				{ name:'H4v0c21 rareware_screen_unknown_6',
-					address: 0x2B2B84, size: 0x31C, compressed: true
+					address: 0x2B2B84, size: 0x31C, compressed: true,
+					vram : {
+						bpp : 2
+					}
 				},
 			],
 			// kingizor
@@ -208,6 +214,11 @@
 
 
 		let wireframelogo = {
+			palette : [
+				{ name:'Pirate Panic palette',
+					address: 0x3D0CD0, size: 0x200, compressed: false
+				}
+			],
 			tileset : [
 				{ name:'H4v0c21 rareware_screen_tiles_wireframe',
 					address: 0x355D4A, size: 0xD7F, compressed: true
@@ -215,7 +226,10 @@
 			],
 			bgtileset : [
 				{ name:'H4v0c21 rareware_screen_tiles_wireframe',
-					address: 0x355D4A, size: 0xD7F, compressed: true
+					address: 0x355D4A, size: 0xD7F, compressed: true,
+					vram : {
+						bpp : 8
+					}
 				},
 
 			],
@@ -361,7 +375,10 @@
 
 			bgtileset : [
 				{ name:'wasp_hive_bg_layer_3_tiledata',
-					address: 0xD6F791-0xC00000, size: 0xD8FB53-0xD6F791, compressed: true
+					address: 0xD6F791-0xC00000, size: 0xD8FB53-0xD6F791, compressed: true,
+					vram : {
+						bpp : 2,
+					},
 				}
 			],
 
@@ -394,6 +411,107 @@
 
 		};
 
+		let hive_fg = {
+			palette : [
+				{ name:'hive palette',
+					address: 0xFD0A10-0xC00000, size: 0x100, compressed: false
+				}
+			],
+			tileset : [
+				{ name:'wasp_hive_honey_layer_1_tiledata',
+					address: 0xEB2EA0-0xC00000, size: 1024*32*2, compressed: true
+				}
+			],
+
+			// LAYER 1 test
+
+			bgtileset : [
+				{ name:'wasp_hive_honey_layer_1_tiledata',
+					address: 0xEB2EA0-0xC00000, size: 1024*32*2, compressed: true,
+					vram : {
+						bpp : 4, tileOfst : 48
+					},
+				},
+			],
+			background : [
+				{ name:'wasp_hive_honey_layer_1_8x8_tilemap',
+					//address: 0xD8FB53-0xC00000, size: 0xEB2EA0-0xD8FB53, compressed: true
+					address: 0xD8FB53-0xC00000, size: 2*32*32*2, compressed: true
+				}
+			],
+
+		};
+
+		let hive_bg = {
+			palette : [
+				{ name:'hive palette',
+					address: 0xFD0A10-0xC00000, size: 0x100, compressed: false
+				}
+			],
+			tileset : [
+				{ name:'wasp_hive_bg_layer_3_tiledata',
+					address: 0xD6F791-0xC00000, size: 0xD8FB53-0xD6F791, compressed: true,
+				}
+			],
+
+			// LAYER 3 test
+
+			bgtileset : [
+				{ name:'wasp_hive_bg_layer_3_tiledata',
+					address: 0xD6F791-0xC00000, size: 0xD8FB53-0xD6F791, compressed: true,
+					vram : {
+						bpp : 2,
+					},
+				}
+			],
+
+			background : [
+				{ name:'wasp_hive_bg_layer_3_8x8_tilemap',
+					address: 0xD4FC2D-0xC00000, size: 0xD6F791-0xD4FC2D, compressed: true
+				}
+			],
+
+		};
+
+		// DATA_EAA94D	brambles_sky_bg_layer_3_tiledata
+		// DATA_DDFDBA	brambles_sky_bg_layer_3_8x8_tilemap
+		// DATA_EAB6F0	brambles_bg_layer_2_tiledata
+		// DATA_F80000	brambles_bg_layer_2_8x8_tilemap
+		let brambles_sky = {
+			//DATA_FD28EE	palette_fgbg_level_bramble_blast
+			palette : [
+				{ name:'palette_fgbg_level_bramble_blast',
+					address: 0xFD28EE-0xC00000, size: 0x100, compressed: false
+				}
+			],
+			tileset : [
+				{ name:'brambles_sky_bg_layer_3_tiledata',
+					address: 0xEAA94D-0xC00000, size: 1024*64, compressed: true,
+				}
+			],
+
+			// LAYER 3 test
+
+			bgtileset : [
+				{ name:'brambles_sky_bg_layer_3_tiledata',
+					address: 0xEAA94D-0xC00000, size: 1024*64, compressed: true,
+					vram : {
+						bpp : 2, tileOfst : 34
+					},
+				},
+				{ name:'brambles_sky_bg_layer_3_tiledata',
+					address: 0xEAA94D-0xC00000, size: 1024*64, compressed: true,
+				}
+			],
+
+			background : [
+				{ name:'brambles_sky_bg_layer_3_8x8_tilemap',
+					address: 0xDDFDBA-0xC00000, size: 2*32*32*2, compressed: true
+				}
+			],
+
+		};
+
 		let debugPaletteClass = {
 			palette : [
 				{ name:'Pirate Panic palette',
@@ -416,8 +534,10 @@
 		//let lvlRef = wireframelogo;
 		//let lvlRef = flashBG3;
 		//let lvlRef = shipmast;
-		//let lvlRef = hive;
-		let lvlRef = shipdeck;
+		//let lvlRef = shipdeck;
+		let lvlRef = hive_fg;
+		//let lvlRef = hive_bg;
+		//let lvlRef = brambles_sky;
 		//let lvlRef = debugPaletteClass;
 
 

@@ -35,10 +35,13 @@
 		let tilesetSlot = srcFilePanel.tileset;
 		let animationSlot = srcFilePanel.animation;
 
+		let bpp = tilesetSlot.vramRefs?.[0]?.bpp || 8;
+		let bppSize = ({2:16,4:32,8:64})[bpp];
+
 		let TST = app.component.Tileset(
 			//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:32*32},
-			{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
-			8,
+			{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:(tilesetSlot.vramRefs?.[0]?.tileOfst||0)*bppSize},
+			bpp,
 			{ownerRefs:animationSlot.get_dataWithOwnerAccess(), vramRefs:animationSlot.vramRefs}
 		);
 

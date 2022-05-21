@@ -413,6 +413,7 @@
 		workspace.elem.appendChild(areas.parent);
 
 		const bpp = 4;
+		let bppSize = ({2:16,4:32,8:64})[bpp];
 		const currentType = {
 			name : 'formated'+bpp,
 			flag : 'f'
@@ -723,7 +724,7 @@
 	
 	
 			let TLST = app.component.Tileset(
-				//{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:tilesetSlot.vramRefs?.[0]?.offset || 0},
+				//{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:(tilesetSlot.vramRefs?.[0]?.tileOfst||0)*bppSize},
 				{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:0},
 				bpp,
 				{ownerRefs:animDataAccess, vramRefs:animationSlot.vramRefs}
