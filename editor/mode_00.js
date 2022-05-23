@@ -838,6 +838,11 @@
 					lvlRefMode00 = lvlRef = forest_leaves;
 					load_ref();
 				}
+
+				if(demo_id === 'unknown H4v0c21_$35FA80'){
+					lvlRefMode00 = lvlRef = H4v0c21_$35FA80;
+					load_ref();
+				}
 			};
 		// end of demo
 	};

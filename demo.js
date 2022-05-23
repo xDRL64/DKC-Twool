@@ -43,6 +43,17 @@
             app.interface.update_workspace('mode9');
     
         }
+
+        if(p.get('demo')==='H4v0c21_$35FA80'){
+            // set file data
+            app.interface.update_workspace('mode_');
+            app.interface.workspace.current.start_demo('unknown H4v0c21_$35FA80');
+            
+            // show
+            app.interface.srcFilePanel.background.parameters.value = "format=8x8 0 32 frame=64";
+            app.interface.update_workspace('mode9');
+    
+        }
         
         // hide side panels
         let fakeEvent = {stopPropagation:function(){},preventDefault:function(){}};
