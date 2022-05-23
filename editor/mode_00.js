@@ -820,6 +820,26 @@
 		// connect current workspace object (export core methods)
 		workspace.current = o;
 
+
+		// demo patch
+			o.start_demo = function(demo_id){
+
+				if(demo_id === 'shipmast anim'){
+					lvlRefMode00 = lvlRef = shipmast;
+					load_ref();
+				}
+
+				if(demo_id === 'bg rain anim'){
+					lvlRefMode00 = lvlRef = shipmast;
+					load_ref();
+				}
+
+				if(demo_id === 'forest leaves'){
+					lvlRefMode00 = lvlRef = forest_leaves;
+					load_ref();
+				}
+			};
+		// end of demo
 	};
 
 })();

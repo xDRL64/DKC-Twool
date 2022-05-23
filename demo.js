@@ -15,6 +15,7 @@
         if(p.get('demo')==='animated-shipmast-rain'){
             // set file data
             app.interface.update_workspace('mode_');
+            app.interface.workspace.current.start_demo('shipmast anim');
             
             // show mapchip with animated tileset
             app.interface.srcFilePanel.mapchip.parameters.value = "vram=1";
@@ -25,9 +26,20 @@
         if(p.get('demo')==='animated-bg-rain'){
             // set file data
             app.interface.update_workspace('mode_');
+            app.interface.workspace.current.start_demo('bg rain anim');
             
-            // show mapchip with animated tileset
+            // show
             app.interface.srcFilePanel.background.parameters.value = "format=8x8 0 4";
+            app.interface.update_workspace('mode9');
+    
+        }
+
+        if(p.get('demo')==='animated-forest-fg-leave'){
+            // set file data
+            app.interface.update_workspace('mode_');
+            app.interface.workspace.current.start_demo('forest leaves');
+            
+            // show 
             app.interface.update_workspace('mode9');
     
         }
