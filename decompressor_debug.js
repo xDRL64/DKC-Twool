@@ -404,7 +404,7 @@ dkc2ldd.decompressor = (function(){
 	
 	var dIndex;
 	
-	var process = function(binData){
+	var process = function(binData, printReadByteCount=false){
 	
 		nibbleList = convert_dataBytesToNibbleList(binData, false);
 
@@ -423,6 +423,12 @@ dkc2ldd.decompressor = (function(){
 		while(c){
 			c = !(exec_nextCommand());
 			c = c * keepgoing; //debug
+		}
+
+		if(printReadByteCount){
+			let count = Math.ceil(cIndex/2);
+			let hexStr = '0x'+count.toString(16).toUpperCase();
+			console.log('Decompressor log :\n\tRead byte count : ' + count + ' ' + hexStr);
 		}
 		
 		return new Uint8Array(decOutput);
