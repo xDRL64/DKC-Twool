@@ -51,7 +51,7 @@
 				let PAL = app.component.Palette( {ownerRefs:palDataAccess, byteOffset:0} );
 				PAL.init();
 				PAL.update('formated'+bpp);
-				palettes = PAL.type['formated'+bpp];
+				let palettes = PAL.type['formated'+bpp];
 				
 				//let bgtileset = srcFilePanel.bgtileset.get_data()[0];
 				let tlstDataAccess = tilesetSlot.get_dataWithOwnerAccess();
