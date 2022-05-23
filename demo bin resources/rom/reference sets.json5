@@ -1,0 +1,353 @@
+Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
+
+
+{
+	// GAME INTRO
+
+	"Rare Intro Wireframe Logo" : {
+		bgtileset : [
+			{
+				name: 'rare wireframe logo tileset',
+				address: 0x355D4A, size: 0xD7F, compressed: true,
+				vram: {
+					bpp: 8, tileOfst: 0,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'rare wireframe logo mapchip',
+				address: 0x356AC9, size: 0x14A, compressed: true,
+			},
+		],
+	},
+
+	// SHIPDECK THEME
+
+	"Pirate Panic Palette" : {
+		palette : [
+			{
+				name: 'piratepanic palette',
+				address: 0x3D0CD0, size: 0x100, compressed: false,
+			},
+		],
+	},
+
+	"Shipdeck Level Dataset" : {
+		tileset : [
+			{
+				name: 'shipdeck lvl tileset',
+				address: 0x1F8116, size: 0x5421, compressed: true,
+				vram: {
+					bpp: 4, tileOfst: 0,
+				},
+			},
+		],
+		mapchip : [
+			{
+				name: 'shipdeck lvl mapchip',
+				address: 0x25C627, size: 0x1AA1, compressed: true,
+			},
+		],
+	},
+
+	"Shipdeck Ocean Background" : {
+		bgtileset : [
+			{
+				name: 'shipdeck ocean bg tileset',
+				address: 0x29FDB3, size: 0x1308, compressed: true,
+				vram: {
+					bpp: 4, tileOfst: 0,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'shipdeck ocean bg mapchip',
+				address: 0x7FCB8, size: 0x45C, compressed: true,
+			},
+		],
+	},
+
+	// SHIPMAST THEME
+
+	"Mainbrace Mayhem Palette / Krow Nest Palette" : {
+		palette : [
+			{
+				name: 'mainbracemayhem/krownest palette',
+				address: 0x3D1610, size: 0x100, compressed: false,
+			},
+		],
+	},
+
+	"Topsail Trouble Palette / Kreepy Krow Palette" : {
+		palette : [
+			{
+				name: 'topsailtrouble/kreepykrow palette',
+				address: 0x3D14F0, size: 0x100, compressed: false,
+			},
+		],
+	},
+
+	"Shipmast Level Dataset" : {
+		tileset : [
+			{
+				name: 'shipmast lvl tileset',
+				address: 0x1FD537, size: 0x4C5E, compressed: true,
+				vram: {
+					bpp: 4, tileOfst: 0,
+				},
+			},
+		],
+		animation : [
+			{
+				name: 'shipmast flag animated lvl tileset',
+				address: 0x3A5FC1, size: 0x1E00, compressed: false,
+				vram: {
+					dstIndex: 1, animTiles: 30, frameCount: 8,
+					relTlstOfst: true, //bpp: 4,
+				},
+			},
+			{
+				name: 'shipmast rain animated lvl tileset',
+				address: 0x336EE8, size: 0x1000, compressed: false,
+				vram: {
+					dstIndex: 752, animTiles: 16, frameCount: 8,
+					relTlstOfst: true, //bpp: 4,
+				},
+			},
+		],
+		mapchip : [
+			{
+				name: 'shipmast lvl mapchip',
+				address: 0x25E0C8, size: 0x1465, compressed: true,
+			},
+		],
+	},
+
+	"Shipmast Sky Background / Funky Flight Background" : {
+		bgtileset : [
+			{
+				name: 'shipmast/funky sky bg tileset',
+				address: 0x2A121C, size: 0x11B8, compressed: true,
+				vram: {
+					bpp: 4, tileOfst: 0,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'shipmast/funky sky bg mapchip',
+				address: 0xAFABE, size: 0x76D, compressed: true,
+			},
+		],
+	},
+
+	"Shipmast Clouds Foreground" : {
+		bgtileset : [
+			{
+				name: 'shipmast clouds fg tileset',
+				address: 0x2A8D3C, size: 0x9F2, compressed: true,
+				vram: {
+					bpp: 2, tileOfst: 0,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'shipmast clouds fg mapchip',
+				address: 0x11F971, size: 0x74E, compressed: true,
+			},
+		],
+	},
+
+	"Shipmast Rain Foreground" : {
+		bganimation : [
+			{
+				name: 'shipmast rain animated fg tileset',
+				address: 0x3641C1, size: 0x2000, compressed: false,
+				vram: {
+					dstIndex: 0, animTiles: 64, frameCount: 8, bpp:2,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'shipmast rain fg procedural mapchip',
+				address: 0x0, size: 0x0, compressed: false,
+				mapchipProcess: '8x8',
+			},
+		],
+	},
+
+	// MINE THEME
+
+	"Mine Sparkling Background / Intro Sparkling Background" : {
+		bgtileset : [
+			{
+				name: 'mine/intro sparkling bg tileset',
+				address: 0x2B2B84, size: 0x31C, compressed: true,
+				vram: {
+					bpp: 2, tileOfst: 0,
+				},
+			},
+		],
+		background : [
+			{ name:'mine/intro sparkling bg mapchip',
+				address: 0x19F7C9, size: 0x1B2, compressed: true
+			},
+		],
+	},
+
+	// BRAMBLES THEME
+
+	"Bramble Blast Palette" : {
+		palette : [
+			{
+				name: 'brambleblast palette',
+				address: 0x3D28EE, size: 0x100, compressed: false,
+			},
+		],
+	},
+
+	"Brambles Sky Background" : {
+		bgtileset : [
+			{
+				name:'brambles sky bg tileset',
+				address: 0x2AA94D, size: 0xDA3, compressed: true,
+				vram: {
+					bpp: 2, tileOfst: 273,
+				},
+			},
+		],
+		background : [
+			{
+				name:'brambles sky bg mapchip',
+				address: 0x1DFDBA, size: 0x59C, compressed: true,
+			},
+		],
+	},
+
+	// HIVE THEME
+
+	"Hive Palette" : {
+		palette : [
+			{
+				name: 'hive palette',
+				address: 0x3D0A10, size: 0x100, compressed: false,
+			},
+		],
+	},
+
+	"Hive Honey Foreground" : {
+		bgtileset : [
+			{
+				name: 'hive honey fg tileset',
+				address: 0x2B2EA0, size: 0x1A76, compressed: true,
+				vram: {
+					bpp: 4, tileOfst : 48,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'hive honey fg mapchip',
+				address: 0x18FB53, size: 0x512, compressed: true,
+			},
+		],
+	},
+
+	"Hive Cells Background" : {
+		bgtileset : [
+			{
+				name: 'hive cells bg tileset',
+				address: 0x16F791, size: 0xEA2, compressed: true,
+				vram: {
+					bpp: 2, tileOfst: 0,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'hive cells bg mapchip',
+				address: 0x14FC2D, size: 0x63E, compressed: true,
+			},
+		],
+	},
+
+	// FOREST THEME
+
+	"Web Woods Palette" : {
+		palette : [
+			{
+				name: 'webwoods palette',
+				address: 0x3D3A4E, size: 0x100, compressed: false,
+			},
+		],
+	},
+
+	"Forest Trees Background" : {
+		bgtileset : [
+			{
+				name: 'forest trees bg tileset',
+				address: 0x3B6FC0, size: 0xFE0, compressed: false,
+				vram: {
+					bpp: 2, tileOfst: 0,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'forest trees bg mapchip',
+				address: 0x15FEB3, size: 0x536, compressed: true,
+			}
+		],
+	},
+
+	"Forest Sunshine Foreground" : {
+		bgtileset : [
+			{
+				name: 'forest sunshine fg tileset',
+				address: 0x2A972E, size: 0x120F, compressed: true,
+				vram: {
+					bpp: 4, tileOfst: 0,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'forest sunshine fg mapchip',
+				address: 0x10FE0D, size: 0x35E, compressed: true,
+			},
+		],
+	},
+
+	"Forest Leaves Foreground" : {
+		palette : [
+			{
+				name: 'webwoods palette',
+				address: 0x3D3A4E, size: 0xE0, compressed: false,
+			},
+			{
+				name: 'forest/brambles leaves palette',
+				address: 0x3D268E, size: 0x20, compressed: false,
+			},
+		],
+		bganimation : [
+			{
+				name: 'forest/brambles leaves fg tileset',
+				address: 0x356C13, size: 0x1100, compressed: false,
+				vram: {
+					dstIndex: 1, animTiles: 17, frameCount: 8,
+					bpp: 4,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'forest leaves fg mapchip',
+				address: 0x298B07, size: 0x161, compressed: true,
+			},
+		],
+	},
+}
