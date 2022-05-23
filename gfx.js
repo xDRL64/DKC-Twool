@@ -1864,6 +1864,24 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
+
+	o.get_highestMapchipTileIndex = function(mapchip){
+		let len = mapchip?.length >> 1; // div by 2
+		let ofst, lowByte, highByte, iTile, highestIndex = -1;
+		for(let i=0; i<len; i++){
+			ofst = i << 1; // mul by 2
+			lowByte = mapchip[ofst   ];
+			highByte = mapchip[ofst+1];
+			iTile = ( (highByte & 0x03) << 8 ) + lowByte;
+			highestIndex = Math.max(highestIndex, iTile);
+		}
+
+		return highestIndex;
+	};
+
+
+
+
 	// one mapchip holds many chip
 	// one chip holds 16 fragments
 
