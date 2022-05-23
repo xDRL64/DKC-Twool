@@ -39,7 +39,8 @@
             app.interface.update_workspace('mode_');
             app.interface.workspace.current.start_demo('forest leaves');
             
-            // show 
+            // show
+            app.interface.srcFilePanel.background.parameters.value = "32 3";
             app.interface.update_workspace('mode9');
     
         }
