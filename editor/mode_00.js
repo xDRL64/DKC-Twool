@@ -19,17 +19,16 @@
 		let _calc_vramRef = function(){
 			let bpp = this.bpp;
 			if(bpp===2 || bpp===4 || bpp===8){
-				bpp = ({2:16,4:32,8:64})[bpp];
+				bpp = ({2:16,4:32,8:64})[bpp]; // bppSize
 				this.destOffset = this.dstIndex * bpp;
 				this.frameSize = this.animTiles * bpp;
 			}
 		};
 		let calc_vramRef = function(ref){
-			let bpp = ref.bpp;
-			if(bpp===2 || bpp===4 || bpp===8){
-				bpp = ({2:16,4:32,8:64})[bpp]; // bppSize
-				ref.destOffset = ref.dstIndex * bpp;
-				ref.frameSize = ref.animTiles * bpp;
+			if(ref.bpp){
+				let bppSizeBitshift = ({2:4,4:5,8:6})[ref.bpp];
+				ref.destOffset = ref.dstIndex << bppSizeBitshift;
+				ref.frameSize = ref.animTiles << bppSizeBitshift;
 			}
 		};
 
@@ -37,6 +36,11 @@
 
 		let refSets = null;
 		let loadState = 'not loaded';
+
+		let button_loadRefFromMode00 = document.createElement('button');
+		button_loadRefFromMode00.textContent = "Load ref : from mode 00";
+		button_loadRefFromMode00.style.width = 'fit-content';
+		button_loadRefFromMode00.style.height = 'fit-content';
 
 		let button_loadRefFromJson = document.createElement('button');
 		button_loadRefFromJson.textContent = "Load ref : from JSON5 file";
@@ -47,8 +51,14 @@
 		list_refSets.style.width = 300;
 		list_refSets.style.height = 30;
 
+		workspace.elem.appendChild(button_loadRefFromMode00);
 		workspace.elem.appendChild(button_loadRefFromJson);
 		workspace.elem.appendChild(list_refSets);
+
+		button_loadRefFromMode00.onclick = function(){
+			lvlRef = lvlRefMode00;
+			load_ref();
+		};
 
 		button_loadRefFromJson.onclick = function(){
 
@@ -147,6 +157,9 @@
 					address: 0x2B2B84, size: 0x31C, compressed: true
 				},
 			],
+
+			// Mine/Intro sparkling reflect
+			//
 			bgtileset : [
 
 				// rareware_screen_unknown_6	    0x2B2B84	0x31C	 GFX	YES
@@ -259,7 +272,10 @@
 			// ship_deck_tiles_level	1F8116	5421	GFX	YES
 			tileset : [
 				{ name:'ship deck tileset',
-					address: 0x1F8116, size: 0x5421, compressed: true
+					address: 0x1F8116, size: 0x5421, compressed: true,
+					vram: {
+						bpp: 4, tileOfst: 0
+					}
 				}
 			],
 			// ship_deck_tilemap_8x8	25C627	1AA1	MAP	YES
@@ -267,7 +283,22 @@
 				{ name:'ship deck mapchip',
 					address: 0x25C627, size: 0x1AA1, compressed: true
 				}
-			]
+			],
+			// DATA_E9FDB3	ship_deck_ocean_layer_2_tiledata
+			bgtileset : [
+				{ name: 'shipdeck ocean bg tileset',
+					address: 0x29FDB3, size: 0x1308, compressed: true,
+					vram: {
+						bpp: 4, tileOfst: 0,
+					},
+				}
+			],
+			// DATA_C7FCB8	ship_deck_ocean_layer_2_8x8_tilemap
+			background : [
+				{ name:'ship deck mapchip',
+					address: 0x7FCB8, size: 0x45C, compressed: true
+				}
+			],
 		};
 
 
@@ -277,6 +308,9 @@
 			// FD:1610 - Mainbrace Mayhem, Krow's Nest
 			// F0:0000 - C0:0000 = 30:0000 ram? to rom
 			palette : [
+				/* { name:'webwoods palette',
+					address: 0x3D3A4E, size: 0x100, compressed: false
+				}, */
 				{ name:'Mainbrace Mayhem, Krow\'s Nest palette',
 					address: 0x3D1610, size: 0x100, compressed: false
 				},
@@ -288,8 +322,10 @@
 			// D0:0000 - C0:0000 = 10:0000 ram? to rom
 			tileset : [
 				{ name:'ship mast tileset',
-					address: 0x1FD537, size: 0x5D20, compressed: true
-					,vram: {offset: 16*32, bpp:4}
+					address: 0x1FD537, size: 0x4C5E, compressed: true,
+					vram: {
+						bpp: 4, tileOfst: 0
+					}
 				},
 			],
 			// pirate flag 0x3A5FC1 30tiles*8animframes*32byteOneTile = 0x1E00
@@ -322,7 +358,7 @@
 			// vram: null, if not set please
 			bganimation : [
 				{ name : 'ship mast rain animated bg tileset',
-					address: 0x3641C1, size: 0x4000, compressed: false,
+					address: 0x3641C1, size: 0x2000, compressed: false,
 					//vram: {destOffset: 0*16, frameSize: 64*16, frameCount: 8, bpp:2}
 					vram: {
 						dstIndex: 0,      animTiles: 64,
@@ -330,7 +366,7 @@
 						//calc_ref: _calc_vramRef
 					}
 				},
-				// test & debug
+				// test & debug (4bpp)
 				{ name : 'ship mast rain animated bg tileset',
 					address: 0x3641C1, size: 0x4000, compressed: false,
 					//vram: {destOffset: 0*32, frameSize: 32*32, frameCount: 8, bpp:4}
@@ -345,12 +381,157 @@
 			// E0:0000 - C0:0000 = 20:0000 ram? to rom
 			mapchip : [
 				{ name:'ship mast mapchip',
-					address: 0x25E0C8, size: 0x2540, compressed: true
+					address: 0x25E0C8, size: 0x1465, compressed: true,
 				}
-			]
+			],
+
+			// SKY
+			/* // DATA_EA121C	ship_mast_sky_bg_layer_2_tiledata
+			bgtileset : [
+				{ name:'shipmast/funky sky bg tileset',
+					address: 0x2A121C, size: 0x11B8, compressed: true,
+					vram: {
+						bpp: 4, tileOfst: 0,
+					},
+				}
+			],
+			// DATA_CAFABE	ship_mast_sky_bg_layer_2_8x8_tilemap
+			background : [
+				{ name:'shipmast/funky sky bg mapchip',
+					address: 0xAFABE, size: 0x76D, compressed: true,
+				}
+			], */
+
+			
+			// CLOUDS
+			//DATA_EA8D3C	ship_mast_clouds_fg_layer_3_tiledata
+			bgtileset : [
+				{ name:'shipmast clouds fg tileset',
+					address: 0x2A8D3C, size: 0x9F2, compressed: true,
+					vram: {
+						bpp: 2, tileOfst: 0,
+					},
+				},
+			],
+			//DATA_D1F971	ship_mast_clouds_fg_layer_3_8x8_tilemap
+			background : [
+				{ name:'shipmast clouds fg mapchip',
+					address: 0x11F971, size: 0x74E, compressed: true,
+				}
+			],
+			
+
+			
 		};
 
-		
+
+		let forest_sunshine = {
+			palette : [
+				{ name:'webwoods palette',
+					address: 0x3D3A4E, size: 0x100, compressed: false
+				},
+			],
+			// FOREST sunshine foreground
+			//
+			// DATA_EA972E	forest_light_shafts_layer_1_tiledata
+			// EA:972E ~ EA:A93D (0x1FC0) - Tiles (FG) (Ghostly Grove)
+			bgtileset : [
+				{ name:'forest sunshine fg tileset',
+					address: 0x2A972E, size: 0x120F, compressed: true,
+					vram: {
+						bpp: 4, tileOfst: 0,
+					},
+				},
+			],
+			// DATA_D0FE0D	forest_light_shafts_layer_1_8x8_tilemap
+			// D0:FE0D ~ D1:016B (0x0700) - Tilemap (FG) (Ghostly Grove)
+			background : [
+				{ name:'forest sunshine fg mapchip',
+					address: 0x10FE0D, size: 0x35E, compressed: true,
+				}
+			],
+		};
+
+
+		// Trees background
+		let forest_bg = {
+			palette : [
+				{ name:'webwoods palette',
+					address: 0x3D3A4E, size: 0x100, compressed: false
+				},
+			],
+			// FOREST bg
+			//
+			tileset : [
+				{ name:'forest bg tileset',
+					address: 0x3B6FC0, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 2, tileOfst: 0,
+					},
+				},
+			],
+			//FB:6FC0 ~ FB:7FC0 (0x1000) - Tiles (BG) (NOT COMPRESSED)
+			// DATA_FB6FC0	forest_bg_layer_3_tiledata
+			bgtileset : [
+				{ name:'forest bg tileset',
+					//address: 0x3B6FC0, size: 0x1000, compressed: false,
+					address: 0x3B6FC0, size: 0xFE0, compressed: false,
+					vram: {
+						bpp: 2, tileOfst: 0,
+					},
+				},
+			],
+			// D5:FEB3 ~ D6:03E9 (0x0800) - Tilemap (BG)
+			// DATA_D5FEB3	forest_bg_layer_3_8x8_tilemap
+			background : [
+				{ name:'forest bg mapchip',
+					address: 0x15FEB3, size: 0x536, compressed: true,
+				}
+			],
+			
+			// forest_tiles_level	1EA932	5F3E	GFX	YES	
+			// forest_tilemap_32x32	23438B	2BAE	MAP	YES	
+			// forest_tilemap_8x8	2572C5	251C	MAP	YES
+		};
+
+		// FLOATING LEAVES
+		//
+		let forest_leaves = {
+			palette : [
+				{ name:'webwoods palette',
+					address: 0x3D3A4E, size: 0xE0, compressed: false
+				},
+				{ name:'leaves palette',
+					address: 0x3D268E, size: 0x20, compressed: false
+				},
+			],
+			// found out by myself
+			tileset : [
+				{ name:'leaves fg tileset',
+					address: 0x356c13, size: 0x1100, compressed: false,
+					vram: {
+						bpp: 4,
+					},
+				},
+			],
+			// found out by myself
+			bganimation : [
+				{ name:'leaves fg tileset',
+					address: 0x356c13, size: 0x1100, compressed: false,
+					vram: {
+						dstIndex: 1, animTiles: 17, frameCount: 8,
+						bpp: 4,
+					},
+				},
+			],
+			// E9:8B07 ~ E9:8C68 (0x0800) - (?) (Gusty Glade) (Leaves?)
+			// forest_unknown	    298B07	161	    GFX	YES
+			background : [
+				{ name:'forest_unknown',
+					address: 0x298B07, size: 0x161, compressed: true,
+				},
+			],
+		};
 
 
 		/* 
@@ -427,7 +608,7 @@
 
 			bgtileset : [
 				{ name:'wasp_hive_honey_layer_1_tiledata',
-					address: 0xEB2EA0-0xC00000, size: 1024*32*2, compressed: true,
+					address: 0x2B2EA0, size: 1024*32*2, compressed: true,
 					vram : {
 						bpp : 4, tileOfst : 48
 					},
@@ -436,7 +617,7 @@
 			background : [
 				{ name:'wasp_hive_honey_layer_1_8x8_tilemap',
 					//address: 0xD8FB53-0xC00000, size: 0xEB2EA0-0xD8FB53, compressed: true
-					address: 0xD8FB53-0xC00000, size: 2*32*32*2, compressed: true
+					address: 0x18FB53, size: 2*32*32*2, compressed: true
 				}
 			],
 
@@ -458,7 +639,7 @@
 
 			bgtileset : [
 				{ name:'wasp_hive_bg_layer_3_tiledata',
-					address: 0xD6F791-0xC00000, size: 0xD8FB53-0xD6F791, compressed: true,
+					address: 0xD6F791-0xC00000, size: 0xEA2, compressed: true,
 					vram : {
 						bpp : 2,
 					},
@@ -467,7 +648,7 @@
 
 			background : [
 				{ name:'wasp_hive_bg_layer_3_8x8_tilemap',
-					address: 0xD4FC2D-0xC00000, size: 0xD6F791-0xD4FC2D, compressed: true
+					address: 0xD4FC2D-0xC00000, size: 0x63E, compressed: true
 				}
 			],
 
@@ -494,20 +675,16 @@
 
 			bgtileset : [
 				{ name:'brambles_sky_bg_layer_3_tiledata',
-					address: 0xEAA94D-0xC00000, size: 1024*64, compressed: true,
+					address: 0x2AA94D, size: 0xDA3, compressed: true,
 					vram : {
-						bpp : 2, tileOfst : 34
+						bpp : 2, tileOfst : 273
 					},
 				},
-				{ name:'brambles_sky_bg_layer_3_tiledata',
-					address: 0xEAA94D-0xC00000, size: 1024*64, compressed: true,
-				}
 			],
-
 			background : [
 				{ name:'brambles_sky_bg_layer_3_8x8_tilemap',
-					address: 0xDDFDBA-0xC00000, size: 2*32*32*2, compressed: true
-				}
+					address: 0x1DFDBA, size: 0x59C, compressed: true
+				},
 			],
 
 		};
@@ -526,20 +703,59 @@
 			],
 		};
 
-
+		let H4v0c21_$35FA80 = {
+			
+			palette : [
+				{
+					name: 'funky flights palette',
+					address: 0x3D10F0, size: 0x100, compressed: false,
+				},
+			],
+			tileset : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x35FA80, size: 0x8000, compressed: false,
+					vram: {
+						bpp: 2, tileOfst: 0,
+					},
+				},
+			],
+			bganimation : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x35FA80, size: 5*16 *16, compressed: false,
+					vram: {
+						dstIndex: 0, animTiles: 1, frameCount: 64, bpp:2,
+					},
+				},
+			],
+			background : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x0, size: 0x0, compressed: false,
+					mapchipProcess: '8x8',
+				},
+			],
+			// format=8x8 0 16 frame=64
+		};
 
 
 		let ROM = srcFilePanel.rom.fileData[0];
 		//let lvlRef = rareware;
 		//let lvlRef = wireframelogo;
 		//let lvlRef = flashBG3;
-		//let lvlRef = shipmast;
 		//let lvlRef = shipdeck;
-		let lvlRef = hive_fg;
+		//let lvlRef = shipmast;
+		//let lvlRef = hive_fg;
 		//let lvlRef = hive_bg;
 		//let lvlRef = brambles_sky;
+		//let lvlRef = forest_bg;
+		//let lvlRef = forest_leaves;
+		//let lvlRef = forest_sunshine;
 		//let lvlRef = debugPaletteClass;
+		let lvlRef = H4v0c21_$35FA80;
 
+		let lvlRefMode00 = lvlRef;
 
 		// app to srcFile Panel
 
@@ -568,6 +784,9 @@
 					slot = srcFilePanel[dataType];
 					slot.set_oneDataFile(dataFile, last);
 	
+					// special cases (in test) :
+					if(ref.mapchipProcess === '8x8') slot.parameters.value = 'format=8x8';
+
 					// todo : to move in an update method (build all from srcFilePanel once everything is loaded)
 					// TEST FEATURE : animated data type : parameters input update
 					if(vramRef){
@@ -583,8 +802,8 @@
 			}
 		};
 
-		// debug
-		load_ref();
+
+		
 
 
 		// update
