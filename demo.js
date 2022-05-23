@@ -34,7 +34,7 @@
     
         }
 
-        if(p.get('demo')==='animated-forest-fg-leave'){
+        if(p.get('demo')==='animated-forest-fg-leaves'){
             // set file data
             app.interface.update_workspace('mode_');
             app.interface.workspace.current.start_demo('forest leaves');
