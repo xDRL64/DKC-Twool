@@ -467,7 +467,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 					get data() {return owner[prop]},
 					set data(v) {owner[prop] = v},
 				};
-			}
+			};
 
 			o.get_dataWithOwnerAccess = function(){
 				let _o = [];
