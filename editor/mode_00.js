@@ -750,10 +750,10 @@
 		//let lvlRef = hive_bg;
 		//let lvlRef = brambles_sky;
 		//let lvlRef = forest_bg;
-		//let lvlRef = forest_leaves;
+		let lvlRef = forest_leaves;
 		//let lvlRef = forest_sunshine;
 		//let lvlRef = debugPaletteClass;
-		let lvlRef = H4v0c21_$35FA80;
+		//let lvlRef = H4v0c21_$35FA80;
 
 		let lvlRefMode00 = lvlRef;
 
