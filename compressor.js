@@ -3,81 +3,9 @@
  * Copyright (c) 2020 Kingizor */
 
 // Code language conversion : C to JS
-// Conversion by Piel, version : 0.0.1
+// Conversion by Piel, version : 0.0.2
 
 let compressor = (function(){
-
-
-
-	// ////////////////////////////////////////////////////////////////
-	// ////////////////////////////////////////////////////////////////
-	// /////////////// C to JS WRAPPER ////////////////////////////////
-	// ////////////////////////////////////////////////////////////////
-	// ////////////////////////////////////////////////////////////////
-
-
-
-	let NULL = null;
-	let stderr = 'stderr';
-
-	let Ctype = function(type){
-		if(type === 'unsigned 8'){
-			let _v = new Uint8Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-		if(type === 'unsigned 16'){
-			let _v = new Uint16Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-		if(type === 'unsigned 32'){
-			let _v = new Uint32Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-		if(type === 'unsigned 64'){
-			let _v = new BigUint64Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-
-		if(type === 'signed 8'){
-			let _v = new Int8Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-		if(type === 'signed 16'){
-			let _v = new Int16Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-		if(type === 'signed 32'){
-			let _v = new Int32Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-		if(type === 'signed 64'){
-			let _v = new BigInt64Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-
-		if(type === 'float 32'){
-			let _v = new Float32Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-		if(type === 'float 64'){
-			let _v = new Float64Array(1);
-			return{ get value(){return _v[0]}, set value(v){_v[0]=v} };
-		}
-		alert("wrong Ctype has been called");
-	};
-
-	let clampType = {
-		Uint8   : new Uint8Array(1),
-		Uint16  : new Uint16Array(1),
-		Uint32  : new Uint32Array(1),
-		Uint64  : new BigUint64Array(1),
-		Int8    : new Int8Array(1),
-		Int16   : new Int16Array(1),
-		Int32   : new Int32Array(1),
-		Int64   : new BigInt64Array(1),
-		Float32 : new Float32Array(1),
-		Float64 : new Float64Array(1),
-	};
 
 
 
@@ -94,7 +22,6 @@ let compressor = (function(){
 	// compressor flag : Error Conditions
 	let READ_ERROR  = 1;
 	let WRITE_ERROR = 2;
-	let DECOMP_QUIT = 4;
 	
 	let DATA_STREAM = function(){
 		return {
@@ -150,8 +77,8 @@ let compressor = (function(){
 	};
 
 	let check_input_mem = function(input, input_size){
-		if (input === NULL) {
-			bd_set_error("Input pointer is NULL.");
+		if (input === null) {
+			bd_set_error("Input pointer is null.");
 			return 1;
 		}
 		
@@ -513,20 +440,18 @@ let compressor = (function(){
 
 	let single_case = function(cmp, cp) {
 
+		let best_case = 0; /* worst case by default */
+
 		let cases = choose_cases(cmp, cp);
 
 		let best_ratio = 3.0;
 
-		let best_case = 0; /* worst case by default */
-
-		let cur_ratio;
+		let cur_ratio = 0.0;
 
 		let i;
 
 		/* Determine best case */
 		for (i = 3; i < 16; i++) {
-
-		//	cur_ratio = 0.0; // drl OOO: double cur_ratio;
 			
 			if (!(cases & (1 << i)))
 				continue;
@@ -720,10 +645,8 @@ let compressor = (function(){
 	};
 
 	let simple_method = function(cmp) {
+		let cp = CASE_PARAMS();
 		for (;;) {
-			
-			let cp = CASE_PARAMS(); // drl todo
-	
 			if (encode_case(cmp, cp, get_case(cmp, cp, 15)))
 				return 1;
 			if (error_check(cmp.flag))
@@ -734,20 +657,14 @@ let compressor = (function(){
 	};
 
 
-	let bd_compress = function(cmp){ // int bd_compress (struct COMPRESSOR *cmp) {
+	let bd_compress = function(cmp){
 
-		let date = Date.now(); // drl debug
-		console.log("start choose_constants()"); // drl debug
 		/* Generate the LUT */
 		if (choose_constants(cmp))
 			return 1;
-		console.log("end choose_constants() : ", (Date.now()-date)/1000); // drl debug
-	
-		date = Date.now(); // drl debug
-		console.log("start simple_method()"); // drl debug
+
 		if (simple_method(cmp))
 			return 1;
-		console.log("end simple_method() : ", (Date.now()-date)/1000); // drl debug
 
 		/* End with a nul command */
 		wb(cmp, 0);
@@ -771,11 +688,11 @@ let compressor = (function(){
 
 	let bd_compress_mem_to_mem = function(output, input, input_size){
 
-		let cmp = COMPRESSOR();
-
 		if (check_input_mem(input, input_size))
 			return 1;
 	
+		let cmp = COMPRESSOR();
+
 		cmp.i.stream = input;
 		cmp.i.len    = input_size;
 
@@ -786,12 +703,10 @@ let compressor = (function(){
 			return 1;
 		}
 
-		output.value = cmp.o.stream.slice(0,cmp.o.pos);
+		output.data = cmp.o.stream.slice(0,cmp.o.pos);
 
 		return 0;
 	};
-
-	// ////////// END OF CUSTOM ENTRY POINT ////////////////////////////////////////////
 
 
 
@@ -805,18 +720,19 @@ let compressor = (function(){
 
 	let o = {};
 
-	o.process = function(binData=[]){
+	o.outputErrorMessage = '';
 
-		let output = {value:null};
+	o.process = function(binData){ // binData : Uint8Array
+
+		let output = {data:null};
 		let input = binData;
 		let input_size = binData.length;
 
 		if (bd_compress_mem_to_mem(output, input, input_size)) {
-			console.log(stderr, "Error: ", bd_get_error());
-			return 1;
+			o.outputErrorMessage = "Compression Error: " + bd_get_error();
 		}
 
-		return output.value;
+		return output.data;
 	};
 
 	return o;
