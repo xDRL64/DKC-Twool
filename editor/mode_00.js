@@ -18,19 +18,50 @@
 
 		let _calc_vramRef = function(){
 			let bpp = this.bpp;
-			if(bpp===2 || bpp===4 || bpp===8){
-				bpp = ({2:16,4:32,8:64})[bpp]; // bppSize
-				this.destOffset = this.dstIndex * bpp;
-				this.frameSize = this.animTiles * bpp;
+			if(bpp){
+				let bppSizeBitshift = ({2:4,4:5,8:6})[bpp] || 0;
+				let frameSize = this.animTiles << bppSizeBitshift;
+				let frameCount = this.frameCount || 0;
+				this.destOffset = this.dstIndex << bppSizeBitshift;
+				this.frameSize = frameSize;
+				this.srcOffsets = new Uint16Array(frameCount);
+				for(let iFrame=0; iFrame<frameCount; iFrame++)
+					this.srcOffsets[iFrame] = iFrame * frameSize;
 			}
 		};
-		let calc_vramRef = function(ref){
+
+		let calc_vramRef = function(ref={}){
 			if(ref.bpp){
-				let bppSizeBitshift = ({2:4,4:5,8:6})[ref.bpp];
+				let bppSizeBitshift = ({2:4,4:5,8:6})[ref.bpp] || 0;
+				let frameSize = ref.animTiles << bppSizeBitshift;
+				let frameCount = ref.frameCount || 0;
 				ref.destOffset = ref.dstIndex << bppSizeBitshift;
-				ref.frameSize = ref.animTiles << bppSizeBitshift;
+				ref.frameSize = frameSize;
+				ref.srcOffsets = new Uint16Array(frameCount);
+				for(let iFrame=0; iFrame<frameCount; iFrame++)
+					ref.srcOffsets[iFrame] = iFrame * frameSize;
 			}
 		};
+
+		let _clone_vramRef = function(){
+			return {
+				// base props
+				bpp            : this.bpp || 0,
+				dstIndex       : this.dstIndex || 0,
+				animTiles      : this.animTiles || 0,
+				frameCount     : this.frameCount || 0,
+				relTlstOfst    : this.relTlstOfst || false,
+				mapchipProcess : this.mapchipProcess || '',
+				// computed props
+				destOffset     : this.destOffset || 0,
+				frameSize      : this.frameSize || 0,
+				srcOffsets     : new Uint16Array(this.srcOffsets || 0),
+				// methods
+				calc           : _calc_vramRef,
+				clone          : _clone_vramRef,
+			};
+		};
+
 
 		// code ...
 
@@ -274,7 +305,7 @@
 				{ name:'ship deck tileset',
 					address: 0x1F8116, size: 0x5421, compressed: true,
 					vram: {
-						bpp: 4, tileOfst: 0
+						bpp: 4, dstIndex: 0
 					}
 				}
 			],
@@ -289,7 +320,7 @@
 				{ name: 'shipdeck ocean bg tileset',
 					address: 0x29FDB3, size: 0x1308, compressed: true,
 					vram: {
-						bpp: 4, tileOfst: 0,
+						bpp: 4, dstIndex: 0,
 					},
 				}
 			],
@@ -324,7 +355,7 @@
 				{ name:'ship mast tileset',
 					address: 0x1FD537, size: 0x4C5E, compressed: true,
 					vram: {
-						bpp: 4, tileOfst: 0
+						bpp: 4, dstIndex: 0
 					}
 				},
 			],
@@ -391,7 +422,7 @@
 				{ name:'shipmast/funky sky bg tileset',
 					address: 0x2A121C, size: 0x11B8, compressed: true,
 					vram: {
-						bpp: 4, tileOfst: 0,
+						bpp: 4, dstIndex: 0,
 					},
 				}
 			],
@@ -409,7 +440,7 @@
 				{ name:'shipmast clouds fg tileset',
 					address: 0x2A8D3C, size: 0x9F2, compressed: true,
 					vram: {
-						bpp: 2, tileOfst: 0,
+						bpp: 2, dstIndex: 0,
 					},
 				},
 			],
@@ -439,7 +470,7 @@
 				{ name:'forest sunshine fg tileset',
 					address: 0x2A972E, size: 0x120F, compressed: true,
 					vram: {
-						bpp: 4, tileOfst: 0,
+						bpp: 4, dstIndex: 0,
 					},
 				},
 			],
@@ -466,7 +497,7 @@
 				{ name:'forest bg tileset',
 					address: 0x3B6FC0, size: 0x1000, compressed: false,
 					vram: {
-						bpp: 2, tileOfst: 0,
+						bpp: 2, dstIndex: 0,
 					},
 				},
 			],
@@ -477,7 +508,7 @@
 					//address: 0x3B6FC0, size: 0x1000, compressed: false,
 					address: 0x3B6FC0, size: 0xFE0, compressed: false,
 					vram: {
-						bpp: 2, tileOfst: 0,
+						bpp: 2, dstIndex: 0,
 					},
 				},
 			],
@@ -610,7 +641,7 @@
 				{ name:'wasp_hive_honey_layer_1_tiledata',
 					address: 0x2B2EA0, size: 1024*32*2, compressed: true,
 					vram : {
-						bpp : 4, tileOfst : 48
+						bpp : 4, dstIndex : 48
 					},
 				},
 			],
@@ -677,7 +708,7 @@
 				{ name:'brambles_sky_bg_layer_3_tiledata',
 					address: 0x2AA94D, size: 0xDA3, compressed: true,
 					vram : {
-						bpp : 2, tileOfst : 273
+						bpp : 2, dstIndex : 273
 					},
 				},
 			],
@@ -716,7 +747,7 @@
 					name: '$35FA80 tileset',
 					address: 0x35FA80, size: 0x8000, compressed: false,
 					vram: {
-						bpp: 2, tileOfst: 0,
+						bpp: 2, dstIndex: 0,
 					},
 				},
 			],
@@ -748,9 +779,9 @@
 		//let lvlRef = shipmast;
 		//let lvlRef = hive_fg;
 		//let lvlRef = hive_bg;
-		//let lvlRef = brambles_sky;
+		let lvlRef = brambles_sky;
 		//let lvlRef = forest_bg;
-		let lvlRef = forest_leaves;
+		//let lvlRef = forest_leaves;
 		//let lvlRef = forest_sunshine;
 		//let lvlRef = debugPaletteClass;
 		//let lvlRef = H4v0c21_$35FA80;
@@ -777,9 +808,16 @@
 					data = ROM.slice(address, address+size);
 	
 					romRef = {address:address, size:size};
-					vramRef = ref.vram;
-					if(vramRef) calc_vramRef(vramRef);
+					vramRef = ref.vram || {unset:true};
+					vramRef.calc = _calc_vramRef;
+					vramRef.clone = _clone_vramRef;
 					
+					if(vramRef.unset){
+						vramRef.clone(); // set default val
+					}else{
+						vramRef.calc();
+					}
+
 					dataFile = {name:name, data:data, useDec:compressed, romRef:romRef, vramRef:vramRef};
 					slot = srcFilePanel[dataType];
 					slot.set_oneDataFile(dataFile, last);

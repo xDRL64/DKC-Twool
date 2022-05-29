@@ -724,7 +724,7 @@
 	
 	
 			let TLST = app.component.Tileset(
-				//{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:(tilesetSlot.vramRefs?.[0]?.tileOfst||0)*bppSize},
+				//{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:(tilesetSlot.vramRefs?.[0]?.dstIndex||0)*bppSize},
 				{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:0},
 				bpp,
 				{ownerRefs:animDataAccess, vramRefs:animationSlot.vramRefs}

@@ -40,7 +40,7 @@
 
 		let TST = app.component.Tileset(
 			//{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:32*32},
-			{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:(tilesetSlot.vramRefs?.[0]?.tileOfst||0)*bppSize},
+			{ownerRefs:tilesetSlot.get_dataWithOwnerAccess(), byteOffset:0, vramOffset:(tilesetSlot.vramRefs?.[0]?.dstIndex||0)*bppSize},
 			bpp,
 			{ownerRefs:animationSlot.get_dataWithOwnerAccess(), vramRefs:animationSlot.vramRefs}
 		);

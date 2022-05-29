@@ -56,7 +56,7 @@
 				//let bgtileset = srcFilePanel.bgtileset.get_data()[0];
 				let tlstDataAccess = tilesetSlot.get_dataWithOwnerAccess();
 				let TLST = app.component.Tileset(
-					{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:(tilesetSlot.vramRefs?.[0]?.tileOfst||0)*bppSize},
+					{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:(tilesetSlot.vramRefs?.[0]?.dstIndex||0)*bppSize},
 					//{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:0},
 					//{ownerRefs:tlstDataAccess, byteOffset:0, vramOffset:debugOfst*bppSize},
 					bpp,

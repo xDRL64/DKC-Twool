@@ -10,7 +10,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'rare wireframe logo tileset',
 				address: 0x355D4A, size: 0xD7F, compressed: true,
 				vram: {
-					bpp: 8, tileOfst: 0,
+					bpp: 8, dstIndex: 0,
 				},
 			},
 		],
@@ -39,7 +39,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'shipdeck lvl tileset',
 				address: 0x1F8116, size: 0x5421, compressed: true,
 				vram: {
-					bpp: 4, tileOfst: 0,
+					bpp: 4, dstIndex: 0,
 				},
 			},
 		],
@@ -57,7 +57,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'shipdeck ocean bg tileset',
 				address: 0x29FDB3, size: 0x1308, compressed: true,
 				vram: {
-					bpp: 4, tileOfst: 0,
+					bpp: 4, dstIndex: 0,
 				},
 			},
 		],
@@ -95,7 +95,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'shipmast lvl tileset',
 				address: 0x1FD537, size: 0x4C5E, compressed: true,
 				vram: {
-					bpp: 4, tileOfst: 0,
+					bpp: 4, dstIndex: 0,
 				},
 			},
 		],
@@ -131,7 +131,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'shipmast/funky sky bg tileset',
 				address: 0x2A121C, size: 0x11B8, compressed: true,
 				vram: {
-					bpp: 4, tileOfst: 0,
+					bpp: 4, dstIndex: 0,
 				},
 			},
 		],
@@ -149,7 +149,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'shipmast clouds fg tileset',
 				address: 0x2A8D3C, size: 0x9F2, compressed: true,
 				vram: {
-					bpp: 2, tileOfst: 0,
+					bpp: 2, dstIndex: 0,
 				},
 			},
 		],
@@ -188,7 +188,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'mine/intro sparkling bg tileset',
 				address: 0x2B2B84, size: 0x31C, compressed: true,
 				vram: {
-					bpp: 2, tileOfst: 0,
+					bpp: 2, dstIndex: 0,
 				},
 			},
 		],
@@ -216,7 +216,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name:'brambles sky bg tileset',
 				address: 0x2AA94D, size: 0xDA3, compressed: true,
 				vram: {
-					bpp: 2, tileOfst: 273,
+					bpp: 2, dstIndex: 273,
 				},
 			},
 		],
@@ -245,7 +245,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'hive honey fg tileset',
 				address: 0x2B2EA0, size: 0x1A76, compressed: true,
 				vram: {
-					bpp: 4, tileOfst : 48,
+					bpp: 4, dstIndex : 48,
 				},
 			},
 		],
@@ -263,7 +263,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'hive cells bg tileset',
 				address: 0x16F791, size: 0xEA2, compressed: true,
 				vram: {
-					bpp: 2, tileOfst: 0,
+					bpp: 2, dstIndex: 0,
 				},
 			},
 		],
@@ -292,7 +292,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'forest trees bg tileset',
 				address: 0x3B6FC0, size: 0xFE0, compressed: false,
 				vram: {
-					bpp: 2, tileOfst: 0,
+					bpp: 2, dstIndex: 0,
 				},
 			},
 		],
@@ -310,7 +310,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				name: 'forest sunshine fg tileset',
 				address: 0x2A972E, size: 0x120F, compressed: true,
 				vram: {
-					bpp: 4, tileOfst: 0,
+					bpp: 4, dstIndex: 0,
 				},
 			},
 		],

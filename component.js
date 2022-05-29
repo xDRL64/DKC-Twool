@@ -212,18 +212,22 @@ dkc2ldd.component = (function(app=dkc2ldd){
 			//anim._vramRefs = animated.vramRefs;
 			
 			//anim.vramRefs = animated.vramRefs;
-			anim.vramRefs = JSON.parse(JSON.stringify(animated.vramRefs)); // deep copy
-			
+		//	anim.vramRefs = JSON.parse(JSON.stringify(animated.vramRefs)); // deep copy // obselete because now it needs to copy method, that not possible by json trick
+			anim.vramRefs = new Array(len); // comporent has its own vramRefs. (Doesn't affect the original one)
+
 			let vramRef;
 			for(let i=0; i<len; i++){
-				vramRef = anim.vramRefs[i];
+			//	vramRef = anim.vramRefs[i];
+				vramRef = anim.vramRefs[i] = animated.vramRefs[i].clone();
 
 				anim.buffers[i] = new Uint8Array(bufferSize);
 				anim.maxFrame = Math.max(anim.maxFrame, vramRef.frameCount);
 
 				// update : vram refs with component bpp size
-				vramRef.destOffset = vramRef.dstIndex * bppSize;
-				vramRef.frameSize  = vramRef.animTiles * bppSize;
+			//	vramRef.destOffset = vramRef.dstIndex * bppSize;
+			//	vramRef.frameSize  = vramRef.animTiles * bppSize;
+				vramRef.bpp = bpp;
+				vramRef.calc();
 				
 				// update : vram dest offset + vram main offset
 				if(vramRef.relTlstOfst) vramRef.destOffset += main.vramOfst;
