@@ -15,6 +15,8 @@
 -->
 <script src="./external/JSON5.min.js"></script>
 
+<script src="./betaDev/HexInput.js"></script>
+
 <script src="./decompressor_debug.js"></script>
 
 <script src="./img.js"></script>
@@ -69,6 +71,9 @@
 
 
 <script>
+
+
+
 </script>
 
 
@@ -150,6 +155,19 @@ if(true){
 	PAL.write();
 	*/
 
+
+	// test
+
+	let label_hexInput = document.createElement('label');
+	label_hexInput.for = 'id_hexInput';
+	label_hexInput.textContent = 'label : ';
+	dkc2ldd.interface.workspace.elem.appendChild(label_hexInput);
+
+	let hexInput = HexInput2('0x');
+	hexInput.id = 'id_hexInput';
+	dkc2ldd.interface.workspace.elem.appendChild(hexInput);
+
+	dkc2ldd.interface.workspace.elem.style.display = 'block';
 }
 </script>
 
