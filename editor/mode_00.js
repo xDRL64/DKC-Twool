@@ -11,7 +11,7 @@
 		let wLib = app.editor;
 
 		// empty workspace (to empty html child elements)
-		workspace.elem.textContent = "rom";
+		workspace.elem.innerHTML = "";
 
 		// current workspace object
 		let o = {};
@@ -65,6 +65,11 @@
 
 		// code ...
 
+		let mode_00 = {};
+		mode_00.elem = document.createElement('div');
+		mode_00.elem.style.flexGrow = 1;
+
+
 		let refSets = null;
 		let loadState = 'not loaded';
 
@@ -82,9 +87,11 @@
 		list_refSets.style.width = 300;
 		list_refSets.style.height = 30;
 
-		workspace.elem.appendChild(button_loadRefFromMode00);
-		workspace.elem.appendChild(button_loadRefFromJson);
-		workspace.elem.appendChild(list_refSets);
+		mode_00.elem.appendChild(button_loadRefFromMode00);
+		mode_00.elem.appendChild(button_loadRefFromJson);
+		mode_00.elem.appendChild(list_refSets);
+
+		workspace.elem.appendChild(mode_00.elem);
 
 		button_loadRefFromMode00.onclick = function(){
 			lvlRef = lvlRefMode00;
@@ -98,14 +105,7 @@
 			let jsonText = String.fromCharCode(...jsonFile);
 
 			// create object from file
-			refSets = JSON5.parse( jsonText
-				/* ,
-				// add _calc_vramRef method while JSON parsing
-				(function(k,v){ // each calc_ref propety with 'true' value, is set to the _calc_vramRef js object 
-					if(k==='calc_ref' && v===true) return _calc_vramRef;
-					else return v;
-				}) */
-			);
+			refSets = JSON5.parse( jsonText );
 
 			// if JSON5 parsing crashes, it does not reach next js instruction
 			loadState = 'successful';
@@ -113,11 +113,30 @@
 			// empty the list
 			list_refSets.textContent = '';
 
-			// (re)fill the list
-			for(nameSet in refSets){
+			// (re)fill the list and foldableItem
+			for(let nameSet in refSets){
+				// drop-down list
 				let listItem = document.createElement('option');
 				listItem.textContent = listItem.value = nameSet;
 				list_refSets.appendChild(listItem);
+
+				// foldableItem
+				let _set = wLib.create_foldableItem();
+				_set.name.setAttribute('value', nameSet);
+				foldableItem.append(_set);
+				let curSet = refSets[nameSet];
+				for(let nameType in curSet){
+					let _type = wLib.create_foldableItem();
+					_type.name.setAttribute('value', nameType);
+					_set.append(_type);
+					let curType = curSet[nameType];
+					for(let fileRef of curType){
+						_file = wLib.create_foldableItem();
+						_file.name.setAttribute('value', fileRef.name);
+						_file.box.appendChild( create_refDisplayer(fileRef) );
+						_type.append(_file);
+					}
+				}
 			}
 
 			// load the first set in the list
@@ -137,6 +156,73 @@
 				lvlRef = refSets[list_refSets.value] || {};
 				load_ref();
 			}
+		};
+
+
+
+		// test foldable item
+		/* FoldableItem = wLib.create_foldableItem();
+		mode_00.elem.appendChild(FoldableItem.elem);
+		FoldableItem2 = wLib.create_foldableItem();
+		FoldableItem.box.appendChild(FoldableItem2.elem); */
+		let foldableItem = wLib.create_foldableItem();
+		foldableItem.name.value = 'All';
+		mode_00.elem.appendChild(foldableItem.elem);
+
+		let create_refItem = function(name, type, value){
+			let box = document.createElement('div');
+			let label = document.createElement('label');
+			label.setAttribute('for', name);
+			label.textContent = name;
+			let item = document.createElement('input');
+			item.setAttribute('id', name);
+			if(type === 'bool'){
+				item.setAttribute('type', 'checkbox');
+				item.setAttribute('checked', value);
+			}
+			if(type === 'number') item.setAttribute('type', 'number');
+			if(type === 'text') item.setAttribute('type', 'text');
+			item.setAttribute('value', value);
+			box.appendChild(label);
+			box.appendChild(item);
+			return box;
+		};
+
+		let create_refDisplayer = function(refObject){
+
+			let ref = refObject;
+
+			let displayer = document.createElement('div');
+
+		//	let name = create_refItem('name','text',ref.name);
+
+			let address = create_refItem('address','number',ref.address);
+			let size = create_refItem('size','number',ref.size);
+			let compressed = create_refItem('compressed','bool',ref.compressed);
+			
+			ref = ref.vram || {};
+
+			let bpp = create_refItem('bpp','number',ref.bpp);
+
+			let dstIndex = create_refItem('dstIndex','number',ref.dstIndex);
+
+			let animTiles = create_refItem('animTiles','number',ref.animTiles);
+			let frameCount = create_refItem('frameCount','number',ref.frameCount);
+			let relTlstOfst = create_refItem('relTlstOfst','bool',ref.relTlstOfst);
+			let mapchipProcess = create_refItem('mapchipProcess','text',ref.mapchipProcess);
+
+		//	displayer.appendChild(name);
+			displayer.appendChild(address);
+			displayer.appendChild(size);
+			displayer.appendChild(compressed);
+			displayer.appendChild(bpp);
+			displayer.appendChild(dstIndex);
+			displayer.appendChild(animTiles);
+			displayer.appendChild(frameCount);
+			displayer.appendChild(relTlstOfst);
+			displayer.appendChild(mapchipProcess);
+
+			return displayer;
 		};
 
 
