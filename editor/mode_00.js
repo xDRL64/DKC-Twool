@@ -856,8 +856,41 @@
 			// format=8x8 0 16 frame=64
 		};
 
-		// DATA_ED8415    mine_debris_layer_3_8x8_tilemap
 		// DATA_F30EBB    mine_debris_layer_3_tiledata
+		// DATA_ED8415    mine_debris_layer_3_8x8_tilemap
+		let mine_debris = {
+			palette : [
+				{
+					name: 'funky flights palette',
+					address: 0x3D0CD0, size: 0x100, compressed: false,
+				},
+			],
+			tileset : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x330EBB, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			bganimation : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x330EBB, size: 0x1000, compressed: false,
+					vram: {
+						dstIndex: 1, animTiles: 17, frameCount: 8,
+						bpp: 2,
+					},
+				},
+			],
+			background : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x2D8415, size: 0x8000, compressed: true,
+				},
+			],
+		};
 
 
 		//1F8116  tiledata
@@ -926,7 +959,8 @@
 		//let lvlRef = forest_sunshine;
 		//let lvlRef = debugPaletteClass;
 		//let lvlRef = H4v0c21_$35FA80;
-		let lvlRef = H4v0c21_test;
+		//let lvlRef = H4v0c21_test;
+		let lvlRef = mine_debris;
 
 		let lvlRefMode00 = lvlRef;
 
