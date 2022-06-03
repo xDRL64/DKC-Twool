@@ -1,39 +1,6 @@
-console.log('start hexinput');
 
-//WorkspaceToolPackExport
-/* ((function(appDataTransferScriptTagPropName='WebApp_NON_STANDARD_PROPERTY_nameChain'){
-
-	let curExecScript = document.currentScript;
-
-	// start hard func ////////
-		let nameChain = curExecScript[appDataTransferScriptTagPropName];
-		let names = nameChain.split('.');
-		let i, len = names.length, last = len-1;
-		let parent = window;
-		let childName = names[last];
-		// check that the object chain exists
-		// create all members of object chain if some parts are missing
-		// keep last parent after ending loop
-		for(i=0; i<last; i++){
-			parent = (parent[names[i]] ??= {});
-		}
-	// end hard func //////////
-
-	let o = {
-		get wrapper(){return null},
-		set wrapper(v){
-			parent[childName] = v;
-		},
-	};
-
-	return o;
-
-})()).wrapper = (function(){ */
-
+// HexInput export
 dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
-
-
-
 
 	// Unsigned Hexadecimal HTML Input
 	//////////////////////////////////
@@ -65,10 +32,11 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 	//     - then it is gave to parseInt to remove useless zeros
 	// - up/down arrow keys to increment/decrement value.
 	// - prefix protection :
-	//   - backspace can not erase prefix, even in selection.
+	//   - backspace and delete keys can not erase prefix, even in selection.
 	//   - typing while cursor/selection is overlaping prefix, will write after prefix.
 	
 	let HexInput = function(pref=''){
+
 		let elem = document.createElement('input');
 		let _min = 0;
 		let _max = Number.MAX_SAFE_INTEGER;
@@ -81,11 +49,13 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 			get(){return _max},
 			set(v){let newMax=parseInt(v); _max=newMax===0?0:newMax||_max;},
 		});
+
 		// value properties :
 		Object.defineProperty(elem, 'int', {
 			get(){return _val},
 			set(v){_val=v; this._value=pref+v.toString(16).toUpperCase()},
 		});
+
 		Object.defineProperty(elem, 'prefix', {
 			get(){return pref},
 			set(v){this._value=v+this._value.substring(prefLen); pref=v; prefLen=pref.length},
@@ -107,6 +77,7 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 		Object.defineProperty(elem, '_value',
 			Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value')
 		);
+
 		let protectPrefix = function(){
 			// protect prefix (0x/$/hex/etc..)
 			// get out cursor/selection if it is in prefix
@@ -119,6 +90,7 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 			elem.setSelectionRange(startSel,endSel, dirSel);
 			return {startSel, endSel};
 		};
+
 		// check keyboard input on text editing
 		elem.addEventListener(
 			"beforeinput",
@@ -170,6 +142,7 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 				}
 			}
 		);
+
 		// lock prefix text selection
 		// except while double click on the prefix text
 		let lastStartSel = 0;
@@ -187,12 +160,14 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 				});
 			}
 		);
+
 		elem.addEventListener(
 			'select',
 			function(e){
 				if(lastStartSel > prefLen) protectPrefix();
 			}
 		);
+
 		// increment and decrement with up/down arrow keys
 		// manage min max limit clamping
 		elem.addEventListener(
@@ -211,12 +186,9 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 				}
 			}
 		);
+		
 		return elem;
 	};
 
 	return HexInput;
 })();
-
-
-
-console.log('end hexinput');
