@@ -7,6 +7,7 @@ dkc2ldd.ScriptPackLoader = (function(appMainObjectName='dkc2ldd'){
 
     let untitledCount = 0;
 
+    // load script pack into the DOM (<head>)
     o.loader = function(parameters){
     
         let {
@@ -46,6 +47,7 @@ dkc2ldd.ScriptPackLoader = (function(appMainObjectName='dkc2ldd'){
         }
     };
 
+    // collect script pack execution result into object
     o.connector = function(appDataTransferScriptTagPropName){
 
         appDataTransferScriptTagPropName ??= default_appDataTransferScriptTagPropName;
