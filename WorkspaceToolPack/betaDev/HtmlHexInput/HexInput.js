@@ -1,7 +1,7 @@
 console.log('start hexinput');
 
 //WorkspaceToolPackExport
-((function(appDataTransferScriptTagPropName='WebApp_NON_STANDARD_PROPERTY_nameChain'){
+/* ((function(appDataTransferScriptTagPropName='WebApp_NON_STANDARD_PROPERTY_nameChain'){
 
 	let curExecScript = document.currentScript;
 
@@ -28,7 +28,13 @@ console.log('start hexinput');
 
 	return o;
 
-})()).wrapper = (function(){
+})()).wrapper = (function(){ */
+
+dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
+
+
+
+
 	// Unsigned Hexadecimal HTML Input
 	//////////////////////////////////
 	// 'pref'    arg  : is the hex prefix you want (0x/$/hex/etc..).
