@@ -15,7 +15,7 @@
 -->
 <script src="./external/JSON5.min.js"></script>
 
-<script src="./betaDev/HexInput.js"></script>
+<!-- <script src="./betaDev/HexInput.js"></script> -->
 
 <script src="./decompressor_debug.js"></script>
 
@@ -50,6 +50,7 @@
 <script src="./events.js"></script>
 
 <script src="./editor.js"></script>
+<script src="./WorkspaceToolPack/LOAD_PACK.js"></script>
 
 <script src="./component.js"></script>
 
@@ -106,7 +107,7 @@
 <script src="./demo.js"></script>
 
 
-<script>
+<script defer>
 if(true){
 	/*
 	let app = dkc2ldd;
@@ -156,18 +157,20 @@ if(true){
 	*/
 
 
+	console.log('body');
+	console.log(dkc2ldd.WorkspaceToolPack.HexInput);
 	// test
-
 	let label_hexInput = document.createElement('label');
 	label_hexInput.for = 'id_hexInput';
 	label_hexInput.textContent = 'label : ';
 	dkc2ldd.interface.workspace.elem.appendChild(label_hexInput);
 
-	let hexInput = HexInput2('0x');
+	let hexInput = dkc2ldd.WorkspaceToolPack.HexInput('0x');
 	hexInput.id = 'id_hexInput';
 	dkc2ldd.interface.workspace.elem.appendChild(hexInput);
 
 	dkc2ldd.interface.workspace.elem.style.display = 'block';
+
 }
 </script>
 
