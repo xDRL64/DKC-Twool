@@ -5,12 +5,9 @@ dkc2ldd.ScriptPackLoader = (function(appMainObjectName='dkc2ldd'){
 
     let o = {};
 
-    console.log('start WorkspaceToolPack');
-
     let untitledCount = 0;
 
     o.loader = function(parameters){
-        // EDIT TOOL PACK SETTINGS
     
         let {
             packLoaderPath,
@@ -21,27 +18,17 @@ dkc2ldd.ScriptPackLoader = (function(appMainObjectName='dkc2ldd'){
         } = parameters;
 
         // path from root page to script toolpack folder
-        //let packLoaderPath = "./WorkspaceToolPack/";
         if(!packLoaderPath) return;
     
-        // App objet name
+        // app main objet name
         globalMainJsObjectName ??= default_globalMainJsObjectName;
     
-        // Toolpack object name
+        // script pack object name
         scriptPackName ??= 'ScriptPack'+untitledCount;
     
+        // property name of script tag used to transfer data.
+        // data transfer from this script to the scripts having to be loaded.
         appDataTransferScriptTagPropName ??= default_appDataTransferScriptTagPropName;
-    
-        /* // each entry has :
-        //     path               : from toolpack folder to each script to load
-        //     location           : 'toolpack' or 'mainobject' or if not 'global' (by default)
-        //     ownParentNameChain : for example 'parentObj.prentObj.Obj' or just 'Obj'
-        let scriptList = [
-            // {path:'/betaDev/examples/myExample.js', location:'toolpack', ownParentNameChain:'AllExmplObj.myExObj'}
-            {path:'/betaDev/HtmlHexInput/HexInput.js', location:'toolpack', ownParentNameChain:'HexInput'},
-        ]; */
-    
-        // DO NOT EDIT /////////////////////////////////////////////////////////////////////
     
         let baseStorageNameChain = globalMainJsObjectName + '.' + scriptPackName;
     
@@ -84,10 +71,6 @@ dkc2ldd.ScriptPackLoader = (function(appMainObjectName='dkc2ldd'){
             },
         };
     };
-
-    
-
-    console.log('end WorkspaceToolPack');
 
     return o;
 })();
