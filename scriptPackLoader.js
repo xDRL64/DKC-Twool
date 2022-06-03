@@ -1,6 +1,6 @@
-dkc2ldd.ScriptPackLoader = (function(){
+dkc2ldd.ScriptPackLoader = (function(appMainObjectName='dkc2ldd'){
 
-    let default_globalMainJsObjectName = 'dkc2ldd';
+    let default_globalMainJsObjectName = appMainObjectName;
     let default_appDataTransferScriptTagPropName = 'WebApp_NON_STANDARD_PROPERTY_nameChain';
 
     let o = {};
