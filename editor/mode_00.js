@@ -856,6 +856,61 @@
 			// format=8x8 0 16 frame=64
 		};
 
+		// DATA_ED8415    mine_debris_layer_3_8x8_tilemap
+		// DATA_F30EBB    mine_debris_layer_3_tiledata
+
+
+		//1F8116  tiledata
+		//25C627  tilemap
+		//3D0CD0  palette
+		//DATA_F52BA7	ship_deck_rigging_layer_3_tiledata
+		let H4v0c21_test = {
+			
+			palette : [
+				{
+					name: 'funky flights palette',
+					address: 0x3D0CD0, size: 0x100, compressed: false,
+				},
+			],
+			tileset : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x352BA7, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x352BA7, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			background : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x25C627, size: 0x8000, compressed: true,
+				},
+			],
+			mapchip : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x25C627, size: 0x8000, compressed: true,
+				},
+			],
+			tilemap : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x1F8116, size: 0x8000, compressed: true,
+				},
+			],
+			// format=8x8 0 16 frame=64
+		};
+
 
 		let ROM = srcFilePanel.rom.fileData[0];
 		//let lvlRef = rareware;
@@ -865,12 +920,13 @@
 		//let lvlRef = shipmast;
 		//let lvlRef = hive_fg;
 		//let lvlRef = hive_bg;
-		let lvlRef = brambles_sky;
+		//let lvlRef = brambles_sky;
 		//let lvlRef = forest_bg;
 		//let lvlRef = forest_leaves;
 		//let lvlRef = forest_sunshine;
 		//let lvlRef = debugPaletteClass;
 		//let lvlRef = H4v0c21_$35FA80;
+		let lvlRef = H4v0c21_test;
 
 		let lvlRefMode00 = lvlRef;
 
