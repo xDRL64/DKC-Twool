@@ -16,7 +16,10 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 	//   - double click on prefix to select prefix and hex value.
 	//   - double click on hex value to select hex value only.
 	//   - normal selection will clamp itself, locking prefix selection.
-	// - smart pasting from clipboard :
+	// - CTRL + A : selection value only.
+	// - CTRL + C : copy exactly what is selected.
+	// - CTRL + X : copy exactly what is selected, but cut value only in HexInput.
+	// - CTRL + V : smart pasting from clipboard to HexInput :
 	//   - while trying to past '2CF3' it will past '2CF3'.
 	//   - while trying to past '0x2CF3' it will past '2CF3'.
 	//   - while trying to past '$2CF3' it will past '2CF3'.
@@ -145,6 +148,8 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 
 		// lock prefix text selection
 		// except while double click on the prefix text
+
+		// save next cursor position at every click
 		let lastStartSel = 0;
 		elem.addEventListener(
 			'mousedown',
@@ -160,16 +165,35 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 				});
 			}
 		);
+		
+		// manage the selection at every double click
+		let messageForOnselectEvent = 'nothing';
+		elem.addEventListener(
+			'dblclick',
+			function(e){
+				
+				if(lastStartSel > prefLen) // selection : value only
+					elem.setSelectionRange(prefLen, elem._value.length);
+				else // selection : prefix and value
+					elem.setSelectionRange(0, elem._value.length);
 
+				// cancel select event
+				if(elem._value.length>0) messageForOnselectEvent = 'cancel';
+			}
+		);
+
+		// manage the selection at every normal selection
 		elem.addEventListener(
 			'select',
 			function(e){
-				if(lastStartSel > prefLen) protectPrefix();
+				if(messageForOnselectEvent === 'nothing')
+					protectPrefix();
+				messageForOnselectEvent = 'nothing';
 			}
 		);
 
 		// increment and decrement with up/down arrow keys
-		// manage min max limit clamping
+		// manage with min/max limit clamping
 		elem.addEventListener(
 			'keydown',
 			function(e){
@@ -186,7 +210,7 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 				}
 			}
 		);
-		
+
 		return elem;
 	};
 
