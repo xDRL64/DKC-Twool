@@ -29,45 +29,6 @@ console.log('start hexinput');
 	return o;
 
 })()).wrapper = (function(){
-	let HexInput = function(pref){
-		let elem = document.createElement('input');
-		let _val = 0x0;
-		Object.defineProperty(elem, 'int', {
-			get(){return parseInt(this.value, 16)},
-			set(v){_val=v; this.value=v.toString(16).toUpperCase()},
-		});
-		elem.addEventListener(
-			"beforeinput",
-			function(e){
-				let isInsertText = (e.inputType === 'insertText');
-				let isInsertFromPaste = (e.inputType === 'insertFromPaste');
-				if(isInsertText || isInsertFromPaste){
-					e.preventDefault();
-		
-					let input = (e.data.match(/(?<pref>0x)?(?<val>[0-9a-f]{1,})/i)?.groups?.val || '');
-					input = (input==='') ? '' : parseInt(input,16).toString(16).toUpperCase(); // remove first zero(s)
-		
-					let curVal = this.value;
-					let startSel = this.selectionStart;
-					let endSel = this.selectionEnd;
-					let beforeSel = curVal.substring(0, startSel);
-					let afterSel = curVal.substring(endSel);
-		
-					this.value = beforeSel + input + afterSel;
-	
-					let newSelPos = startSel;
-					newSelPos += isInsertText ? 1 : 0;
-					newSelPos += isInsertFromPaste ? input.length : 0;
-	
-					this.setSelectionRange(newSelPos,newSelPos);
-	
-					_val = parseInt(this.value,16) || 0;
-				}
-			}
-		);
-		return elem;
-	};
-	
 	// Unsigned Hexadecimal HTML Input
 	//////////////////////////////////
 	// 'pref'    arg  : is the hex prefix you want (0x/$/hex/etc..).
@@ -101,7 +62,7 @@ console.log('start hexinput');
 	//   - backspace can not erase prefix, even in selection.
 	//   - typing while cursor/selection is overlaping prefix, will write after prefix.
 	
-	let HexInput2 = function(pref=''){
+	let HexInput = function(pref=''){
 		let elem = document.createElement('input');
 		let _min = 0;
 		let _max = Number.MAX_SAFE_INTEGER;
@@ -247,7 +208,7 @@ console.log('start hexinput');
 		return elem;
 	};
 
-	return HexInput2;
+	return HexInput;
 })();
 
 
