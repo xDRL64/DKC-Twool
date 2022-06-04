@@ -14,7 +14,12 @@
         let o = {};
 
         let iFrame = 0; // vram
-        let intervalRoutine = setInterval(function(){iFrame++;iFrame=iFrame>7?0:iFrame;o.update()}, 50);
+        let frameCount = 8;
+        let intervalRoutine = setInterval(function(){
+            iFrame++;
+            //iFrame=iFrame>frameCount-1?0:iFrame;
+            o.update();
+        }, 50);
 
         // code ...
         srcFilePanel.mapchip.parameters.onkeydown = function(e){
@@ -83,6 +88,7 @@
 
                     let animations = srcFilePanel.animation.get_data();
                     let animRefs = srcFilePanel.animation.vramRefs;
+                    frameCount = animRefs.frameCount;
                     app.gfx.fast.animatedTiles_to_vramTileset(animations, animRefs, vram_tileset, iFrame);
 
                     let mapchip = srcFilePanel.mapchip.get_data__OLD();
