@@ -861,8 +861,9 @@
 		let mine_debris = {
 			palette : [
 				{
-					name: 'funky flights palette',
-					address: 0x3D0CD0, size: 0x100, compressed: false,
+					// DATA_FD248E	palette_fgbg_level_windy_well
+					name: 'no name',
+					address: 0x3D248E, size: 0x100, compressed: false,
 				},
 			],
 			tileset : [
@@ -892,6 +893,92 @@
 			],
 		};
 
+		// castle_tiles_level	29A905	3432	GFX	YES	(3D BG)
+		// castle_tiles_bg	    2B4916	25D	    GFX	YES	(floor tiles)
+		// castle_tilemap_8x8	268077	1475	MAP	YES	
+		// castle_tilemap_32x32	24F714	2F37	MAP	YES	
+		// castle_tilemap_bg_1	02FAC9	61A	    MAP	YES	
+		// castle_tilemap_bg_2	06FC11	477	    MAP	YES
+
+		// castle_tiles_1	    2199BE	2580	GFX	YES	
+		// castle_tiles_2	    21BF3E	37BF	GFX	YES
+
+		// castle_crush_palette	3D2DEE	100	    PAL	NO
+
+
+		let castle_lvl = {
+			palette : [
+				{
+					name: 'noname',
+					address: 0x3D2DEE, size: 0x100, compressed: false,
+				},
+			],
+			tileset : [
+				{
+					name: 'part1',
+					address: 0x2199BE, size: 0x21BF3E-0x2199BE, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+				{
+					name: 'part2',
+					address: 0x29A905, size: 0x4000, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+						//decompOffset: 29 * 32 // 928
+						decompOffset: 299 * 32, // 9568
+						size: 278*32 //8896
+						// start 9568, end 9568+8896=18464
+						//dkc2ldd.interface.srcFilePanel.tileset.decompressed[1] = dkc2ldd.interface.srcFilePanel.tileset.decompressed[1].slice(9568+32, 18464+32)
+					},
+				},
+				{
+					name: 'part3',
+					address: 0x21BF3E, size: 0x21F6FD-0x21BF3E, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			mapchip : [
+				{
+					name: 'noname',
+					address: 0x268077, size: 0x4000, compressed: true,
+				},
+			],
+			tilemap : [
+				{
+					name: 'noname',
+					address: 0x24F714, size: 0x8000, compressed: true,
+				},
+			],
+		};
+
+		let castle_bg = {
+			palette : [
+				{
+					name: 'noname',
+					address: 0x3D2DEE, size: 0x100, compressed: false,
+				},
+			],
+			bgtileset : [
+				{
+					name: 'floor tiles',
+					address: 0x2B4916, size: 0x8000, compressed: true,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			background : [
+				{
+					name: 'noname',
+					address: 0x02FAC9, size: 0x4000, compressed: true,
+				},
+			],
+
+		};
 
 		//1F8116  tiledata
 		//25C627  tilemap
@@ -960,7 +1047,9 @@
 		//let lvlRef = debugPaletteClass;
 		//let lvlRef = H4v0c21_$35FA80;
 		//let lvlRef = H4v0c21_test;
-		let lvlRef = mine_debris;
+		//let lvlRef = mine_debris;
+		let lvlRef = castle_lvl;
+		//let lvlRef = castle_bg;
 
 		let lvlRefMode00 = lvlRef;
 
@@ -1050,6 +1139,11 @@
 
 				if(demo_id === 'forest leaves'){
 					lvlRefMode00 = lvlRef = forest_leaves;
+					load_ref();
+				}
+
+				if(demo_id === 'mine debris'){
+					lvlRefMode00 = lvlRef = mine_debris;
 					load_ref();
 				}
 
