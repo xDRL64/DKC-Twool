@@ -1882,6 +1882,22 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		return highestIndex;
 	};
 
+	o.get_statMapchipTileIndex = function(mapchip){
+		let stat = new Int32Array(1024);
+		let len = mapchip?.length >> 1; // div by 2
+		let ofst, lowByte, highByte, iTile, highestIndex = -1;
+		for(let i=0; i<len; i++){
+			ofst = i << 1; // mul by 2
+			lowByte = mapchip[ofst   ];
+			highByte = mapchip[ofst+1];
+			iTile = ( (highByte & 0x03) << 8 ) + lowByte;
+			stat[iTile] ??= 0;
+			stat[iTile]++;
+		}
+
+		return stat;
+	};
+
 
 
 
