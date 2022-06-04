@@ -869,7 +869,7 @@
 			tileset : [
 				{
 					name: '$35FA80 tileset',
-					address: 0x330EBB, size: 0x1000, compressed: false,
+					address: 0x330EBB, size: 0x880, compressed: false,
 					vram: {
 						bpp: 2, dstIndex: 0,
 					},
@@ -878,7 +878,7 @@
 			bganimation : [
 				{
 					name: '$35FA80 tileset',
-					address: 0x330EBB, size: 0x1000, compressed: false,
+					address: 0x330EBB, size: 0x880, compressed: false,
 					vram: {
 						dstIndex: 1, animTiles: 17, frameCount: 8,
 						bpp: 2,
@@ -941,6 +941,16 @@
 					},
 				},
 			],
+			animation : [
+				{
+					name: 'animated flame tiles',
+					address: 0x35484A, size: 0x380*8, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 1, animTiles: 28, frameCount: 6,
+					},
+				},
+			],
+
 			mapchip : [
 				{
 					name: 'noname',
@@ -954,6 +964,34 @@
 				},
 			],
 		};
+
+		// castle flame ?
+		// DATA_80C25F:
+		// dw DATA_F5484A
+		// dw DATA_F54BCA
+		// dw DATA_F54F4A
+		// dw DATA_F552CA
+		// dw DATA_F5564A
+		// dw DATA_F559CA
+		let castle_flame_test = {
+			palette : [
+				{
+					name: 'noname',
+					address: 0x3D2DEE, size: 0x100, compressed: false,
+				},
+			],
+			animation : [
+				{
+					name: 'noname',
+					address: 0x35484A, size: 0x380*8, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 1, animTiles: 28, frameCount: 6,
+					},
+				},
+			],
+			
+		};
+
 
 		let castle_bg = {
 			palette : [
@@ -1050,6 +1088,7 @@
 		//let lvlRef = mine_debris;
 		let lvlRef = castle_lvl;
 		//let lvlRef = castle_bg;
+		//let lvlRef = castle_flame_test;
 
 		let lvlRefMode00 = lvlRef;
 
@@ -1144,6 +1183,11 @@
 
 				if(demo_id === 'mine debris'){
 					lvlRefMode00 = lvlRef = mine_debris;
+					load_ref();
+				}
+
+				if(demo_id === 'castle level'){
+					lvlRefMode00 = lvlRef = castle_lvl;
 					load_ref();
 				}
 

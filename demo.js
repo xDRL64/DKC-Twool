@@ -56,6 +56,20 @@
     
         }
 
+        if(p.get('demo')==='animated-castle-flames-(app_hack)'){
+            // set file data
+            app.interface.update_workspace('mode_');
+            app.interface.workspace.current.start_demo('castle level');
+
+            // app hack
+            dkc2ldd.interface.srcFilePanel.tileset.decompressed[1] = dkc2ldd.interface.srcFilePanel.tileset.decompressed[1].slice(9568+32, 18464+32)
+            
+            // show mapchip with animated tileset
+            app.interface.srcFilePanel.mapchip.parameters.value = "vram";
+            app.interface.update_workspace('mode2');
+    
+        }
+
         if(p.get('demo')==='H4v0c21_$35FA80'){
             // set file data
             app.interface.update_workspace('mode_');
