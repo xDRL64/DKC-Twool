@@ -45,6 +45,17 @@
     
         }
 
+        if(p.get('demo')==='animated-mine-fg-debris'){
+            // set file data
+            app.interface.update_workspace('mode_');
+            app.interface.workspace.current.start_demo('mine debris');
+            
+            // show
+            app.interface.srcFilePanel.background.parameters.value = "32 3";
+            app.interface.update_workspace('mode9');
+    
+        }
+
         if(p.get('demo')==='H4v0c21_$35FA80'){
             // set file data
             app.interface.update_workspace('mode_');
