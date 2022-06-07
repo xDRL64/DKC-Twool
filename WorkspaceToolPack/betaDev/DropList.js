@@ -18,9 +18,11 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
             let label = document.createElement('label');
             label.setAttribute('for', ID_droplist);
             label.textContent = labelName;
+            label.style.height = 'fit-content';
     
             let board = document.createElement('div');
-            board.style.display = 'inline-block';
+            board.style.display = 'inline-flex';
+            board.style.alignItems = 'center';
 
             board.appendChild(label);
             board.appendChild(elem);
