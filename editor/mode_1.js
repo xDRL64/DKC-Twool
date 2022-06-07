@@ -9,6 +9,7 @@
 		let workspace = app.interface.workspace;
 		let srcFilePanel = app.interface.srcFilePanel;
 		let wLib = app.editor;
+		let wLib2 = app.WorkspaceToolPack;
 
 		// empty workspace (to empty html child elements)
 		workspace.elem.textContent = "";
@@ -35,8 +36,113 @@
 			}
 		};
 
+		o.mode_1 = document.createElement('div');
+		o.mode_1.style.position = 'relative';
+
+		let settingsPanel = document.createElement('div');
+		settingsPanel.style.position = 'absolute';
+		settingsPanel.style.width = '20%';
+		settingsPanel.style.height = '100%';
+
+		let selectSrcFile = document.createElement('select');
+
+		//let selectBpp = document.createElement('select');
+		let selectBpp = wLib2.DropList('bpp : ');
+		for(let i=2; i<9; i *= 2){
+			/* let op = document.createElement('option');
+			op.textContent = i+'bpp';
+			op.setAttribute('value', i);
+			selectBpp.appendChild(op); */
+			selectBpp.generate_item(i,i);
+		}
+		selectBpp.elem.value = 4;
+		o.mode_1.appendChild(selectBpp.board);
+
+		settingsPanel.appendChild(selectSrcFile);
+		o.mode_1.appendChild(settingsPanel);
+
+		let renderSpace = document.createElement('div');
+		renderSpace.style.position = 'absolute';
+		renderSpace.style.width = '80%';
+		renderSpace.style.height = '100%';
+		renderSpace.style.right = 0;
+		o.mode_1.appendChild(renderSpace);
+
+		workspace.elem.appendChild(o.mode_1);
+
+		selectBpp.elem.onchange =
+		selectSrcFile.onchange =
+		function(){
+			update_render();
+		};
+
+		let update_render = function(){
+
+			let data = null;
+
+			// get src file
+			let val = selectSrcFile.value;
+			if(val === 'all'){
+				data = slot.get_data__OLD();
+			}else if(val === 'rom'){
+				data = srcFilePanel.rom.fileData[0];
+			}else{
+				let index = parseInt(val) || 0;
+				data = slot.get_data()[index];
+			}
+
+			// render
+			let bpp = selectBpp.elem.value;
+			let bppSizeBitShift = ({2:4,4:5,8:6})[bpp];
+			let xtmax = 16;
+			let h = Math.ceil( (data.length>>bppSizeBitShift) / xtmax ) << 3;
+			let w = xtmax << 3;
+			let s = 1;
+		
+			let viewport = wLib.create_preview(w,h, s);
+			let ctx = viewport.ctx;
+			renderSpace.innerHTML = '';
+			renderSpace.appendChild(viewport.elem);
+
+			let pal = app.gfx.defaultPalettes[1];
+			//app.gfx[_gfx].draw_4bppTileset(data, pal, 0,0, 16, ctx);
+			app.gfx.fast[`draw_${bpp}bppTileset`](data, pal, 0,0, xtmax, ctx);
+
+		};
+
 		// update
 		o.update = function(trigger){
+
+			if(trigger==='reset' || trigger==='tileset' || trigger==='rom'){
+				// fill src list
+				selectSrcFile.innerHTML = '';
+				let len = slot.multi;
+				let file;
+				for(let i=0; i<len; i++){
+					file = document.createElement('option');
+					file.textContent = slot.names[i];
+					file.setAttribute('value', i);
+					selectSrcFile.appendChild(file);
+				}
+				// add 'ALL IN ONE' option
+				if(len){
+					file = document.createElement('option');
+					file.textContent = 'ALL IN ONE';
+					file.setAttribute('value', 'all');
+					selectSrcFile.appendChild(file);
+				}
+				// add 'FROM ROM' option
+				if(srcFilePanel.check_slot('rom')){
+					file = document.createElement('option');
+					file.textContent = 'FROM ROM';
+					file.setAttribute('value', 'rom');
+					selectSrcFile.appendChild(file);
+				}
+			}
+
+
+
+			
 
 			if(slot.multi > 0){
 
