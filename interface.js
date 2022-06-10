@@ -356,10 +356,14 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 					o.fileIndex.disabled = false;
 				
 				let index = o.index;
+				let data = file.data;
 
-				o.fileData[index] = file.data;
+				if( !(data instanceof Uint8Array) )
+					data = new Uint8Array(data);
 
-				o.decompressed[index] = app.decompressor(file.data);
+				o.fileData[index] = data;
+
+				o.decompressed[index] = app.decompressor(data);
 				o.useDec[index] = file.useDec;
 
 				o.names[index] = file.name;
@@ -449,6 +453,14 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				for(let i=0; i<len; i++)
 					_o.push( o.useDec[i] ? o.decompressed[i] : o.fileData[i] );
 				return _o;
+			};
+
+			o.get_allInOne = function(typedArray=true){
+				let _o = [];
+				let len = o.multi;
+				for(let i=0; i<len; i++)
+					_o = _o.concat( ...(o.useDec[i] ? o.decompressed[i] : o.fileData[i]) );
+				return typedArray ? new Uint8Array(_o) : _o;
 			};
 
 			/* o.get_dataWithOwnerAccess_OLD = function(){

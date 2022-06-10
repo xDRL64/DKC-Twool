@@ -59,7 +59,7 @@ dkc2ldd.event = (function(app=dkc2ldd){
 			if (e.target.readyState === FileReader.DONE){
 				let binStr = e.target.result;
 				let size = binStr.length;
-				let data = [];
+				let data = new Uint8Array(size);
 				
 				for(let i=0; i<size; i++)
 					data[i] = binStr.charCodeAt(i);

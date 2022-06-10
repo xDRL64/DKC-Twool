@@ -4,6 +4,10 @@
 
 dkc2ldd.decompressor = (function(){
 
+	//let outputMaxSize = Number.MAX_SAFE_INTEGER;
+	let outputMaxSize = 0x800000; // ex-rom max size
+	
+
 	//
 	// // PROCESS LIB PART
 	//
@@ -12,21 +16,25 @@ dkc2ldd.decompressor = (function(){
 	
 		let len = bytes.length;
 		
-		let nibbleList = [];
+		//let nibbleList = [];
+		let nibbleList = new Uint8Array(len << 1); // mul by 2
+		let iNibble = 0;
+		let byte;
 		
 		for(let i=0; i<len; i++){
 		
-			let byte = bytes[i];
+			byte = bytes[i];
 		
-			nibbleList[nibbleList.length] = (byte&0xF0) >> 4;
-			
-			nibbleList[nibbleList.length] = byte&0x0F;
-			
+			nibbleList[iNibble] = (byte&0xF0) >> 4;
+			iNibble++;
+
+			nibbleList[iNibble] = byte&0x0F;
+			iNibble++;
 		}
 		
-		let output = new Uint8Array(nibbleList);
-			
-		return output;
+		//let output = new Uint8Array(nibbleList);
+		//return output;
+		return nibbleList;
 		
 	}
 
@@ -38,6 +46,7 @@ dkc2ldd.decompressor = (function(){
 	var read_nibble = function(){
 	
 		if(cIndex >= nibbleList.length) keepgoing = 0; // debug
+		// todo : the same for dIndex >= decOutput.length
 	
 		let output = nibbleList[cIndex];
 		
@@ -406,11 +415,15 @@ dkc2ldd.decompressor = (function(){
 	
 	var process = function(binData, printReadByteCount=false){
 	
+		if( !(binData instanceof Uint8Array) )
+			binData = new Uint8Array(binData);
+
 		nibbleList = convert_dataBytesToNibbleList(binData, false);
 
 		fTableOffset = 2; // frequency table start offset, read by nibble (read in nibbleList)
 		
-		decOutput = []; // decompressed output, write by byte
+	//	decOutput = []; // decompressed output, write by byte
+		decOutput = new Uint8Array(outputMaxSize);
 
 		cIndex = (1+38) * 2; // compressed index, count by nibble
 		
@@ -431,7 +444,8 @@ dkc2ldd.decompressor = (function(){
 			console.log('Decompressor log :\n\tRead byte count : ' + count + ' ' + hexStr);
 		}
 		
-		return new Uint8Array(decOutput);
+		//return new Uint8Array(decOutput);
+		return decOutput.slice(0, dIndex); // return Uint8Array
 	};
 	
 	return process;
