@@ -38,11 +38,40 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 	//   - backspace and delete keys can not erase prefix, even in selection.
 	//   - typing while cursor/selection is overlaping prefix, will write after prefix.
 	
+	// TODO : support XX:XXXXXX hex format
+	// regEx : /((?<p1>[0-9a-f]{1,}):(?<p2>[0-9a-f]{1,}))?((?<pref>0x)?(?<val>[0-9a-f]{1,}))?/i
+	/*
+		('0034:da12').match(/((?<p1>[0-9a-f]{1,}):(?<p2>[0-9a-f]{1,}))?((?<pref>0x)?(?<val>[0-9a-f]{1,}))?/i)?.groups
+		{p1: '0034', p2: 'da12', pref: undefined, val: undefined}
+
+		('0x034:da12').match(/((?<p1>[0-9a-f]{1,}):(?<p2>[0-9a-f]{1,}))?((?<pref>0x)?(?<val>[0-9a-f]{1,}))?/i)?.groups
+		{p1: undefined, p2: undefined, pref: '0x', val: '034'}
+
+		('FB:A40x034:da12').match(/((?<p1>[0-9a-f]{1,}):(?<p2>[0-9a-f]{1,}))?((?<pref>0x)?(?<val>[0-9a-f]{1,}))?/i)?.groups
+		{p1: 'FB', p2: 'A40', pref: undefined, val: undefined}
+
+		(';:;0x034da12').match(/((?<p1>[0-9a-f]{1,}):(?<p2>[0-9a-f]{1,}))?((?<pref>0x)?(?<val>[0-9a-f]{1,}))?/i)?.groups
+		{p1: undefined, p2: undefined, pref: undefined, val: undefined}
+
+		(';:;0x034:da12').match(/((?<p1>[0-9a-f]{1,}):(?<p2>[0-9a-f]{1,}))?((?<pref>0x)?(?<val>[0-9a-f]{1,}))?/i)?.groups
+		{p1: undefined, p2: undefined, pref: undefined, val: undefined}
+
+		
+
+		
+
+		if there are the both, '0x' pref and ':' separator, '0x' has priority but catching is done util ':'
+		As possible as, try not to do anything that does not make sense
+	*/
+
+
+
 	let HexInput = function(pref=''){
 
 		let elem = document.createElement('input');
 		let _min = 0;
 		let _max = Number.MAX_SAFE_INTEGER;
+		let _step = 1;
 		let _val = 0x0;
 		let prefLen = pref.length;
 		elem.setAttribute('value', pref+0);
@@ -51,6 +80,12 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 		Object.defineProperty(elem, 'max', {
 			get(){return _max},
 			set(v){let newMax=parseInt(v); _max=newMax===0?0:newMax||_max;},
+		});
+
+		// step value inc/dec with up/down arrow keys
+		Object.defineProperty(elem, 'step', {
+			get(){return _step},
+			set(v){v=parseInt(v??1); _step=v<1?1:v; },
 		});
 
 		// value properties :
@@ -135,8 +170,8 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 						// if no selection and if cursor is at left of prefix
 						if(startSel===prefLen && endSel===prefLen)
 							e.preventDefault();
-						else
-							update_val = true;
+						/* else
+							update_val = true; */
 					}
 				}
 
@@ -145,6 +180,11 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 				}
 			}
 		);
+
+		// let 'backspace/delete' keys normal erase behavior when that doesn't affect prexif
+		elem.addEventListener('input', function(){
+			_val = parseInt(this._value.substring(prefLen), 16) || 0;
+		});
 
 		// lock prefix text selection
 		// except while double click on the prefix text
@@ -199,11 +239,26 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 			function(e){
 				let sens = 0, k = e.key, up = k==='ArrowUp', down = k==='ArrowDown';
 				if(up|down){
-					if(_val < _max) sens ||= up   ?  1 : 0;
+					/* if(_val < _max) sens ||= up   ?  1 : 0;
 					if(_val > _min) sens ||= down ? -1 : 0;
 					if(sens){
 						e.preventDefault();
 						this.int += sens;
+						let end = this._value.length;
+						this.setSelectionRange(end,end);
+					} */
+					let val, move = false;
+					if(up){
+						val = Math.min(_val+_step, _max);
+						move = true;
+					}
+					if(down){
+						val = Math.max(_val-_step, _min);
+						move = true;
+					}
+					if(move){
+						e.preventDefault();
+						this.int = val;
 						let end = this._value.length;
 						this.setSelectionRange(end,end);
 					}
