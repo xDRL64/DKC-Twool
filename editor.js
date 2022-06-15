@@ -163,19 +163,20 @@ dkc2ldd.editor = (function(app=dkc2ldd){
 			o.xPos = 0;
 			o.yPos = 0;
 			
-		o.hoverBox = document.createElement("div");
-		o.hoverBox.style.width = "fit-content";
-		o.hoverBox.style.height = "fit-content";
-		o.hoverBox.style.padding = hoverPadding;
+		let hoverBox = document.createElement("div");
+		hoverBox.style.width = "fit-content";
+		hoverBox.style.height = "fit-content";
+		hoverBox.style.padding = hoverPadding;
 		
-		o.hoverBox.appendChild(o.elem);
+		hoverBox.appendChild(o.elem);
+		o.elem = hoverBox;
 	
 		o.get_mousePos = function(mouseEvent){
 			return _o.get_offsetXY(mouseEvent, o);
 		};
 	
 		o.init = function(parent){
-			parent.appendChild(o.hoverBox);
+			parent.appendChild(hoverBox);
 		};
 		
 		return o;
@@ -232,6 +233,86 @@ dkc2ldd.editor = (function(app=dkc2ldd){
 		};
 		
 		return o;
+	};
+
+	o.create_snesPaletteSelector = function(snespal, bpp=4, scale=16){
+
+		form_pal = app.gfx.fast.snespalTo24bits;
+		draw_pal = app.gfx.fast.draw_palettes;
+
+		let _o = this;
+
+		let colorCount = snespal.length >> 1; // div by 2
+		let palWidth = 16;
+		let palHeight = colorCount >> 4; // div by 16
+
+		let wp = ({2:4,4:16,8:16})[bpp];
+		let hp = ({2:1,4:1,8:16})[bpp];
+		let cursors = [['select',wp,hp],['hover',wp,hp]];
+		let o = _o.create_hoverPreview(palWidth,palHeight, scale, cursors, 0, 0);
+		o.cursor.select.setColor('#ff0');
+		o.cursor.select.setBorderSize(2);
+		o.cursor.hover.setBorderSize(-1);
+
+		let palettes = form_pal(snespal, bpp);
+
+		draw_pal(palettes, bpp, o.ctx);
+
+		let _value = 0;
+		let outOfPal = false;
+		let iPalette = 0, xPal = 0, yPal = 0;
+
+		let update_pos = function(xMousePos, yMousePos){
+			let floor = Math.floor;
+			let x = floor(xMousePos/scale);
+			let y = floor(yMousePos/scale);
+			
+			if(bpp === 2){
+				iPalette = (y << 2) + (x >> 2); // mul/div by 4
+				xPal     = iPalette % 4;
+				yPal     = iPalette >> 2; // div by 4
+			}
+			if(bpp === 4){
+				iPalette = y;
+				xPal     = 0;
+				yPal     = iPalette;
+			}
+			if(bpp === 8){
+				iPalette = y >> 4; // mul by 16
+				xPal     = 0;
+				yPal     = iPalette;
+			}
+		};
+
+		let _callback = null;
+
+		let set_hoverPal = function(){
+			o.cursor.hover.gridMove(xPal,yPal);
+			//xcPal = xPal; ycPal = yPal;
+		};
+		let select_pal = function(){
+			o.cursor.select.gridMove(xPal,yPal);
+			_value = iPalette;
+			_callback?.();
+		};
+
+		o.elem.onmousemove = function(e){
+			let pos = o.get_mousePos(e);
+			update_pos(pos.x,pos.y);
+			set_hoverPal();
+		};
+		o.elem.onmousedown = function(e){
+			if((e.buttons&0x1) === 1) select_pal(); // left click
+		};
+
+		set_hoverPal();
+		select_pal();
+
+		return {
+			elem:o.elem,
+			get palette(){return palettes[_value];},
+			set callback(v){_callback=v;},
+		};
 	};
 
 	o.create_foldableItem = function(){

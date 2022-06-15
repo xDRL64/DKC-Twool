@@ -97,7 +97,7 @@
 			// prototype editor version
 			////////////////////////////
 	
-			o.f8x8Prev.hoverBox.onmousemove = function(e){
+			o.f8x8Prev.elem.onmousemove = function(e){
 				let pos = o.f8x8Prev.get_mousePos(e);
                 let scale = o.f8x8Prev.S;
                 let xt = Math.floor(pos.x/scale);
@@ -124,7 +124,7 @@
 				currentColorIndex = Math.floor(pos.x/16); // replace 16 by scale system value
 
 				//console.log(currentColorIndex)
-				//o.viewport.hoverBox.onmousemove(e);
+				//o.viewport.elem.onmousemove(e);
 
                 // update current pen color index
 				o.palPreview.cursor.third.gridMove(currentColorIndex,0);
@@ -146,14 +146,14 @@
 					_hFlip,_vFlip, o.viewport.ctx, tileObj.xtf*8, tileObj.ytf*8);
 			};
 			
-			o.viewport.hoverBox.onclick = function(e){
+			o.viewport.elem.onclick = function(e){
 				let pos = o.viewport.get_mousePos(e);
 				drawMousePos(pos);
-				o.viewport.hoverBox.onmousemove(e);
+				o.viewport.elem.onmousemove(e);
 			};
 
             	
-			o.viewport.hoverBox.onmousemove = function(e){
+			o.viewport.elem.onmousemove = function(e){
 
 				// get hover preview position (precise e.offsetXY)
 				let pos = o.viewport.get_mousePos(e);

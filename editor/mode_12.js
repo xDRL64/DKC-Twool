@@ -151,7 +151,7 @@
 			o.view.style.backgroundImage = "url("+app.imgPack.alphaTex+")";
 			o.view.style.backgroundSize = "16px";
 
-			o.hoverBox.style.border = "2px solid red";
+			o.elem.style.border = "2px solid red";
 			return o;
 		};
 
@@ -236,7 +236,7 @@
 			// to cells connexion (output panel)
 			gfxPan.srcFile.appendChild(IO.screen.srcFile.elem);
 			gfxPan.buffer.appendChild(IO.screen.buffer.elem);
-			gfxPan.type.appendChild(IO.screen.type.hoverBox);
+			gfxPan.type.appendChild(IO.screen.type.elem);
 
 			return {grid:grid, elems:IO};
 		};
@@ -396,7 +396,7 @@
 			gfxPan_anim_buffer.appendChild(IO.screen.anim_buffer.elem);
 
 			gfxPan_vram.appendChild(IO.screen.vram_buffer.elem);
-			gfxPan_type.appendChild(IO.screen.type_buffer.hoverBox);
+			gfxPan_type.appendChild(IO.screen.type_buffer.elem);
 
 
 			return {grid:grid, elems:IO};
@@ -648,7 +648,7 @@
 					}
 				};
 
-				hoverPreview.hoverBox.onmousemove = function(e){
+				hoverPreview.elem.onmousemove = function(e){
 					let pos = hoverPreview.get_mousePos(e);
 					update_pos(pos.x,pos.y);
 					
@@ -659,7 +659,7 @@
 					console.log(iColor, iPalette, outOfPal);
 				};
 
-				hoverPreview.hoverBox.onmousedown = function(e){
+				hoverPreview.elem.onmousedown = function(e){
 					e.preventDefault();
 
 					if(!outOfPal){
@@ -670,7 +670,7 @@
 
 				};
 
-				hoverPreview.hoverBox.oncontextmenu = function(e){
+				hoverPreview.elem.oncontextmenu = function(e){
 					e.preventDefault();
 					e.stopPropagation();
 				};
@@ -1041,13 +1041,13 @@
 					}
 				};
 
-				hoverPreview.hoverBox.onmousemove = function(e){
+				hoverPreview.elem.onmousemove = function(e){
 					let pos = hoverPreview.get_mousePos(e);
 					update_pos(pos.x,pos.y);
 					if(e.buttons&0x1) put_pixel();
 				};
 	
-				hoverPreview.hoverBox.onmousedown = function(e){
+				hoverPreview.elem.onmousedown = function(e){
 					e.preventDefault();
 					if((e.buttons&0x1) === 1) put_pixel(); // left click
 					if((e.buttons&0x4) === 4) get_pixel(); // middle click
@@ -1055,7 +1055,7 @@
 					if((e.buttons&0x3) === 3) write_tile(); // right + left click
 				};
 
-				hoverPreview.hoverBox.oncontextmenu = function(e){
+				hoverPreview.elem.oncontextmenu = function(e){
 					e.preventDefault();
 					e.stopPropagation();
 				};
