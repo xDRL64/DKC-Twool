@@ -111,6 +111,10 @@
 
 <script defer>
 if(true){
+
+
+
+
 	/*
 	let app = dkc2ldd;
 
@@ -158,18 +162,36 @@ if(true){
 	PAL.write();
 	*/
 
-
-	console.log('body');
-	console.log(dkc2ldd.WorkspaceToolPack.HexInput);
 	// test
-	let label_hexInput = document.createElement('label');
-	label_hexInput.for = 'id_hexInput';
-	label_hexInput.textContent = 'label : ';
-	dkc2ldd.interface.workspace.elem.appendChild(label_hexInput);
+	let Elem = dkc2ldd.WorkspaceToolPack.CreateElem;
+	let HexInput = dkc2ldd.WorkspaceToolPack.HexInput;
 
-	let hexInput = dkc2ldd.WorkspaceToolPack.HexInput('0x');
-	hexInput.id = 'id_hexInput';
-	dkc2ldd.interface.workspace.elem.appendChild(hexInput);
+	let label1 = Elem('label', {txtCnt:'default : '});
+	let label2 = Elem('label', {txtCnt:'optPrefPio : '});
+	
+
+	//let hexInput = HexInput('0x',['DATA_','ff:'], true);
+
+
+	// pref='',
+	// mainPrefCatch=true,
+	// prefsCatch=[],
+	// prefsPriority, // priority on bank separator format catch
+	// onlyAfterColonCatch, // can catch only after colon ':' char except on bank separator case
+	// ignoreBankNum
+
+	let hexInput1 = HexInput('FF:', true, ['FF:'], false, false, false);
+	let hexInput2 = HexInput('FF:', false, ['FF:'], true, false, false);
+
+
+	dkc2ldd.interface.workspace.elem.appendChild(label1);
+	dkc2ldd.interface.workspace.elem.appendChild(hexInput1);
+	dkc2ldd.interface.workspace.elem.appendChild(Elem('BR'));
+
+	dkc2ldd.interface.workspace.elem.appendChild(label2);
+	dkc2ldd.interface.workspace.elem.appendChild(hexInput2);
+	dkc2ldd.interface.workspace.elem.appendChild(Elem('BR'));
+
 
 	dkc2ldd.interface.workspace.elem.style.display = 'block';
 
@@ -178,8 +200,4 @@ if(true){
 
 	
 </html>
-
-
-
-
 
