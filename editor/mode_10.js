@@ -161,10 +161,10 @@
 					snespal = app.lib.arrayAsFunction.fromArrayList(snespal);
 	
 					let palettes = app.gfx.fast.snespalTo24bits(snespal);
-					app.gfx.fast.draw_palettes(palettes, o.viewport.ctx);
+					app.gfx.fast.draw_palettes(palettes, 4, o.viewport.ctx);
 	
 					//let palettes = app.gfx.safe.snespalTo24bits(snespal);
-					//app.gfx.safe.draw_palettes(palettes, o.viewport.ctx);
+					//app.gfx.safe.draw_palettes(palettes, 4, o.viewport.ctx);
 					//app.gfx.fast.draw_snespal(snespal, o.viewport.ctx);
 					//app.gfx.safe.draw_snespal(snespal, o.viewport.ctx);
 				}
@@ -280,12 +280,12 @@
 					let snespal = srcFilePanel.palette.get_data();
 					snespal = app.lib.arrayAsFunction.fromArrayList(snespal);
 					let palettes = app.gfx.fast.snespalTo24bits(snespal);
-					//app.gfx.fast.draw_palettes(palettes, palFilesPrev.ctx);
+					//app.gfx.fast.draw_palettes(palettes, 4, palFilesPrev.ctx);
 					app.gfx.fast.draw_snespal(snespal, palFilesPrev.ctx);
 
 					// buff
 					palettes = app.gfx.fast.snespalTo24bits(PAL.get_buffer());
-					app.gfx.fast.draw_palettes(palettes, palBufferPrev.ctx);
+					app.gfx.fast.draw_palettes(palettes, 4, palBufferPrev.ctx);
 
 					// type
 					app.gfx.fast.draw_decodedPalette(PAL.type.decoded2, decoded2Prev.ctx);
