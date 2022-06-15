@@ -39,6 +39,34 @@
                 let parameters = srcFilePanel.mapchip.parameters.value.match(/\w{1,}/g) || [];
                 let _p = parameters;
 
+                if(_p[2] === '2bpp'){
+                    let xcmax = parseInt(_p[0]) || 16;
+                    let scale = parseInt(_p[1]) || 1;
+    
+                    // get source file slot resources
+                    let snespal = srcFilePanel.palette.get_data__OLD();
+                    let palettes = app.gfx.fast.snespalTo24bits(snespal, 2);
+                    
+                    let tileset = srcFilePanel.tileset.get_data__OLD();
+    
+                    let mapchip = srcFilePanel.mapchip.get_data__OLD();
+    
+                    let len = mapchip.length / 32;
+    
+                    // create mapchip viewport
+                    let W = xcmax * 32;
+                    let H = Math.ceil(len/xcmax) * 32;
+    
+                    o.viewport = wLib.create_preview(W, H, scale);
+                    workspace.elem.appendChild(o.viewport.view);
+                    
+                    //app.gfx.draw_oneChip(tileset, mapchip, 120, palettes, o.viewport.ctx);
+                    let bpp = 2	
+                    app.gfx.draw_mapchip(tileset, mapchip, palettes, xcmax, o.viewport.ctx, bpp);
+                    
+                    return;
+                }
+
                 if(_p[0] !== 'vram'){
                     let xcmax = parseInt(_p[0]) || 16;
                     let scale = parseInt(_p[1]) || 1;
