@@ -4,7 +4,15 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 
 	// Unsigned Hexadecimal HTML Input
 	//////////////////////////////////
-	// 'pref'    arg  : is the hex prefix you want (0x/$/hex/etc..).
+	// 'pref'                 arg : is the hex prefix you want to display in hexInput ('0x'/'$'/'hex:'/etc..).
+	// 'prefsCatch'            arg : are optional prefixes you want to filter by pasting
+	// 'bankSperatorPriority' arg : while optional prefixes filtering, if some of them make confusion with standard bank separator,
+	//                              true  : give priority to standard bank separator catch,
+	//                              false : give priority to the optional prefix catch making confusion.
+	//                              Confusing optional prefix examples : 'hexa:', 'value:', 'FF:', 'v0:'.
+	//                              Example for 'Hexa:' as optional prefix and 'Hexa:FF5BC2' as pasting value :
+	//                              - with 'true' it catches : 'AFF5BC2'
+	//                              - with 'false' it catches : 'FF5BC2'
 	// '.prefix' prop : allows to change the hex prefix.
 	// '.int'    prop : allows to change the internal value.
 	// '.max'    prop : allows to define max input value limit.
@@ -21,18 +29,8 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 	// - CTRL + X : copy exactly what is selected, but cut value only in HexInput.
 	// - CTRL + V : smart pasting from clipboard to HexInput :
 	//   - while trying to past '2CF3' it will past '2CF3'.
-	//   - while trying to past '0x2CF3' it will past '2CF3'.
-	//   - while trying to past '$2CF3' it will past '2CF3'.
-	//   - while trying to past 'hex:2CF3' it will past '2CF3'.
-	//   - while trying to past '2CF3h' it will past '2CF3'.
-	//   - while trying to past '*=/-+;,:_.2CF3' it will past '2CF3'.
-	//   - while trying to past '0x002CF3' it will past '2CF3'.
-	//   - while trying to past '0xx2CF3' it will past '0'.
-	//   - while trying to past '00x2CF3' it will past '0'.
-	//   - while trying to past '123str2CF3' it will past '123'.
-	//   - this is the exact js RegEx : /(?<pref>0x)?(?<val>[0-9a-f]{1,})/i
-	//     - see the next one to figure out better : /(?:0x)?[0-9a-f]{1,}/gi
-	//     - then it is gave to parseInt to remove useless zeros
+
+
 	// - up/down arrow keys to increment/decrement value.
 	// - prefix protection :
 	//   - backspace and delete keys can not erase prefix, even in selection.
@@ -56,17 +54,17 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 		(';:;0x034:da12').match(/((?<p1>[0-9a-f]{1,}):(?<p2>[0-9a-f]{1,}))?((?<pref>0x)?(?<val>[0-9a-f]{1,}))?/i)?.groups
 		{p1: undefined, p2: undefined, pref: undefined, val: undefined}
 
-		
-
-		
-
 		if there are the both, '0x' pref and ':' separator, '0x' has priority but catching is done util ':'
 		As possible as, try not to do anything that does not make sense
 	*/
 
 
 
-	let HexInput = function(pref=''){
+	let HexInput = function(pref='', mainPrefCatch=true, prefsCatch=[],
+							prefsPriority, // priority on bank separator format catch
+							onlyAfterColonCatch, // can catch only after colon ':' char except on bank separator case
+							ignoreBankNum // ignore bank num in bank separator case, catch only after colon ':' char
+							){
 
 		let elem = document.createElement('input');
 		let _min = 0;
@@ -149,10 +147,126 @@ dkc2ldd.ScriptPackLoader.connector().wrapper = (function(){
 					let beforeSel = curVal.substring(0, startSel);
 					let afterSel = curVal.substring(endSel);
 	
-					// input hex value checking
-					let input = (e.data.match(/(?<pref>0x)?(?<val>[0-9a-f]{1,})/i)?.groups?.val || '');
+
+
+
+					// ARG PRIORITY FLAGS :
+
+						// mainPrefCatch :
+						//   true  : do the 1st try
+						//   false : cancel the 1st try
+
+						// prefsPriority :
+						//   true  : 4th try has highest priority except if onlyAfterColonCatch is enable and has catched something
+						//   false : normal priority (as 4th try)
+
+						// onlyAfterColonCatch :
+						//   true  : 3rd-C try has highest priority on everything if 3rd-AB try failed
+						//   false : cancel the 3rd-C try
+
+						// ignoreBankNum :
+						//   true  : do the 3rd-B try and cancel the 3rd-A try
+						//   false : do the 3rd-A try and cancel the 3rd-B try
+
+
+
+					// PASTING INPUT LOGIC :
+
+						// [1ST] catch try : main HexInput hex prefix
+						//
+						//		: if [mainPrefCatch is at true]
+
+
+						// [2ND] catch try : standard 0x hex prefix
+						//
+						//		: if [1ST catch try failed] && [mainPrefCatch is at false]
+						//        || [1ST catch try failed] && [main pref is not '0x']
+						//        || [not already catch in the 1st try by main prefix as '0x']
+
+
+						// [3RD] (A) catch try : whole standard bank separator hex format
+						//
+						//		: if [2ND catch try failed]
+						//        && [ignoreBankNum is at false]
+
+						// [3RD] (B) catch try : after standard bank separator catch
+						//
+						//		: if [2ND catch try failed]
+						//        && [ignoreBankNum is at true]
+
+						// [3RD] (C) catch try : only after colon rule catch
+						//
+						//		: if [3RD AB catch try failed]
+						//        && [onlyAfterColonCatch is at true]
+
+
+						// [4TH] catch try : optional hex prefixes of arg : prefsCatch
+						//		: if [3RD ABC catch try failed]
+						//        || [prefsPriority is at true] && [3RD C try failed/disable]
+
+
+						// [5TH] catch try : take and concat all hex char found
+						//
+						//		: if [all previous catch tries failed]
+
+
+
+
+
+
+					// input hex value checking (the next complex process is especially required on input pasting cases)
+					
+					// [1ST] catch try : choosen HexInput hex prefix
+					let input, _pref;
+					if(mainPrefCatch){
+						_pref = new RegExp( `((?<pref>${pref})([\\s])*(?<val>[0-9a-f]{1,}))`, 'i' );
+						input = e.data.match(_pref)?.groups?.val || '';
+					}else
+						input = '';
+
+					if(!input){
+						// [2ND] catch try : standard 0x hex prefix
+						if(!mainPrefCatch || pref !== '0x')
+							input = (e.data.match(/(?<pref>0x)\s*(?<val>[0-9a-f]{1,})/i)?.groups?.val || '');
+
+						// [3RD] catch try : "very exact" standard bank seperator format "hexval:hexval"
+						// ("very exact" means only white space before and after are allowed as exception)
+						let cancelPrefsPrio = false;
+						let bankSeparatorCatch = e.data.match( /^(\s*)(?<p1>[0-9a-f]{1,})(\s*):(\s*)(?<p2>[0-9a-f]{1,})(\s*)$/i )?.groups;
+						if(bankSeparatorCatch){
+							if(!ignoreBankNum)
+								input = (bankSeparatorCatch.p1 + bankSeparatorCatch.p2) || '';
+							else
+								input = bankSeparatorCatch.p2 || '';
+						}else if(onlyAfterColonCatch){
+							input = e.data.match( /:(\s*)(?<val>[0-9a-f]{1,})/i )?.groups?.val || '';
+							if(input) cancelPrefsPrio = true;
+						}
+
+						if(!input || (prefsPriority && !cancelPrefsPrio)){
+							// [4TH] catch try : optional hex prefixes of arg : prefsCatch
+							for(let i=0; i<prefsCatch.length; i++){
+								// catching
+								_pref = new RegExp( `(?<pref>${prefsCatch[i]})([\\s])*(?<val>[0-9a-f]{1,})`, 'i' );								
+								input = e.data.match(_pref)?.groups?.val || input || '';
+								if(input) break;
+							}
+
+						}
+
+						if(!input){
+							// [5TH] catch try : take and concat all hex char found
+							let result = e.data.match(/[(0-9a-f)]{1,}/gi) || [];
+							if(result.length === 0)
+								input = '';
+							else
+								input = result.join('');
+						}
+						
+					}
+
 					input = (input==='') ? '' : parseInt(input,16).toString(16).toUpperCase(); // remove first zero(s)
-	
+
 					// input value storage update
 					this._value = beforeSel + input + afterSel;
 	
