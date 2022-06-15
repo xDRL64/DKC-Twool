@@ -8,6 +8,7 @@
         // {path:'/betaDev/examples/myExample.js', location:'mainobject', ownParentNameChain:'AllExmplObj.myExObj'}
         {path:'/betaDev/HtmlHexInput/HexInput.js', location:'scriptpack', ownParentNameChain:'HexInput'},
         {path:'/betaDev/DropList.js', location:'scriptpack', ownParentNameChain:'DropList'},
+        {path:'/betaDev/CreateElem.js', location:'scriptpack', ownParentNameChain:'CreateElem'},
     ];
 
     let parameters = {
