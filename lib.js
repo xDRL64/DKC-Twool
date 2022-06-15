@@ -301,10 +301,21 @@ dkc2ldd.lib = (function(app=dkc2ldd){
 				// k : keepProcessCondition
 
 				// as developer use especially : N n S c
-					// N : start to 0 (relative to process)
+					// N : start to 0 (relative to the process beginnig)
 					// n : start to index in the "considerated big array" formed by all arrays in loopList
 					// S : source array to read in and write in (corresponding to n)
 					// c : index (corresponding to n) to read and write in S
+
+					/*  loopList.create(4, 7+7+7, [array_0,array_1,array_2])
+
+						start here
+							 | N:0 (:default, 0 to the "relative of n" last index : size-n-1)
+							 | n:4 (:choosen at loopList creation, 4 to last index : size-1)
+						     v
+						|-------||-------||-------|
+						 array_0  array_1  array_2
+						 size:7   size:7   size:7
+					*/
 
 					// example process code
 					console.log( L.N, L.n, L.S[L.c] );
