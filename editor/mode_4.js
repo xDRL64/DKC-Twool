@@ -320,6 +320,7 @@
 	
         };
 
+		let bpp = 4;
         // update
         o.update = function(trigger){
 
@@ -329,7 +330,7 @@
                 workspace.elem.textContent = "";
 
                 snespal = srcFilePanel.palette.get_data__OLD();
-                palettes = app.gfx.fast.snespalTo24bits(snespal);
+                palettes = app.gfx.fast.snespalTo24bits(snespal, bpp);
 
                 tileset = srcFilePanel.tileset.get_data__OLD();
                 mapchip = srcFilePanel.mapchip.get_data__OLD();
@@ -363,8 +364,9 @@
 
                 set_event();
 
+				
                 if(lvlDirection === 'h')
-                    app.gfx.draw_hLvlTilemap(_tileset, tileMax, _mapchip, _tilemap, palettes, o.viewport.ctx);
+                    app.gfx.draw_hLvlTilemap(_tileset, tileMax, _mapchip, _tilemap, palettes, o.viewport.ctx, bpp);
                 if(lvlDirection === 'v')
                     app.gfx.draw_vLvlTilemap(_tileset, tileMax, _mapchip, _tilemap, palettes, o.viewport.ctx);
             }
