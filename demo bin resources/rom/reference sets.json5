@@ -182,6 +182,15 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 
 	// MINE THEME
 
+	"Windy Well Palette" : {
+		palette : [
+			{
+				name: 'windywell palette',
+				address: 0x3D248E, size: 0x100, compressed: false,
+			},
+		],
+	},
+
 	"Mine Sparkling Background / Intro Sparkling Background" : {
 		bgtileset : [
 			{
@@ -193,8 +202,28 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 			},
 		],
 		background : [
-			{ name:'mine/intro sparkling bg mapchip',
-				address: 0x19F7C9, size: 0x1B2, compressed: true
+			{	
+				name: 'mine/intro sparkling bg mapchip',
+				address: 0x19F7C9, size: 0x1B2, compressed: true,
+			},
+		],
+	},
+
+	"Mine Debris Foreground" : {
+		bganimation : [
+			{
+				name: 'mine debris fg tileset',
+				address: 0x330EBB, size: 0x880, compressed: false,
+				vram: {
+					dstIndex: 1, animTiles: 17, frameCount: 8,
+					bpp: 2,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'mine debris fg mapchip',
+				address: 0x2D8415, size: 0x16F, compressed: true,
 			},
 		],
 	},
@@ -277,6 +306,19 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 
 	// FOREST THEME
 
+	"Gusty Glade Palette + Leaves Palette" : {
+		palette : [
+			{
+				name: 'gustyglade palette',
+				address: 0x3D0610, size: 0xE0, compressed: false,
+			},
+			{
+				name: 'forest/brambles leaves palette',
+				address: 0x3D268E, size: 0x20, compressed: false,
+			},
+		],
+	},
+
 	"Web Woods Palette" : {
 		palette : [
 			{
@@ -290,6 +332,10 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 		bgtileset : [
 			{
 				name: 'forest trees bg tileset',
+				// size : 0x1000 in ROM ref : bank_FD.asm
+				// size : 0x1040 in ROM ref : bank_FB.asm
+				// mapchip tile index 0-253;
+				// 254tiles * 16bytes(in2bpp) = 0xFE0
 				address: 0x3B6FC0, size: 0xFE0, compressed: false,
 				vram: {
 					bpp: 2, dstIndex: 0,
@@ -323,16 +369,6 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 	},
 
 	"Forest Leaves Foreground" : {
-		palette : [
-			{
-				name: 'webwoods palette',
-				address: 0x3D3A4E, size: 0xE0, compressed: false,
-			},
-			{
-				name: 'forest/brambles leaves palette',
-				address: 0x3D268E, size: 0x20, compressed: false,
-			},
-		],
 		bganimation : [
 			{
 				name: 'forest/brambles leaves fg tileset',
@@ -347,6 +383,43 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 			{
 				name: 'forest leaves fg mapchip',
 				address: 0x298B07, size: 0x161, compressed: true,
+			},
+		],
+	},
+
+	// CASTLE THEME
+
+	"Castle Level Palette" : {
+		palette : [
+			{
+				name: 'castle palette',
+				address: 0x3D2DEE, size: 0x100, compressed: false,
+			},
+		],
+	},
+
+	"Castle Level Tileset" : {
+		tileset : [
+			{
+				name: 'castle part1 lvl/any tileset',
+				address: 0x2199BE, size: 0x2580, compressed: false,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
+			},
+			{
+				name: 'castle part2 lvl/any tileset',
+				address: 0x29A905, size: 0x3432, compressed: true, offset: 0x2580, extract: 0x22C0,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
+			},
+			{
+				name: 'castle part3 lvl/any tileset',
+				address: 0x21BF3E, size: 0x37BF, compressed: false,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
 			},
 		],
 	},
