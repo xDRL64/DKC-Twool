@@ -129,23 +129,26 @@
 	//
 	// // SNESPAL TO 24BITS
 	//
-	// returns formatedPalette4 with no limite of palettes
+	// returns formatedPalette with no limite of palettes
 
-	fast.snespalTo24bits = function(data){
+	fast.snespalTo24bits = function(data, bpp=4){
 
-		let float_len = data.length / 2;
-		let palMax = Math.ceil(float_len / 16);
-
+		let len = data.length >> 1; // div by 2
+		let palMax = len >> bpp; // div by [4 | 16 | 256]
+		
 		// convert to 24 bits
 		let offset = 0;
 		let r,g,b, c;
 		let palettes = [];
 		let palette;
         let _5to8 = gfx._5to8;
+
+		let colMax = 1 << bpp;
+
         for(let iPal=0; iPal<palMax; iPal++){
             palette = [];
             palettes.push( palette );
-            for(let iCol=0; iCol<16; iCol++){
+            for(let iCol=0; iCol<colMax; iCol++){
             
                 // use byte swap
                 c = (data[offset+1] << 8) + data[offset];
@@ -165,43 +168,7 @@
 		return palettes;
 	};
 
-	safe.snespalTo24bits = function(data){
-
-		let float_len = data?.length / 2;
-		let palMax = Math.floor(float_len / 16);
-
-        palMax = palMax<8 ? 8 : palMax;
-
-		let offset = 0;
-		let r,g,b, c;
-		let palettes = [];
-		let palette;
-        let _5to8 = gfx._5to8;
-        for(let iPal=0; iPal<palMax; iPal++){
-			palette = [];
-            palettes.push( palette );
-            for(let iCol=0; iCol<16; iCol++){
-            
-                // use byte swap
-                c = (data[offset+1] << 8) + data[offset];
-
-				offset += 2;
-            
-				c = app.lib.checkVal.both(c, 0);
-
-                r = (c & 0x001F);
-                g = (c & 0x03E0) >> 5;
-                b = (c & 0x7C00) >> 10;
-                
-				// convert to 24 bits
-                c = [_5to8[r], _5to8[g], _5to8[b]];
-
-                palette.push(c);
-            }
-        }
-
-		return palettes;
-	};
+	safe.snespalTo24bits = fast.snespalTo24bits;
 
 
 	//
@@ -254,17 +221,21 @@
 	//
 	// // DRAW PALETTES
 	//
-	// draws formatedPalette4 with no limite of palettes
+	// draws formatedPalette with no limite of palettes
     
-	fast.draw_palettes = function(palettes, ctx){
+	fast.draw_palettes = function(palettes, bpp=4, ctx){
 
-		let palMax = palettes.length;
+		let len = palettes.length;
+		let palHeight = ({2:len>>2,4:len,8:len<<4})[bpp];
+		let palMax = len;
 		
-        let pixels = ctx.createImageData(16, palMax);
+        let pixels = ctx.createImageData(16, palHeight);
         let pix = 0;
 
+		let colMax = 1 << bpp;
+
 		for(let iPal=0; iPal<palMax; iPal++){
-			for(let iCol=0; iCol<16; iCol++){
+			for(let iCol=0; iCol<colMax; iCol++){
 		
 				pixels.data[pix  ] = palettes[iPal][iCol][0]; // r
 				pixels.data[pix+1] = palettes[iPal][iCol][1]; // g
