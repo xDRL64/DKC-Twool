@@ -55,6 +55,30 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		
 	];
 
+	o.defaultSnespal = [
+		5,0,7,0,9,0,10,0,12,0,14,0,16,0,17,0,19,0,21,0,23,0,24,0,26,0,28,0,30,0,31,0,160,0,224,
+		0,32,1,64,1,128,1,192,1,0,2,32,2,96,2,160,2,224,2,0,3,64,3,128,3,192,3,224,3,0,20,0,28,
+		0,36,0,40,0,48,0,56,0,64,0,68,0,76,0,84,0,92,0,96,0,104,0,112,0,120,0,124,160,20,224,28,
+		32,37,64,41,128,49,192,57,0,66,32,70,96,78,160,86,224,94,0,99,64,107,128,115,192,123,224,
+		127,5,20,7,28,9,36,10,40,12,48,14,56,16,64,17,68,19,76,21,84,23,92,24,96,26,104,28,112,30,
+		120,31,124,165,0,231,0,41,1,74,1,140,1,206,1,16,2,49,2,115,2,181,2,247,2,24,3,90,3,156,3,
+		222,3,255,3,165,20,231,28,41,37,74,41,140,49,206,57,16,66,49,70,115,78,181,86,247,94,24,
+		99,90,107,156,115,222,123,255,127,173,53,206,57,239,61,16,66,82,74,115,78,148,82,181,86,
+		247,94,24,99,57,103,90,107,156,115,189,119,222,123,255,127
+	];
+
+	o.debugSnespal = [
+		16,66,31,0,224,3,0,124,255,3,31,124,224,127,255,127,0,0,16,0,0,2,0,64,16,2,16,64,0,66,213,
+		53,16,66,31,0,224,3,0,124,255,3,31,124,224,127,255,127,0,0,16,0,0,2,0,64,16,2,16,64,0,66,
+		213,53,16,66,31,0,224,3,0,124,255,3,31,124,224,127,255,127,0,0,16,0,0,2,0,64,16,2,16,64,0,
+		66,213,53,16,66,31,0,224,3,0,124,255,3,31,124,224,127,255,127,0,0,16,0,0,2,0,64,16,2,16,
+		64,0,66,213,53,16,66,31,0,224,3,0,124,255,3,31,124,224,127,255,127,0,0,16,0,0,2,0,64,16,2,
+		16,64,0,66,213,53,16,66,31,0,224,3,0,124,255,3,31,124,224,127,255,127,0,0,16,0,0,2,0,64,16,
+		2,16,64,0,66,213,53,16,66,31,0,224,3,0,124,255,3,31,124,224,127,255,127,0,0,16,0,0,2,0,64,
+		16,2,16,64,0,66,213,53,16,66,31,0,224,3,0,124,255,3,31,124,224,127,255,127,0,0,16,0,0,2,0,
+		64,16,2,16,64,0,66,213,53
+	];
+
 	let simulate_palette = function(colorIndex){
 		return o.defaultPalette[colorIndex];
 	};
@@ -1993,9 +2017,10 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 
 
 
-	o.draw_mapchip = function(tileset, mapchips, palettes, xcmax, ctx){
+	o.draw_mapchip = function(tileset, mapchips, palettes, xcmax, ctx, bpp=4){
 
-		let tiles = o.fast.format_4bppTileset(tileset);
+		//let tiles = o.fast.format_4bppTileset(tileset);
+		let tiles = o.fast[`format_${bpp}bppTileset`](tileset);
 		
 		let len = Math.floor(mapchips.length / 32);
 		
@@ -2146,7 +2171,76 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 		ctx.putImageData(pixels, 0,0);
 	};
 	
+	// vertical background
+	o.draw_vBackground = function(tileset, bgtilemap, palettes, xtmax, ctx){
+	
+		//let tiles = o.fast.format_2bppTileset(tileset);
+		//let tiles = o.fast.format_4bppTileset(tileset);
+		//let tiles = o.fast.format_8bppTileset(tileset);
+		let tiles = tileset;
+	
+		let len = bgtilemap.length / 2;
+		
+		//let xtmax = 32;
+		
+		let pix;
+		//let pixels = ctx.createImageData(xtmax*8, Math.ceil(len/xtmax)*8);
+		let pixels = ctx.createImageData(Math.ceil(len/xtmax)*8, xtmax*8);
+		
+		for(let iTmap=0; iTmap<len; iTmap++){
 
+			offset = iTmap * 2;
+		
+			lowByte = bgtilemap[offset];
+			highByte = bgtilemap[offset+1];
+			
+			iTile = ( (highByte & 0x03) << 8 ) + lowByte
+			
+			iPal = (highByte & 0x1C) >> 2; // 0001 1100 0x1C palette id mask
+			//console.log(iPal);
+		
+			hFlip = (highByte & 0x40) >> 6;
+			vFlip = (highByte & 0x80) >> 7;
+	
+			hF = hFlip ? -1 : 1
+			vF = vFlip ? -1 : 1
+		
+			//xt = iTmap % xtmax;
+			//yt = Math.floor(iTmap/xtmax);
+			yt = iTmap % xtmax;
+			xt = Math.floor(iTmap/xtmax);
+		
+			// by pixel (absolute position)
+			for(yp=0; yp<8; yp++)
+				for(xp=0; xp<8; xp++){
+
+				// tile pixel sampling position relative to flip
+				xtp = (hFlip*7) + (xp*hF);
+				ytp = (vFlip*7) + (yp*vF);
+				
+				// relative pixel position on chip draw
+				x = (xt*8) + xp;
+				y = (yt*8) + yp;
+				
+				// pixel color
+				iCol = tiles[iTile][ytp][xtp];
+				c = palettes[iPal][iCol];
+				
+				// pixel index in ImageData type
+				pix = (y*pixels.width) + x;
+				
+				// set rgba ImageData
+				pixels.data[(pix*4)+0] = c[0];
+				pixels.data[(pix*4)+1] = c[1];
+				pixels.data[(pix*4)+2] = c[2];
+				pixels.data[(pix*4)+3] = 255;
+			}
+		
+		}
+	
+		ctx.putImageData(pixels, 0,0);
+	};
+	
 
 	// ne sert a rien
 	o.draw_background16x8 = function(tileset, bgtilemap, palettes, xtmax, ctx){
@@ -2223,9 +2317,10 @@ dkc2ldd.gfx = (function(app=dkc2ldd){
 	
 	
 
-	o.draw_hLvlTilemap = function(tileset, ytmax, mapchips, lvltilemap, palettes, ctx){
+	o.draw_hLvlTilemap = function(tileset, ytmax, mapchips, lvltilemap, palettes, ctx, bpp=4){
 
-		let tiles = o.fast.format_4bppTileset(tileset);
+		//let tiles = o.fast.format_4bppTileset(tileset);
+		let tiles = o.fast[`format_${bpp}bppTileset`](tileset);
 		
 		let len = Math.floor(lvltilemap.length / 2);
 		
