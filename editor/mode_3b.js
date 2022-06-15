@@ -23,13 +23,15 @@
 		let tilesize = 16;
 		let debugxtmax = 0//9;
 		srcFilePanel.background.parameters.onkeydown = function(e){
-			if(e.code === 'Enter') o.update();
 			if(e.code === 'ArrowUp') debugOfst++;
 			if(e.code === 'ArrowDown') debugOfst--;
 			if(e.code === 'ArrowRight') debugxtmax++;
 			if(e.code === 'ArrowLeft') debugxtmax--;
 			console.log(debugOfst,debugxtmax);
 			//this.value = debugOfst * bppSize;
+
+			//if(e.code === 'Enter')
+				o.update();
 		};
 
 		// update
@@ -67,26 +69,39 @@
 				TLST.update('formated'+bpp);
 				bgtileset = TLST.type['formated'+bpp];
 
-				let background = srcFilePanel.background.get_data()[0];
-			   
-				let len = background.length >> 1;
-
-				// create backgound viewport
-				let W = xtmax * 8;
-				let H = Math.ceil(len/xtmax) * 8;
-
-				o.viewport = wLib.create_preview(W, H, scale);
-				workspace.elem.appendChild(o.viewport.view);
 
 				//palettes = app.gfx.fast._4bppPal_to_2bppPal(palettes);
 				//palettes = app.gfx.fast.format_palette(snespal, 2);
 				//palettes = app.gfx.def2bppPal;
-
 				let _pal = app.gfx.defaultPalettes;
 				let pal256 = _pal[0].concat(_pal[1]).concat(_pal[2]).concat(_pal[3]).
 							concat(_pal[4]).concat(_pal[5]).concat(_pal[6]).concat(_pal[7]);
 				pal256 = pal256.concat(pal256);
 				//palettes = [pal256,pal256,pal256,pal256, pal256,pal256,pal256,pal256,];
+
+
+				let background = srcFilePanel.background.get_data()[0];
+				//let background = srcFilePanel.background.get_data__OLD(); // multi files
+			   
+				let len = background.length >> 1;
+
+				// create backgound viewport (HORIZONTAL)
+				let W = xtmax * 8;
+				let H = Math.ceil(len/xtmax) * 8;
+				o.viewport = wLib.create_preview(W, H, scale);
+				workspace.elem.appendChild(o.viewport.view);
+				app.gfx.draw_background(bgtileset, background, palettes, xtmax, o.viewport.ctx);
+
+
+				// VERTICAL display test :
+			//	let H = xtmax * 8;
+			//	let W = Math.ceil(len/xtmax) * 8;
+			//	o.viewport = wLib.create_preview(W, H, scale);
+			//	workspace.elem.appendChild(o.viewport.view);
+			//	app.gfx.draw_vBackground(bgtileset, background, palettes, xtmax, o.viewport.ctx);
+
+
+				
 
 				// draw background
 
@@ -94,7 +109,9 @@
 				//bgtileset = app.gfx.fast.format_4bppTileset(bgtileset);
 				//bgtileset = app.gfx.fast.format_8bppTileset(bgtileset);
 
-				app.gfx.draw_background(bgtileset, background, palettes, xtmax, o.viewport.ctx);
+				
+				
+
 				//app.gfx.draw_background16x8(bgtileset, background, palettes, xtmax, o.viewport.ctx);
 			}
 
