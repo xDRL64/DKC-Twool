@@ -614,9 +614,10 @@
 		// FLOATING LEAVES
 		//
 		let forest_leaves = {
+			// DATA_FD0610	palette_fgbg_level_gusty_glade
 			palette : [
-				{ name:'webwoods palette',
-					address: 0x3D3A4E, size: 0xE0, compressed: false
+				{ name:'gustyglade palette',
+					address: 0x3D0610, size: 0xE0, compressed: false
 				},
 				{ name:'leaves palette',
 					address: 0x3D268E, size: 0x20, compressed: false
@@ -888,20 +889,22 @@
 			background : [
 				{
 					name: '$35FA80 procedural mapchip',
-					address: 0x2D8415, size: 0x8000, compressed: true,
+					address: 0x2D8415, size: 0x16F, compressed: true,
 				},
 			],
 		};
 
-		// castle_tiles_level	29A905	3432	GFX	YES	(3D BG)
-		// castle_tiles_bg	    2B4916	25D	    GFX	YES	(floor tiles)
+		// castle_tiles_level	29A905	3432	GFX	YES	(3D BG)       (lvl tileset part 2)
+		// castle_tiles_bg	    2B4916	25D	    GFX	YES	(floor tiles) (bg layer 3 castle crush floor moving up)
+
 		// castle_tilemap_8x8	268077	1475	MAP	YES	
 		// castle_tilemap_32x32	24F714	2F37	MAP	YES	
-		// castle_tilemap_bg_1	02FAC9	61A	    MAP	YES	
-		// castle_tilemap_bg_2	06FC11	477	    MAP	YES
 
-		// castle_tiles_1	    2199BE	2580	GFX	YES	
-		// castle_tiles_2	    21BF3E	37BF	GFX	YES
+		// castle_tilemap_bg_1	02FAC9	61A	    MAP	YES	              (bg layer 2 left side)
+		// castle_tilemap_bg_2	06FC11	477	    MAP	YES               (bg layer 2 right side)
+
+		// castle_tiles_1	    2199BE	2580	GFX	NO	              (lvl tileset part 1)
+		// castle_tiles_2	    21BF3E	37BF	GFX	NO               (lvl tileset part 3)
 
 		// castle_crush_palette	3D2DEE	100	    PAL	NO
 
@@ -916,26 +919,29 @@
 			tileset : [
 				{
 					name: 'part1',
-					address: 0x2199BE, size: 0x21BF3E-0x2199BE, compressed: false,
+					//address: 0x2199BE, size: 0x21BF3E-0x2199BE, compressed: false,
+					address: 0x2199BE, size: 0x2580, compressed: false,
 					vram: {
 						bpp: 4, dstIndex: 0,
 					},
 				},
 				{
 					name: 'part2',
-					address: 0x29A905, size: 0x4000, compressed: true,
+					address: 0x29A905, size: 0x3432, compressed: true, offset: 0x2580, extract: 0x22C0,
 					vram: {
 						bpp: 4, dstIndex: 0,
-						//decompOffset: 29 * 32 // 928
-						decompOffset: 299 * 32, // 9568
-						size: 278*32 //8896
-						// start 9568, end 9568+8896=18464
+						// start 9568+32, end 9568+32+8896=18464
 						//dkc2ldd.interface.srcFilePanel.tileset.decompressed[1] = dkc2ldd.interface.srcFilePanel.tileset.decompressed[1].slice(9568+32, 18464+32)
+						// part 1 : address: 0x2199BE, size: 0x2580, compressed: false
+						// part 2 : address: 0x29A905, size: 0x4000(enough to decompress), compressed: true (then extract : from 0x2580 to 0x4840-1 (0x4840 is excluded))
+						// part 3 : address: 0x21BF3E, size: 0x37BF, compressed: false 
+
 					},
 				},
 				{
 					name: 'part3',
-					address: 0x21BF3E, size: 0x21F6FD-0x21BF3E, compressed: false,
+					//address: 0x21BF3E, size: 0x21F6FD-0x21BF3E, compressed: false,
+					address: 0x21BF3E, size: 0x37BF, compressed: false,
 					vram: {
 						bpp: 4, dstIndex: 0,
 					},
@@ -963,7 +969,18 @@
 					address: 0x24F714, size: 0x8000, compressed: true,
 				},
 			],
-		};
+
+			background : [
+				{
+					name: 'noname',
+					address: 0x02FAC9, size: 0x4000, compressed: true,
+				},
+				{
+					name: 'noname',
+					address: 0x06FC11, size: 0x4000, compressed: true,
+				},
+			],
+		};castle_lvl.bgtileset = castle_lvl.tileset;
 
 		// castle flame ?
 		// DATA_80C25F:
@@ -1000,10 +1017,25 @@
 					address: 0x3D2DEE, size: 0x100, compressed: false,
 				},
 			],
+			// 0x2D57EF
 			bgtileset : [
 				{
-					name: 'floor tiles',
-					address: 0x2B4916, size: 0x8000, compressed: true,
+					name: 'alphabet gfx set',
+					address: 0x2D57EF, size: 7*16*16, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: 'alphabet gfx set',
+					address: 0x2D57EF, size: 7*16*16, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: 'alphabet gfx set + any data',
+					address: 0x2D57EF, size: 0x8000, compressed: false,
 					vram: {
 						bpp: 2, dstIndex: 0,
 					},
@@ -1014,9 +1046,64 @@
 					name: 'noname',
 					address: 0x02FAC9, size: 0x4000, compressed: true,
 				},
+				{
+					name: 'noname',
+					address: 0x06FC11, size: 0x4000, compressed: true,
+				},
 			],
 
-		};
+		}; castle_bg.tileset = castle_bg.bgtileset;
+
+		let castle_bg2 = {
+			palette : [
+				{
+					name: 'noname',
+					address: 0x3D2DEE, size: 0x100, compressed: false,
+				},
+			],
+			// 0x2D57EF
+			bgtileset : [
+				{
+					name: 'any data',
+					address: 0x0, size: 0x2580>>1, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: 'alphabet gfx set',
+					address: 0x2D57EF, size: 7*16*16, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: 'alphabet gfx set',
+					address: 0x2D57EF, size: 7*16*16, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: 'alphabet gfx set + any data',
+					address: 0x2D57EF, size: 0x8000, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			background : [
+				{
+					name: 'noname',
+					address: 0x02FAC9, size: 0x4000, compressed: true,
+				},
+				{
+					name: 'noname',
+					address: 0x06FC11, size: 0x4000, compressed: true,
+				},
+			],
+
+		}; castle_bg2.tileset = castle_bg2.bgtileset;
 
 		//1F8116  tiledata
 		//25C627  tilemap
@@ -1034,6 +1121,111 @@
 				{
 					name: '$35FA80 tileset',
 					address: 0x352BA7, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x352BA7, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			background : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x352087, size: 0x8000, compressed: true,
+				},
+			],
+			mapchip : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x25C627, size: 0x8000, compressed: true,
+				},
+			],
+			tilemap : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x1F8116, size: 0x8000, compressed: true,
+				},
+			],
+			// format=8x8 0 16 frame=64
+		};
+
+
+		// 352087 8x8
+		// 3526A7 32x32
+		// 352BA7 tiledata
+		// 3D0CD0 palette
+		let H4v0c21_test_rigging = {
+			
+			palette : [
+				{
+					name: 'funky flights palette',
+					address: 0x3D0CD0, size: 0x1000, compressed: false,
+				},
+			],
+			tileset : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x352BA7, size: 0x13E0, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: '$35FA80 tileset',
+					address: 0x352BA7, size: 0x10000, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x352BA7, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			background : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address: 0x352087, size: 0x4000, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address:  0x352087, size: 0x100000, compressed: false,
+				},
+			],
+			tilemap : [
+				{
+					name: '$35FA80 procedural mapchip',
+					address:0x3526A7, size: 0x1000, compressed: false,
+				},
+			],
+			// format=8x8 0 16 frame=64
+		};
+		let _2199BE = {
+			
+			palette : [
+				{
+					name: 'funky flights palette',
+					address: 0x3D0CD0, size: 0x100, compressed: false,
+				},
+			],
+			tileset : [
+				{
+					name: '$35FA80 tileset',
+					address: 0x2199BE, size: 0x21BF3E-0x2199BE, compressed: false,
 					vram: {
 						bpp: 4, dstIndex: 0,
 					},
@@ -1069,6 +1261,595 @@
 			// format=8x8 0 16 frame=64
 		};
 
+		let test_mode_1 = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D0CD0, size: 0x1000, compressed: false,
+				},
+			],
+			tileset : [
+				{
+					name: 'A tileset',
+					address: 0x352BA7, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+				{
+					name: 'B tileset',
+					address: 0x353BA7, size: 0x1000, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+
+		};
+
+		let test_selectFile123 = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_ED5E3F	file_select_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED7429	file_select_save_file_1_tilemap (size : 0xA)
+			// DATA_ED7433	file_select_save_file_2_tilemap (size : 0xA)
+			// DATA_ED743D	file_select_save_file_3_tilemap (size : 0xA)
+			background : [
+				{
+					name: 'background tilemap ?',
+					//address: 0x2D742B, size: 0xA, compressed: false,
+					address: 0x2D7435, size: 0xA, compressed: false,
+					//address: 0x2D743F, size: 0xA, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+
+		let test_selectFileLanguage = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_ED5E3F	file_select_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED744D	file_select_language_1_tilemap
+			// DATA_ED748B	file_select_language_2_tilemap
+			// DATA_ED74C9	file_select_language_3_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					//address: 0x2D744F, size: 0x3E, compressed: false,
+					//address: 0x2D748D, size: 0x3E, compressed: false,
+					address: 0x2D74CB, size: 0x3E, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D744D, size: 0x3E, compressed: false,
+				},
+			],
+		};
+
+
+		
+		let test_selectFileSelgameCopyeraseSave = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_ED5E3F	file_select_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED7507	file_select_select_game_tilemap
+			// DATA_ED7569	file_select_copy_erase_tilemap
+			// DATA_ED7607	file_select_save_game_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					//address: 0x2D7507+2, size: 0x62, compressed: false,
+					//address: 0x2D7569+2, size: 0x9E, compressed: false,
+					address: 0x2D7607, size: 0x30, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+
+		let test_selectFileOneplayerTeamContest = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_ED5E3F	file_select_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED763F	file_select_1_player_tilemap
+			// DATA_ED7687	file_select_2_player_team_tilemap
+			// DATA_ED76CF	file_select_2_player_contest_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					//address: 0x2D763F, size: 0x48, compressed: false,
+					//address: 0x2D7687+2, size: 0x48, compressed: false,
+					address: 0x2D76CF+2, size: 0x48, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+		let test_selectFileEmpty = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_ED5E3F	file_select_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED7717	file_select_file_empty_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7717+2, size: 0x124, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+		let test_selectFileNumchars = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_ED5E3F	file_select_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED7855	file_select_char_tilemap
+			// DATA_ED7859	file_select_char_tilemap
+			// DATA_ED785D	file_select_char_tilemap
+			// DATA_ED7861	file_select_char_tilemap
+			// DATA_ED7865	file_select_char_tilemap
+			// DATA_ED7869	file_select_char_tilemap
+			// DATA_ED786D	file_select_char_tilemap
+			// DATA_ED7871	file_select_char_tilemap
+			// DATA_ED7875	file_select_char_tilemap
+			// DATA_ED7879	file_select_char_tilemap
+			// DATA_ED787D	file_select_char_tilemap
+			// DATA_ED7881	file_select_char_tilemap
+			// DATA_ED7885	file_select_char_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7855, size: 12 *2*2, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+		let test_selectFilePercentchar = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_ED5E3F	file_select_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED7889	file_select_percentage_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7889+2, size: 0xA, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+		let test_selectFileMonoStereo = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_ED5E3F	file_select_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2D5E3F, size: 0x2300, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED7897	file_select_mono_tilemap
+			// DATA_ED78B5	file_select_stereo_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					//address: 0x2D7897, size: 0x1E, compressed: false,
+					address: 0x2D78B5+2, size: 0x1E, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+		let test_selectFileCoins = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_FB0000	file_select_dk_coin_tiledata    (size:0x400)
+			// DATA_FB0400	file_select_krem_coin_tiledata  (size:0x400)
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x3B0000, size: 0x800, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x3B0000, size: 0x800, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			
+			background : [
+				{
+					name: 'background tilemap ?',
+					address: 0x3B0000, size: 0x1E, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+
+		let test_selectFileChoseGameStyle = {
+			
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_EC4D40	game_select_tiledata zip 0x4600
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2C4D40, size: 0x4600, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2C4D40, size: 0x4600, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_EC4749
+
+			// DATA_EC4AAD
+			// DATA_EC4C1C
+			// DATA_EC4D40
+			// DATA_EC7CF0
+			// DATA_EC83A0
+			// DATA_FC0660
+			background : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2C4749, size: 0x4000, compressed: false,
+					//address: 0x2C4AAD, size: 0x4000, compressed: false,
+					//address: 0x2C4C1C, size: 0x4000, compressed: false,
+
+					//address: 0x2C4D40, size: 0x4000, compressed: false,
+					//address: 0x2C7CF0, size: 0x4000, compressed: false,
+					//address: 0x2C83A0, size: 0x4000, compressed: false,
+					//address: 0x3C0660, size: 0x4000, compressed: false,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2C4749, size: 0x4000, compressed: false,
+					//address: 0x2C4AAD, size: 0x4000, compressed: false,
+					//address: 0x2C4C1C, size: 0x4000, compressed: false,
+
+					//address: 0x2C4D40, size: 0x4000, compressed: false,
+					//address: 0x2C7CF0, size: 0x4000, compressed: false,
+					//address: 0x2C83A0, size: 0x4000, compressed: false,
+					//address: 0x3C0660, size: 0x4000, compressed: false,
+				},
+			],
+		};
+
+		let test_selectFileBG = {
+			
+
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D3C6E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_EC83A0	file_select_bg_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x2C83A0, size: 0x8000, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x2C83A0, size: 0x8000, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_EC7CF0	file_select_bg_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2C7CF0, size: 0x8000, compressed: true,
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+		let test_selectFileSecretEnding = {
+			
+			// DATA_FD420E	secret_ending_screen_palette
+			// DATA_F99400	secret_ending_screen_layer_2_tiles
+			// DATA_F9C775	secret_ending_screen_layer_2_tilemap
+			// DATA_F661C1	secret_ending_screen_layer_1_tiles
+			// DATA_F67D1B	secret_ending_screen_layer_1_tilemap
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D420E, size: 0x200, compressed: false,
+				},
+			],
+			// DATA_EC83A0	file_select_bg_tiledata
+			tileset : [
+				{
+					name: 'tileset',
+					address: 0x3661C1, size: 0xF000, compressed: true, // layer 1
+					//address: 0x399400, size: 0xF000, compressed: true, // layer 2
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			bgtileset : [
+				{
+					name: 'tileset',
+					address: 0x3661C1, size: 0xF000, compressed: true, // layer 1
+					//address: 0x399400, size: 0xF000, compressed: true, // layer 2
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_EC7CF0	file_select_bg_tilemap
+			background : [
+				{
+					name: 'background tilemap ?',
+					address: 0x367D1B, size: 0xF000, compressed: true, // layer 1
+					//address: 0x39C775, size: 0xF000, compressed: true, // layer 2
+				},
+			],
+			mapchip : [
+				{
+					name: 'background tilemap ?',
+					address: 0x2D7429, size: 0xA, compressed: false,
+				},
+			],
+		};
+
+		
 
 		let ROM = srcFilePanel.rom.fileData[0];
 		//let lvlRef = rareware;
@@ -1085,10 +1866,26 @@
 		//let lvlRef = debugPaletteClass;
 		//let lvlRef = H4v0c21_$35FA80;
 		//let lvlRef = H4v0c21_test;
+		//let lvlRef = H4v0c21_test_rigging;
 		//let lvlRef = mine_debris;
 		let lvlRef = castle_lvl;
 		//let lvlRef = castle_bg;
+		//let lvlRef = castle_bg2;
 		//let lvlRef = castle_flame_test;
+		//let lvlRef = _2199BE;
+		//let lvlRef = test_mode_1;
+		//let lvlRef = test_selectFile123;
+		//let lvlRef = test_selectFileLanguage;
+		//let lvlRef = test_selectFileSelgameCopyeraseSave;
+		//let lvlRef = test_selectFileOneplayerTeamContest;
+		//let lvlRef = test_selectFileEmpty;
+		//let lvlRef = test_selectFileNumchars;
+		//let lvlRef = test_selectFilePercentchar;
+		//let lvlRef = test_selectFileMonoStereo;
+		//let lvlRef = test_selectFileCoins;
+		//let lvlRef = test_selectFileChoseGameStyle;
+		//let lvlRef = test_selectFileBG;
+		//let lvlRef = test_selectFileSecretEnding;
 
 		let lvlRefMode00 = lvlRef;
 
