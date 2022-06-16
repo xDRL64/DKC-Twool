@@ -342,9 +342,11 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			
 			o.fileData = [];
 			o.decompressed = [];
+			o.sectioned = [];
 
 			o.names = [];
 			o.useDec = [];
+			o.useSec = [];
 
 			o.romRefs = [];
 			o.vramRefs = [];
@@ -366,6 +368,14 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				o.decompressed[index] = app.decompressor(data);
 				o.useDec[index] = file.useDec;
 
+				if(file.romRef){ // extract decompressed section
+					let zOfst = file.romRef.offset, zSize = file.romRef.extract;
+					if(zOfst!==undefined && zSize!==undefined){ // zOfst/zSize can be 0
+						o.useSec[index] = true;
+						o.sectioned[index] = o.decompressed[index].slice(zOfst,zOfst+zSize);
+					}
+				}
+				
 				o.names[index] = file.name;
 
 				o.romRefs[index] = file.romRef || null;
@@ -430,16 +440,25 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			
 			};
 
+			o.get_decfile = function(index){
+				return o.useSec[index] ? o.sectioned[index] : o.decompressed[index];
+			};
+
+			o.get_decOwner = function(index){
+				return o.useSec[index] ? o.sectioned : o.decompressed;
+			};
+
+
 			o.get_data__OLD = function(){
 				if(o.multi === 1){
-					return o.useDec[0] ? o.decompressed[0] : o.fileData[0];
+					return o.useDec[0] ? o.get_decfile(0) : o.fileData[0];
 				}
 				if(o.multi > 1){
 					let len = o.multi;
-					let one = o.useDec[0] ? o.decompressed[0] : o.fileData[0];
+					let one = o.useDec[0] ? o.get_decfile(0) : o.fileData[0];
 					let all = app.lib.arrayAsFunction.create(one);
 					for(let i=1; i<len; i++){
-						one = o.useDec[i] ? o.decompressed[i] : o.fileData[i];
+						one = o.useDec[i] ? o.get_decfile(i) : o.fileData[i];
 						one = app.lib.arrayAsFunction.create(one);
 						all = app.lib.arrayAsFunction.concat(all,one);
 					}
@@ -451,7 +470,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				let _o = [];
 				let len = o.multi;
 				for(let i=0; i<len; i++)
-					_o.push( o.useDec[i] ? o.decompressed[i] : o.fileData[i] );
+					_o.push( o.useDec[i] ? o.get_decfile(i) : o.fileData[i] );
 				return _o;
 			};
 
@@ -459,20 +478,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				let _o = [];
 				let len = o.multi;
 				for(let i=0; i<len; i++)
-					_o = _o.concat( ...(o.useDec[i] ? o.decompressed[i] : o.fileData[i]) );
+					_o = _o.concat( ...(o.useDec[i] ? o.get_decfile(i) : o.fileData[i]) );
 				return typedArray ? new Uint8Array(_o) : _o;
 			};
-
-			/* o.get_dataWithOwnerAccess_OLD = function(){
-				let _o = [];
-				let len = o.multi;
-				for(let i=0; i<len; i++)
-					_o.push( o.useDec[i]
-						? {data:o.decompressed[i], owner:o.decompressed, prop:i}
-						: {data:o.fileData[i], owner:o.fileData, prop:i}
-					);
-				return _o;
-			}; */
 
 			let OwnerAccess = function(owner, prop){
 				return {
@@ -486,18 +494,17 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				let len = o.multi;
 				for(let i=0; i<len; i++)
 					_o.push( o.useDec[i]
-						? OwnerAccess(o.decompressed, i)
+						? OwnerAccess(o.get_decOwner(i), i)
 						: OwnerAccess(o.fileData, i)
 					);
 				return _o;
 			};
-			//set current(name) { this.log.push(name); },
 
 			o.get_totalSize = function(){
 				let len = o.multi;
 				let size = 0;
 				for(let i=0; i<len; i++)
-					size += o.useDec[i] ? o.decompressed[i].length : o.fileData[i].length;
+					size += o.useDec[i] ? o.get_decfile(i).length : o.fileData[i].length;
 				return size;
 			};
 

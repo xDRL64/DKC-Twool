@@ -1897,7 +1897,7 @@
 				let dataRefs = lvlRef[dataType];
 	
 				let len = dataRefs.length;
-				let last, ref, name, address, size, compressed, data, romRef, vramRef, dataFile, slot;
+				let last, ref, name, address, size, compressed, offset, extract, data, romRef, vramRef, dataFile, slot;
 				for(let i=0; i<len; i++){
 					last = (i === len-1);
 	
@@ -1906,9 +1906,11 @@
 					address = ref.address;
 					size = ref.size;
 					compressed = ref.compressed;
+					offset = ref.offset;
+					extract = ref.extract;
 					data = ROM.slice(address, address+size);
 	
-					romRef = {address:address, size:size};
+					romRef = {address, size, offset, extract};
 					vramRef = ref.vram || {unset:true};
 					vramRef.calc = _calc_vramRef;
 					vramRef.clone = _clone_vramRef;
