@@ -305,6 +305,14 @@
 		
 		
 		let flashBG3 = {
+			palette : [
+				{ name:'Pirate Panic palette',
+					address: 0x3D2270, size: 0x100, compressed: false
+				}
+			],
+
+
+
 			// kingizor
 				// Intro :
 				// EB:2B84 ~ EB:2EA0 (0x04B0) - ?
@@ -909,6 +917,8 @@
 		// castle_crush_palette	3D2DEE	100	    PAL	NO
 
 
+
+
 		let castle_lvl = {
 			palette : [
 				{
@@ -941,7 +951,15 @@
 				{
 					name: 'part3',
 					//address: 0x21BF3E, size: 0x21F6FD-0x21BF3E, compressed: false,
-					address: 0x21BF3E, size: 0x37BF, compressed: false,
+					address: 0x21BF3E, size: 0x37DF, compressed: false,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+				{
+					name: 'part4',
+
+					address: 0x2B4916, size: 0x37DF, compressed: false,
 					vram: {
 						bpp: 4, dstIndex: 0,
 					},
@@ -950,7 +968,7 @@
 			animation : [
 				{
 					name: 'animated flame tiles',
-					address: 0x35484A, size: 0x380*8, compressed: false,
+					address: 0x35484A, size: 0x1500, compressed: false,
 					vram: {
 						bpp: 4, dstIndex: 1, animTiles: 28, frameCount: 6,
 					},
@@ -959,25 +977,25 @@
 
 			mapchip : [
 				{
-					name: 'noname',
-					address: 0x268077, size: 0x4000, compressed: true,
+					name: 'castle lvl mapchip',
+					address: 0x268077, size: 0x1475, compressed: true,
 				},
 			],
 			tilemap : [
 				{
-					name: 'noname',
-					address: 0x24F714, size: 0x8000, compressed: true,
+					name: 'castle lvl tilemap',
+					address: 0x24F714, size: 0x2F37, compressed: true,
 				},
 			],
 
 			background : [
 				{
-					name: 'noname',
-					address: 0x02FAC9, size: 0x4000, compressed: true,
+					name: 'castle 3Dfloor leftside bg mapchip',
+					address: 0x02FAC9, size: 0x61A, compressed: true,
 				},
 				{
-					name: 'noname',
-					address: 0x06FC11, size: 0x4000, compressed: true,
+					name: 'castle 3Dfloor rightside bg mapchip',
+					address: 0x06FC11, size: 0x477, compressed: true,
 				},
 			],
 		};castle_lvl.bgtileset = castle_lvl.tileset;
@@ -991,7 +1009,7 @@
 		// dw DATA_F5564A
 		// dw DATA_F559CA
 		let castle_flame_test = {
-			palette : [
+			/* palette : [
 				{
 					name: 'noname',
 					address: 0x3D2DEE, size: 0x100, compressed: false,
@@ -1005,8 +1023,34 @@
 						bpp: 4, dstIndex: 1, animTiles: 28, frameCount: 6,
 					},
 				},
+			], */
+
+			// 3D FLOOR !!!!
+			palette : [
+				{
+					name: 'noname',
+					address: 0x3D2DEE, size: 0x100, compressed: false,
+				},
+				{
+					name: 'test',
+					address: 0x3D2270-0x100, size: 0x300, compressed: false,
+				},
 			],
-			
+			bgtileset : [
+				{
+					name: 'noname',
+					address: 0x2B4916, size: 0x380*8, compressed: true,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			background : [
+				{
+					name: 'noname',
+					address: 0x29A745, size: 0x4000, compressed: false,
+				},
+			],
 		};
 
 
@@ -1854,7 +1898,7 @@
 		let ROM = srcFilePanel.rom.fileData[0];
 		//let lvlRef = rareware;
 		//let lvlRef = wireframelogo;
-		//let lvlRef = flashBG3;
+		let lvlRef = flashBG3;
 		//let lvlRef = shipdeck;
 		//let lvlRef = shipmast;
 		//let lvlRef = hive_fg;
@@ -1868,7 +1912,7 @@
 		//let lvlRef = H4v0c21_test;
 		//let lvlRef = H4v0c21_test_rigging;
 		//let lvlRef = mine_debris;
-		let lvlRef = castle_lvl;
+		//let lvlRef = castle_lvl;
 		//let lvlRef = castle_bg;
 		//let lvlRef = castle_bg2;
 		//let lvlRef = castle_flame_test;
