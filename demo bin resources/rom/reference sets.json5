@@ -182,6 +182,19 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 
 	// MINE THEME
 
+	"Kannon Klaim Palette" : {
+		palette : [
+			{	
+				name: 'sparkling effect palette',
+				address: 0x3D2270, size: 0x20, compressed: false,
+			},
+			{	// original : 0x3D228E
+				name: 'kannonklaim palette (addr:+0x20,size:0xE0)',
+				address: 0x3D22AE, size: 0xE0, compressed: false,
+			},
+		],
+	},
+
 	"Windy Well Palette" : {
 		palette : [
 			{
@@ -398,7 +411,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 		],
 	},
 
-	"Castle Level Tileset" : {
+	"Castle GFXset" : {
 		tileset : [
 			{
 				name: 'castle part1 lvl/any tileset',
@@ -420,6 +433,66 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				vram: {
 					bpp: 4, dstIndex: 0,
 				},
+			},
+		],
+		animation : [
+			{
+				name: 'animated flame tiles',
+				address: 0x35484A, size: 0x1500, compressed: false,
+				vram: {
+					bpp: 4, dstIndex: 1, animTiles: 28, frameCount: 6,
+				},
+			},
+		],
+	},
+
+	"Castle Level Mapset" : {
+		mapchip : [
+			{
+				name: 'castle lvl mapchip',
+				address: 0x268077, size: 0x1475, compressed: true,
+			},
+		],
+		tilemap : [
+			{
+				name: 'castle lvl tilemap',
+				address: 0x24F714, size: 0x2F37, compressed: true,
+			},
+		],
+	},
+
+	"Castle 3D Floor Background" : {
+		bgtileset : [
+			{
+				name: 'castle part1 lvl/any tileset',
+				address: 0x2199BE, size: 0x2580, compressed: false,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
+			},
+			{
+				name: 'castle part2 lvl/any tileset',
+				address: 0x29A905, size: 0x3432, compressed: true, offset: 0x2580, extract: 0x22C0,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
+			},
+			{
+				name: 'castle part3 lvl/any tileset',
+				address: 0x21BF3E, size: 0x37DF, compressed: false,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
+			},
+		],
+		background : [
+			{
+				name: 'castle 3Dfloor leftside bg mapchip',
+				address: 0x02FAC9, size: 0x61A, compressed: true,
+			},
+			{
+				name: 'castle 3Dfloor rightside bg mapchip',
+				address: 0x06FC11, size: 0x477, compressed: true,
 			},
 		],
 	},
