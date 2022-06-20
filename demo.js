@@ -56,14 +56,11 @@
     
         }
 
-        if(p.get('demo')==='animated-castle-flames-(app_hack)'){
+        if(p.get('demo')==='animated-castle-flames'){
             // set file data
             app.interface.update_workspace('mode_');
             app.interface.workspace.current.start_demo('castle level');
 
-            // app hack
-            dkc2ldd.interface.srcFilePanel.tileset.decompressed[1] = dkc2ldd.interface.srcFilePanel.tileset.decompressed[1].slice(9568+32, 18464+32)
-            
             // show mapchip with animated tileset
             app.interface.srcFilePanel.mapchip.parameters.value = "vram";
             app.interface.update_workspace('mode2');
@@ -75,8 +72,7 @@
             app.interface.update_workspace('mode_');
             app.interface.workspace.current.start_demo('mine sparkling');
 
-            // show mapchip with animated tileset
-            app.interface.srcFilePanel.mapchip.parameters.value = "vram";
+            // open mine sparkling editor
             app.interface.update_workspace('mode13');
     
         }
