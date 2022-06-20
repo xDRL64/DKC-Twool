@@ -70,6 +70,17 @@
     
         }
 
+        if(p.get('demo')==='sparkling-editor-with-data'){
+            // set file data
+            app.interface.update_workspace('mode_');
+            app.interface.workspace.current.start_demo('mine sparkling');
+
+            // show mapchip with animated tileset
+            app.interface.srcFilePanel.mapchip.parameters.value = "vram";
+            app.interface.update_workspace('mode13');
+    
+        }
+
         if(p.get('demo')==='H4v0c21_$35FA80'){
             // set file data
             app.interface.update_workspace('mode_');

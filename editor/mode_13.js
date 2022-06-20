@@ -19,6 +19,9 @@
         // current workspace object
         let o = {};
 
+        let animFrameID = setInterval(function(){dkc2ldd.interface.workspace.current.update()},75);
+        
+
         // code ...
         let debugOfst = 0;
         let tilesize = 16;
@@ -32,43 +35,97 @@
             console.log(debugOfst,debugxtmax);
         };
 
+        let _rInput = 4, _gInput = 4, _bInput = 1; // default settings
+
+        workspace.elem.innerHTML = '';
+        workspace.elem.style.display = 'block';
+
         let settingsPanel = Elem('div');
 
-            let substractOrderNames = [
-                'rgb', 'rbg',
-                'grb', 'gbr',
-                'brg', 'bgr',
-            ];
-            let substractOrderList = wLib2.DropList('color channel substract order : ');
-            for(let name of substractOrderNames)
-                substractOrderList.generate_item(name,name);
+            let channelsPanelLabel = Elem('label', {disBlk, margin:16, txtCnt:'Channel substract times number : '});
 
-            let channelsPanelLabel = Elem('label', {disBlk, txtCnt:'channel substract times : '});
+                let channelsPanel = Elem('div', {disFlx, fdrCln, wtsPre});
 
-                let channelsPanel = Elem('div');
+                    let {redSub:_red, greenSub:_green, blueSub:_blue, } = app.asm.animPalBin;
 
-                    let redLabel = Elem('label', {disBlk, txtCnt:'red : '});
-                        let redSubTimesInput =  Elem('input', {_type:'number', _min:0, _max:4, _value:4});
-                    redLabel.appendChild(redSubTimesInput);
+                    let defOption = 4;
+                    let redSubTimesInput = wLib2.DropList('Red : \t');
+                    for(let i=0; i<_red.length; i++)
+                        redSubTimesInput.generate_item(`${i} Substraction(s) [${_red[i].size} byte(s)]`, i);
+                    Elem.Set(redSubTimesInput.elem, { margin:'8 0',_min:0, _max:4, _value:_rInput});
+                    redSubTimesInput.elem.children[defOption].setAttribute('selected', true);
 
-                    let greenLabel = Elem('label', {disBlk, txtCnt:'green : '});
-                        let greenSubTimesInput =  Elem('input', {_type:'number', _min:0, _max:4, _value:4});
-                    greenLabel.appendChild(greenSubTimesInput);
+                    defOption = 4
+                    let greenSubTimesInput = wLib2.DropList('Green : \t');
+                    for(let i=0; i<_green.length; i++)
+                        greenSubTimesInput.generate_item(`${i} Substraction(s) [${_green[i].size} byte(s)]`, i);
+                    Elem.Set(greenSubTimesInput.elem, { margin:'8 0',_min:0, _max:4, _value:_gInput});
+                    greenSubTimesInput.elem.children[defOption].setAttribute('selected', true);
                     
-                    let blueLabel = Elem('label', {disBlk, txtCnt:'blue : '});
-                        let blueSubTimesInput =  Elem('input', {_type:'number', _min:0, _max:1, _value:1});
-                    blueLabel.appendChild(blueSubTimesInput);
+                    defOption = 1;
+                    let blueSubTimesInput = wLib2.DropList('Blue : \t');
+                    for(let i=0; i<_blue.length; i++)
+                        blueSubTimesInput.generate_item(`${i} Substraction(s) [${_blue[i].size} byte(s)]`, i);
+                    Elem.Set(blueSubTimesInput.elem, { margin:'8 0',_min:0, _max:4, _value:_bInput});
+                    blueSubTimesInput.elem.children[defOption].setAttribute('selected', true);
 
-                channelsPanel.appendChild(redLabel);
-                channelsPanel.appendChild(greenLabel);
-                channelsPanel.appendChild(blueLabel);
-            
+                channelsPanel.appendChild(redSubTimesInput.board);
+                channelsPanel.appendChild(greenSubTimesInput.board);
+                channelsPanel.appendChild(blueSubTimesInput.board);
+
             channelsPanelLabel.appendChild(channelsPanel);
                 
-        settingsPanel.appendChild(substractOrderList.elem);
         settingsPanel.appendChild(channelsPanelLabel);
         
+        let renderSpace = Elem('div', {margin:8, disFlx, fdrCln});
+        
+        let settingsInfo = Elem('div', {wtsPre, margin:8, txtCnt:'Default settings : Buildable'});
+        
+        let buildOutput = Elem('div', {whiSpa:'pre-wrap', margin:8, padding:8, txtCnt:'Build output : '});
+        buildOutput.style.overflowWrap = 'break-word';
+        buildOutput.style.border = '1px solid black';
+
+        
+        workspace.elem.appendChild(renderSpace);
         workspace.elem.appendChild(settingsPanel);
+        workspace.elem.appendChild(settingsInfo);
+        workspace.elem.appendChild(buildOutput);
+
+        let rgbInputUpdate = function(){
+            let _rgbInputs = [_rInput, _gInput, _bInput];
+            let size = app.asm.animPalBin.get_totalSize(..._rgbInputs);
+            let max = app.asm.animPalBin.maxSize;
+            let status = app.asm.animPalBin.check_size(..._rgbInputs);
+            let settingsText = (_rInput===4&&_gInput===4&&_bInput===1) ? 'Default settings' : 'Custom settings';
+            let freespaceText = `Free space : ${size}/${max} bytes\n\n`
+            if(status){
+                settingsInfo.textContent = `${settingsText} : Buildable`;
+                buildOutput.textContent = freespaceText + 'Byte code :\n\n'
+                                        + app.asm.animPalBin.get_hexStrArray(..._rgbInputs).join('');
+            }else{
+                settingsInfo.textContent = `${settingsText} : Not buildable`;
+                buildOutput.textContent = freespaceText;
+            }
+        };
+
+        rgbInputUpdate();
+
+        redSubTimesInput.elem.onchange = function(){
+            _rInput = parseInt(this.value);
+            rgbInputUpdate();
+            o.update();
+        };
+        greenSubTimesInput.elem.onchange = function(){
+            _gInput = parseInt(this.value);
+            rgbInputUpdate();
+            o.update();
+        };
+        blueSubTimesInput.elem.onchange = function(){
+            _bInput = parseInt(this.value);
+            rgbInputUpdate();
+            o.update();
+        };
+
 
 
         let curOrder = ['r','g','b'];
@@ -129,7 +186,7 @@
             };
 
 
-            let mainLoop = function(){
+            let mainLoop__OLD = function(){
                 let pal = baseSnespal;
                 let rInput = parseInt(redSubTimesInput.value)   || 0;
                 let gInput = parseInt(greenSubTimesInput.value) || 0;
@@ -198,6 +255,93 @@
                 /* BNE $80D67B   */ }
             };
 
+            let mainLoop = function(){
+                let pal = baseSnespal;
+                let rInput = parseInt(redSubTimesInput.elem.value)   || 0;
+                let gInput = parseInt(greenSubTimesInput.elem.value) || 0;
+                let bInput = parseInt(blueSubTimesInput.elem.value)  || 0;
+                let chanTimes = { r:rInput, g:gInput, b:bInput };
+                let chanSub   = { r:rSub, g:gSub, b:bSub };
+                let chanMask  = { r:0x001F, g:0x03E0, b:0x7C00 };
+
+                let timesOrder = [chanTimes[curOrder[0]], chanTimes[curOrder[1]], chanTimes[curOrder[2]], ];
+                let subOrder   = [chanSub[curOrder[0]], chanSub[curOrder[1]], chanSub[curOrder[2]], ];
+                let maskOrder  = [chanMask[curOrder[0]], chanMask[curOrder[1]], chanMask[curOrder[2]], ];
+                let color, chan, rgb=0, A, B;
+                let word = new Uint16Array(1);
+
+                /* LDX #$0000    */ for(let i=0; i<0x1E; i+=2){
+                /*               */
+                /* LDA $FD2270,X */     color = (pal[i+1] << 8) + pal[i];
+                /* AND #$7C00    */
+                                        // chan = color & maskOrder[0];
+                /* SEC           */     // for(let iSub=0; iSub<timesOrder[0]; iSub++)
+                /* SBC $36       */     //     chan -= subOrder[0];
+                                        // chan = chan<0 ? 0 : chan;
+                                        // rgb = chan & 0xFFFF;
+                /* NOP           */
+                /* NOP           */     // red
+                                        chan = color & 0x001F;
+                                        for(let iSub=0; iSub<rInput; iSub++)
+                                            chan -= rSub;
+                                        chan = chan<0 ? 0 : chan;
+                                        rgb = chan & 0xFFFF;
+                /* BMI $80D68D   */
+                /* SBC $36       */
+                /* BPL $80D690   */
+                /* LDA #$0000    */
+                /* STA $38       */
+                /*               */
+                /* LDA $FD2270,X */     
+                /* AND #$03E0    */               
+                /* SEC           */     // chan = color & maskOrder[1];
+                /* SBC $34       */     // for(let iSub=0; iSub<timesOrder[1]; iSub++)
+                /* NOP           */     //     chan -= subOrder[1];
+                /* NOP           */     // chan = chan<0 ? 0 : chan;
+                /* NOP           */     // //rgb &= chan & 0xFFFF;
+                /* NOP           */     // rgb |= chan & 0xFFFF; // WHAT'S TSB !!!!
+                /* NOP           */
+                                        // green
+                                        chan = color & 0x03E0;
+                                        for(let iSub=0; iSub<gInput; iSub++)
+                                            chan -= gSub;
+                                        chan = chan<0 ? 0 : chan;
+                                        rgb |= chan & 0xFFFF; // WHAT'S TSB !!!!
+                /* NOP           */
+
+
+
+
+                /* NOP           */     // chan = color & maskOrder[2];
+                /* BPL $80D6A7   */     // for(let iSub=0; iSub<timesOrder[2]; iSub++)
+                /* LDA #$0000    */     //     chan -= subOrder[2];
+                /* TSB $38       */     // chan = chan<0 ? 0 : chan;
+                /*               */     // rgb |= chan & 0xFFFF;
+
+                                        // blue
+                                        chan = color & 0x7C00;
+                                        for(let iSub=0; iSub<bInput; iSub++)
+                                            chan -= bSub;
+                                        chan = chan<0 ? 0 : chan;
+                                        rgb |= chan & 0xFFFF; // WHAT'S TSB !!!!
+                /*               */
+                /* LDA $FD2270,X */
+                /* AND #$001F    */     A = ((rgb&0xFF00)>>8);
+                                        B = (rgb&0x00FF);
+
+                /* SEC           */     o.push(B);
+                /* SBC $32       */     o.push(A);
+                /* BPL $80D6B8   */
+                /* LDA #$0000    */
+                /* ORA $38       */
+                /*               */
+                /* STA $7E8014,X */
+                /* INX           */
+                /* INX           */
+                /* CPX #$001E    */
+                /* BNE $80D67B   */ }
+            };
+
             clamp_iFrame();
             set_rgbSub();
             mainLoop();
@@ -207,14 +351,9 @@
             return o;
         };
 
-        substractOrderList.elem.onchange = function(){
-            order_channelPanel(this.value);
-        };
-
 
         let frameCounter = 0x9F83;
-        let renderSpace = Elem('div');
-        workspace.elem.appendChild(renderSpace);
+        
         // update
         o.update = function(trigger){
 
@@ -291,178 +430,11 @@
         o.close = function(){
             // app.mode[ /**/put its mode id/**/ ].save = something;
             // delete something (eventlistener, requestanimationframe, setinveterval, etc..)
+            clearInterval(animFrameID);
         };
 
         // connect current workspace object (export update methode)
         workspace.current = o;
-
-
-        let animPalAsmBin = {
-
-            firstPart : {
-                code : [
-                    0xA5,0x2A,0x0A,0x29,0x3F,0x00,0x89,0x20,
-                    0x00,0xF0,0x03,0x49,0x3F,0x00,0xC9,0x20,
-                    0x00,0x90,0x03,0xA9,0x20,0x00,0x85,0x32,
-                    0x0A,0x0A,0xEB,0x85,0x36,0xEB,0x0A,0x0A,
-                    0x0A,0x85,0x34,0xA2,0x00,0x00,0xBF,0x70,
-                    0x22,0xFD,0x29,0x1F,0x00,
-                ],
-                size : 45,
-            },
-
-            redSub : [
-                {
-                    code : [
-                        // ZERO
-                    ],
-                    size : 0,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x32,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 8,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x32,0xE5,0x32,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 10,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x32,0xE5,0x32,0xE5,0x32,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 12,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x32,0xE5,0x32,0xE5,0x32,0xE5,0x32,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 14,
-                },
-            ],
-
-            redToGreen : {
-                code : [
-                    0x85,0x38,0xBF,0x70,0x22,0xFD,0x29,0xE0,0x03,
-                ],
-                size : 9,
-            },
-
-            greenSub : [
-                {
-                    code : [
-                        // ZERO
-                    ],
-                    size : 0,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x34,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 8,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x34,0xE5,0x34,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 10,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x34,0xE5,0x34,0xE5,0x34,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 12,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x34,0xE5,0x34,0xE5,0x34,0xE5,0x34,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 14,
-                },
-            ],
-
-            greenToBlue : {
-                code : [
-                    0x04,0x38,0xBF,0x70,0x22,0xFD,0x29,0x00,0x7C,
-                ],
-                size : 9,
-            },
-
-            blueSub : [
-                {
-                    code : [
-                        // ZERO
-                    ],
-                    size : 0,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x36,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 8,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x36,0x30,0x04,0xE5,0x36,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 12,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x36,0x30,0x08,0xE5,0x36,0x30,0x04,0xE5,0x36,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 16,
-                },
-                {
-                    code : [
-                        0x38,0xE5,0x36,0x30,0x0C,0xE5,0x36,0x30,0x08,0xE5,0x36,0x30,0x04,0xE5,0x36,0x10,0x03,0xA9,0x00,0x00,
-                    ],
-                    size : 20,
-                },
-            ],
-
-            NOP : function(count){
-                let o = [];
-                for(let i=0; i<count; i++)
-                    o.push(0xEA);
-                return o;
-            },
-            
-            lastPart : {
-                code : [
-                    0x05,0x38,0x9F,0x14,0x80,0x7E,0xE8,0xE8,
-                    0xE0,0x1E,0x00,0xD0,0xB6,0xA5,0x2A,0x29,
-                    0x20,0x00,0xF0,0x0A,0x20,0xFE,0xB0,0x29,
-                    0x01,0x00,0x8F,0x12,0x80,0x7E,0xAF,0x12,
-                    0x80,0x7E,0xF0,0x01,0x60,
-                ],
-                size : 37,
-            },
-
-        };
-
-
-        
-        
-        
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
