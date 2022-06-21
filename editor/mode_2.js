@@ -18,8 +18,10 @@
         let intervalRoutine = setInterval(function(){
             iFrame++;
             //iFrame=iFrame>frameCount-1?0:iFrame;
-            o.update();
+            o.update_animation();
         }, 50);
+
+        o.update_animation = function(){}; // def empty func
 
         // code ...
         srcFilePanel.mapchip.parameters.onkeydown = function(e){
@@ -108,29 +110,30 @@
                              ? palettes.slice(palIndex*8,(palIndex*8)+8)
                              : app.gfx.defaultPalettes;
 
-
                     let vram_tileset = srcFilePanel.tileset.get_data__OLD();
                     vram_tileset = (vram_tileset.jsArray?.()) || vram_tileset;
                     vram_tileset = [...vram_tileset];
 
-
                     let animations = srcFilePanel.animation.get_data();
                     let animRefs = srcFilePanel.animation.vramRefs;
                     frameCount = animRefs.frameCount;
-                    app.gfx.fast.animatedTiles_to_vramTileset(animations, animRefs, vram_tileset, iFrame);
 
                     let mapchip = srcFilePanel.mapchip.get_data__OLD();
-    
                     let len = mapchip.length / 32;
-    
+                    
                     // create mapchip viewport
                     let W = xcmax * 32;
                     let H = Math.ceil(len/xcmax) * 32;
-    
+                    
                     o.viewport = wLib.create_preview(W, H, scale);
                     workspace.elem.appendChild(o.viewport.view);
-                    	
-                    app.gfx.draw_mapchip(vram_tileset, mapchip, palettes, xcmax, o.viewport.ctx);
+                    
+                    o.update_animation = function(){
+                        app.gfx.fast.animatedTiles_to_vramTileset(animations, animRefs, vram_tileset, iFrame);
+                        app.gfx.draw_mapchip(vram_tileset, mapchip, palettes, xcmax, o.viewport.ctx);
+                    };
+                    
+                    o.update_animation();
 
                 }
 
