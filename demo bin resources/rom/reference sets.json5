@@ -186,7 +186,7 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 		palette : [
 			{	
 				name: 'sparkling effect palette',
-				address: 0x3D2270, size: 0x20, compressed: false,
+				address: 0x3D226E, size: 0x20, compressed: false,
 			},
 			{	// original : 0x3D228E
 				name: 'kannonklaim palette (addr:+0x20,size:0xE0)',
@@ -411,25 +411,25 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 		],
 	},
 
-	"Castle GFXset" : {
-		tileset : [
+	"Castle HighGFXset" : {
+		tileset : [ // same than bgtileset
 			{
-				name: 'castle part1 lvl/any tileset',
+				name: 'castle part1 lvl/bg tileset',
 				address: 0x2199BE, size: 0x2580, compressed: false,
 				vram: {
 					bpp: 4, dstIndex: 0,
 				},
 			},
 			{
-				name: 'castle part2 lvl/any tileset',
+				name: 'castle part2 bg tileset',
 				address: 0x29A905, size: 0x3432, compressed: true, offset: 0x2580, extract: 0x22C0,
 				vram: {
 					bpp: 4, dstIndex: 0,
 				},
 			},
 			{
-				name: 'castle part3 lvl/any tileset',
-				address: 0x21BF3E, size: 0x37BF, compressed: false,
+				name: 'castle part3 lvl/bg tileset',
+				address: 0x21BF3E, size: 0x37C0, compressed: false,
 				vram: {
 					bpp: 4, dstIndex: 0,
 				},
@@ -441,6 +441,48 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 				address: 0x35484A, size: 0x1500, compressed: false,
 				vram: {
 					bpp: 4, dstIndex: 1, animTiles: 28, frameCount: 6,
+				},
+			},
+		],
+		bgtileset : [ // same than tileset
+			{
+				name: 'castle part1 lvl/bg tileset',
+				address: 0x2199BE, size: 0x2580, compressed: false,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
+			},
+			{
+				name: 'castle part2 bg tileset',
+				address: 0x29A905, size: 0x3432, compressed: true, offset: 0x2580, extract: 0x22C0,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
+			},
+			{
+				name: 'castle part3 lvl/bg tileset',
+				address: 0x21BF3E, size: 0x37C0, compressed: false,
+				vram: {
+					bpp: 4, dstIndex: 0,
+				},
+			},
+		],
+	},
+
+	"Castle LowGFXset" : {
+		bgtileset : [
+			{
+				name: 'castle part4 movingfloor fg/bg tileset',
+				address: 0x2B4916, size: 0x25D, compressed: true,
+				vram: {
+					bpp: 2, dstIndex: 0,
+				},
+			},
+			{
+				name: 'castle part5 unknown ? tileset',
+				address: 0x21C21E, size: 0x220, compressed: false,
+				vram: {
+					bpp: 2, dstIndex: 0,
 				},
 			},
 		],
@@ -462,29 +504,6 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 	},
 
 	"Castle 3D Floor Background" : {
-		bgtileset : [
-			{
-				name: 'castle part1 lvl/any tileset',
-				address: 0x2199BE, size: 0x2580, compressed: false,
-				vram: {
-					bpp: 4, dstIndex: 0,
-				},
-			},
-			{
-				name: 'castle part2 lvl/any tileset',
-				address: 0x29A905, size: 0x3432, compressed: true, offset: 0x2580, extract: 0x22C0,
-				vram: {
-					bpp: 4, dstIndex: 0,
-				},
-			},
-			{
-				name: 'castle part3 lvl/any tileset',
-				address: 0x21BF3E, size: 0x37DF, compressed: false,
-				vram: {
-					bpp: 4, dstIndex: 0,
-				},
-			},
-		],
 		background : [
 			{
 				name: 'castle 3Dfloor leftside bg mapchip',
@@ -493,6 +512,15 @@ Remove_this_line_to_use_this_file_as_JSON5= // remove this debug line !
 			{
 				name: 'castle 3Dfloor rightside bg mapchip',
 				address: 0x06FC11, size: 0x477, compressed: true,
+			},
+		],
+	},
+
+	"Castle Mouving Floor Background" : {
+		background : [
+			{
+				name: 'castle movingfloor fg/bg mapchip',
+				address: 0x29A745, size: 0x1C0, compressed: false,
 			},
 		],
 	},

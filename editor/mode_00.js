@@ -304,6 +304,7 @@
 		};
 		
 		
+		// mine sparkling
 		let flashBG3 = {
 			palette : [
 				{ name:'Pirate Panic palette',
@@ -929,7 +930,6 @@
 			tileset : [
 				{
 					name: 'part1',
-					//address: 0x2199BE, size: 0x21BF3E-0x2199BE, compressed: false,
 					address: 0x2199BE, size: 0x2580, compressed: false,
 					vram: {
 						bpp: 4, dstIndex: 0,
@@ -950,16 +950,21 @@
 				},
 				{
 					name: 'part3',
-					//address: 0x21BF3E, size: 0x21F6FD-0x21BF3E, compressed: false,
-					address: 0x21BF3E, size: 0x37DF, compressed: false,
+					address: 0x21BF3E, size: 0x37C0, compressed: false,
 					vram: {
 						bpp: 4, dstIndex: 0,
 					},
 				},
 				{
 					name: 'part4',
-
-					address: 0x2B4916, size: 0x37DF, compressed: false,
+					address: 0x2B4916, size: 0x25D, compressed: true,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: 'part5',
+					address: 0x21C21E, size: 0x220, compressed: false,
 					vram: {
 						bpp: 4, dstIndex: 0,
 					},
@@ -1000,46 +1005,18 @@
 			],
 		};castle_lvl.bgtileset = castle_lvl.tileset;
 
-		// castle flame ?
-		// DATA_80C25F:
-		// dw DATA_F5484A
-		// dw DATA_F54BCA
-		// dw DATA_F54F4A
-		// dw DATA_F552CA
-		// dw DATA_F5564A
-		// dw DATA_F559CA
-		let castle_flame_test = {
-			/* palette : [
-				{
-					name: 'noname',
-					address: 0x3D2DEE, size: 0x100, compressed: false,
-				},
-			],
-			animation : [
-				{
-					name: 'noname',
-					address: 0x35484A, size: 0x380*8, compressed: false,
-					vram: {
-						bpp: 4, dstIndex: 1, animTiles: 28, frameCount: 6,
-					},
-				},
-			], */
 
-			// 3D FLOOR !!!!
+		let castle_movingUpFloor = {
 			palette : [
 				{
 					name: 'noname',
 					address: 0x3D2DEE, size: 0x100, compressed: false,
 				},
-				{
-					name: 'test',
-					address: 0x3D2270-0x100, size: 0x300, compressed: false,
-				},
 			],
 			bgtileset : [
 				{
 					name: 'noname',
-					address: 0x2B4916, size: 0x380*8, compressed: true,
+					address: 0x2B4916, size: 0x25D, compressed: true,
 					vram: {
 						bpp: 2, dstIndex: 0,
 					},
@@ -1048,7 +1025,7 @@
 			background : [
 				{
 					name: 'noname',
-					address: 0x29A745, size: 0x4000, compressed: false,
+					address: 0x29A745, size: 0x1C0, compressed: false,
 				},
 			],
 		};
@@ -1915,7 +1892,7 @@
 		//let lvlRef = castle_lvl;
 		//let lvlRef = castle_bg;
 		//let lvlRef = castle_bg2;
-		//let lvlRef = castle_flame_test;
+		//let lvlRef = castle_movingUpFloor;
 		//let lvlRef = _2199BE;
 		//let lvlRef = test_mode_1;
 		//let lvlRef = test_selectFile123;
