@@ -36,6 +36,7 @@
         };
 
         let _rInput = 4, _gInput = 4, _bInput = 1; // default settings
+        let animPalBin = app.asm.animPalBin;
 
         workspace.elem.innerHTML = '';
         workspace.elem.style.display = 'block';
@@ -46,7 +47,7 @@
 
                 let channelsPanel = Elem('div', {disFlx, fdrCln, wtsPre});
 
-                    let {redSub:_red, greenSub:_green, blueSub:_blue, } = app.asm.animPalBin;
+                    let {redSub:_red, greenSub:_green, blueSub:_blue, } = animPalBin;
 
                     let defOption = 4;
                     let redSubTimesInput = wLib2.DropList('Red : \t');
@@ -93,15 +94,15 @@
 
         let rgbInputUpdate = function(){
             let _rgbInputs = [_rInput, _gInput, _bInput];
-            let size = app.asm.animPalBin.get_totalSize(..._rgbInputs);
-            let max = app.asm.animPalBin.maxSize;
-            let status = app.asm.animPalBin.check_size(..._rgbInputs);
+            let size = animPalBin.get_totalSize(..._rgbInputs);
+            let max = animPalBin.maxSize;
+            let status = animPalBin.check_size(..._rgbInputs);
             let settingsText = (_rInput===4&&_gInput===4&&_bInput===1) ? 'Default settings' : 'Custom settings';
             let freespaceText = `Free space : ${size}/${max} bytes\n\n`
             if(status){
                 settingsInfo.textContent = `${settingsText} : Buildable`;
                 buildOutput.textContent = freespaceText + 'Byte code :\n\n'
-                                        + app.asm.animPalBin.get_hexStrArray(..._rgbInputs).join('');
+                                        + animPalBin.get_hexStrArray(..._rgbInputs).join('');
             }else{
                 settingsInfo.textContent = `${settingsText} : Not buildable`;
                 buildOutput.textContent = freespaceText;
