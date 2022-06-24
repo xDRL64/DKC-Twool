@@ -1870,12 +1870,86 @@
 			],
 		};
 
+
+		
+		
+		let test_waterSurface = {
+			// DATA_FD0910	lockjaws_locker_level_palette
+			palette : [
+				{
+					name: 'palette',
+					address: 0x3D0910, size: 0x100, compressed: false,
+				},
+			],
+			// effect_water_surface_tiles	2A10BB	161	GFX	YES	
+			// DATA_EA10BB    water_layer_3_tiledata
+			/* tileset : [
+				{
+					name: 'anydata to add offset',
+					address: 0x0, size: 0x9480, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: 'water_layer_3_tiledata',
+					address: 0x2A10BB, size: 0x8000, compressed: true, // size : 0x161
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			], */
+			bgtileset : [
+				{
+					name: 'anydata to add offset',
+					//address: 0x0, size: 0x9480>>1, compressed: false,
+					//address: 0x0, size: 0x5480>>1, compressed: false,
+					//address: 0x0, size: 0x1000, compressed: false,
+					//address: 0x0, size: 0x800, compressed: false,
+					address: 0x0, size: 0x14C0, compressed: false,
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+				{
+					name: 'water_layer_3_tiledata',
+					address: 0x2A10BB, size: 0x8000, compressed: true, // size : 0x161
+					vram: {
+						bpp: 2, dstIndex: 0,
+					},
+				},
+			],
+			// effect_water_surface_tilemap	01FEC0	1F7	MAP	YES	
+			// DATA_C1FEC0    water_layer_3_8x8_tilemap
+			background : [
+				{
+					name: 'water_layer_3_8x8_tilemap',
+					address: 0x01FEC0, size: 0x8000, compressed: true,
+				},
+			],
+			
+			// E5:97E1 ~ E5:A71C (0x2620) - Tilemap (8x8)
+			mapchip : [
+				{
+					name: 'noname',
+					address: 0x2597E1, size: 0x2620, compressed: true,
+				},
+			],
+			// E3:6F39 ~ E3:A1C4 (0x8480) - Tilemap (32x32)
+			tilemap : [
+				{
+					name: 'noname',
+					address: 0x236F39, size: 0x2620, compressed: true,
+				},
+			],
+		}; test_waterSurface.tileset = test_waterSurface.bgtileset;
+
 		
 
 		let ROM = srcFilePanel.rom.fileData[0];
 		//let lvlRef = rareware;
 		//let lvlRef = wireframelogo;
-		let lvlRef = flashBG3;
+		//let lvlRef = flashBG3;
 		//let lvlRef = shipdeck;
 		//let lvlRef = shipmast;
 		//let lvlRef = hive_fg;
@@ -1907,6 +1981,7 @@
 		//let lvlRef = test_selectFileChoseGameStyle;
 		//let lvlRef = test_selectFileBG;
 		//let lvlRef = test_selectFileSecretEnding;
+		let lvlRef = test_waterSurface;
 
 		let lvlRefMode00 = lvlRef;
 
