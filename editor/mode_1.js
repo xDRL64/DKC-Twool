@@ -476,6 +476,31 @@
 
 		};
 
+
+		// hex data input (quick proto)
+		let hexDataInput = Elem('textarea', {margin:16});
+			hexDataInput.oninput = function(){
+				let rawDat = this.value.match(/[(0-9a-f)]{1,}/gi) || [];
+				rawDat = rawDat.join('');
+				let rawLen = rawDat.length;
+				let byteSize = rawLen>>1;
+				let prevBadSize = byteSize<64 ? 64 : 0;
+				let output = new Uint8Array(byteSize+prevBadSize);
+				let clampLen = byteSize<<1;
+				let byteStr;
+				this.value = '';
+				for(let i=0, iByte=0; i<clampLen; i+=2, iByte++){
+					byteStr = rawDat[i] + rawDat[i+1];
+					output[iByte] = parseInt(byteStr, 16) || 0;
+					this.value += byteStr + ' ';
+				}
+				_data = output;
+				render();
+			};
+			hexDataInput.style.alignSelf = 'stretch';
+		leftPanel.appendChild(hexDataInput);
+
+
 		o.close = function(){
 			// app.mode[ /**/put its mode id/**/ ].save = something;
 			// delete something (eventlistener, requestanimationframe, setinveterval, etc..)
