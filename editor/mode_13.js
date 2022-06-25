@@ -141,7 +141,21 @@
 		workspace.elem.appendChild(mode_13);
 
 
-		let refInfo = '> RAM\t:\t$80D655\n> ASM\t:\tCODE_80D695\n> ROM\t:\t0x00D655\n> size\t:\t136 ; 0x88'
+		let refInfo = '> RAM\t:\t$80D655\n> ASM\t:\tCODE_80D695\n> ROM\t:\t0x00D655\n> size\t:\t136 ; 0x88';
+
+		let patchSizePrecision = '( * Patch does not overwrite the 24 last bytes of the affected function )';
+
+		let create_patchDownloadLink = function(patchBuilder){
+			let patch = patchBuilder.AsarPatch(_rInput, _gInput, _bInput);
+			let patchBin = [];
+			for(let c of patch) patchBin.push(c.charCodeAt(0));
+
+			let o = Elem('A');
+			o.href = URL.createObjectURL( new Blob([new Uint8Array( patchBin )], {type: 'application/octet-stream'}));
+			o.download = `Custom Mine Sparkling Effect (r${_rInput},g${_gInput},b${_bInput}).asm`;
+			o.textContent = 'Asar Patch Download Link';
+			return o;
+		};
 
 		let rgbInputUpdate_original = function(){
 			let _rgbInputs = [_rInput, _gInput, _bInput];
@@ -154,18 +168,19 @@
 				settingsInfo.textContent = `${settingsText} : Buildable`;
 				buildOutput.textContent = freespaceText + 'Byte code :\n\n'
 										+ _originalBin.get_hexStrArray(..._rgbInputs).join('')
-										+ '\n\n' + refInfo;
+										+ '\n\n' + refInfo + '\n\n';
+				// Asar Patch Download Link
+				buildOutput.appendChild( create_patchDownloadLink(_originalBin) );
+				buildOutput.innerHTML += '\n' + patchSizePrecision;
 			}else{
 				settingsInfo.textContent = `${settingsText} : Not buildable`;
 				buildOutput.textContent = freespaceText;
 			}
 		};
 		
-
 		let rgbInputUpdate_noLimit = function(){
 			let _rgbInputs = [_rInput, _gInput, _bInput];
 			let size = _noLimitBin.allData.code.length;
-
 
 			let settingsText = (_rInput===4&&_gInput===4&&_bInput===1) ? 'Default settings' : 'Custom settings';
 			let freespaceText = `Size : ${size} bytes\n\n`
@@ -177,15 +192,8 @@
 									+ '\n\n' + refInfo + '\n\n';
 
 			// Asar Patch Download Link
-			let patch = _noLimitBin.AsarPatch(..._rgbInputs);
-			let patchBin = [];
-			for(let c of patch) patchBin.push(c.charCodeAt(0));
-			let htmlLink = Elem('A');
-			htmlLink.href = URL.createObjectURL( new Blob([new Uint8Array( patchBin )], {type: 'application/octet-stream'}));
-			htmlLink.download = `Custom Mine Sparkling Effect (r${_rInput},g${_gInput},b${_bInput}).asm`;
-			htmlLink.textContent = 'Asar Patch Download Link';
-
-			buildOutput.appendChild(htmlLink);
+			buildOutput.appendChild( create_patchDownloadLink(_noLimitBin) );
+			buildOutput.innerHTML += '\n' + patchSizePrecision;
 		};
 
 		let update_rgbFromInput = function(rIn, gIn, bIn){
@@ -319,7 +327,7 @@
 
 
 
-		let frameCounter = 0x9F83;
+		let frameCounter = 0x0;
 		let update_rgbOutput = null;
 
 		// update

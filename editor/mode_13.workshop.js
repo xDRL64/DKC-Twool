@@ -1,4 +1,15 @@
 
+        
+        
+        
+        
+        
+        
+        
+        /////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+        // BINARY WORKSHOP
+        /////////////////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////////////////
 
         let bin = {};
@@ -99,10 +110,10 @@
         /* gre 4 sub [14 bytes] */  bin.gre4 = [          /* gre 3 sub [12 bytes] */  bin.gre3 = [          /* gre 2 sub [10 bytes] */  bin.gre2 = [          /* gre 1 sub [8 bytes] */  bin.gre1 = [           /* gre 0 sub [0 bytes] */  bin.gre0 = [                                                                                       
         /*             */                                 /*             */                                 /*             */                                 /*             */                                 /*             */                                                                                         
         /* SEC         */               0x38,             /* SEC         */               0x38,             /* SEC         */               0x38,             /* SEC         */               0x38,                                                                                                    
-        /* SBC $32     */               0xE5,0x34,        /* SBC $32     */               0xE5,0x34,        /* SBC $32     */               0xE5,0x34,        /* SBC $32     */               0xE5,0x34,                                                                                               
-        /* SBC $32     */               0xE5,0x34,        /* SBC $32     */               0xE5,0x34,        /* SBC $32     */               0xE5,0x34,                                                                                                       
-        /* SBC $32     */               0xE5,0x34,        /* SBC $32     */               0xE5,0x34,                                                                                                                                                    
-        /* SBC $32     */               0xE5,0x34,                                                                                                                                                                                      
+        /* SBC $34     */               0xE5,0x34,        /* SBC $34     */               0xE5,0x34,        /* SBC $34     */               0xE5,0x34,        /* SBC $34     */               0xE5,0x34,                                                                                               
+        /* SBC $34     */               0xE5,0x34,        /* SBC $34     */               0xE5,0x34,        /* SBC $34     */               0xE5,0x34,                                                                                                       
+        /* SBC $34     */               0xE5,0x34,        /* SBC $34     */               0xE5,0x34,                                                                                                                                                    
+        /* SBC $34     */               0xE5,0x34,                                                                                                                                                                                      
         /* BPL $80D690 */               0x10,0x03,        /* BPL $80D690 */               0x10,0x03,        /* BPL $80D690 */               0x10,0x03,        /* BPL $80D690 */               0x10,0x03,                                                                                               
         /* LDA #$0000  */               0xA9,0x00,0x00    /* LDA #$0000  */               0xA9,0x00,0x00    /* LDA #$0000  */               0xA9,0x00,0x00    /* LDA #$0000  */               0xA9,0x00,0x00                                                                           
         /*             */           ];                    /*             */           ];                    /*             */           ];                    /*             */           ];                    /*             */           ];                                                                                                       
@@ -181,8 +192,8 @@
     
         //    ORA $38
         //    STA $7E8014,X
-        //    INX 
-        //    INX 
+        //    INX
+        //    INX
         //    CPX #$001E
         //    BNE $80D67B
         //    LDA $2A
@@ -193,7 +204,7 @@
         //    STA $7E8012
         //    LDA $7E8012
         //    BEQ $80D6DD
-        //    RTS 
+        //    RTS
         
         bin.lastPart = [
             0x05,0x38,0x9F,0x14,0x80,0x7E,0xE8,0xE8,
@@ -205,3 +216,127 @@
     
     
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        /////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+        // ASAR PATCH WORKSHOP
+        /////////////////////////////////////////////////////////////////////////////////////
+        /////////////////////////////////////////////////////////////////////////////////////
+
+
+// first part
+hirom
+org $80D655
+
+	LDA $2A 
+	ASL
+	AND #$003F
+	BIT #$0020
+	BEQ next_A
+	EOR #$003F
+next_A:
+	CMP #$0020
+	BCC next_B
+	LDA #$0020
+next_B:
+	STA $32
+	ASL
+	ASL
+	XBA
+	STA $36
+	XBA
+	ASL
+	ASL
+	ASL
+	STA $34
+	LDX #$0000
+palette_color_update_loop:
+	LDA $FD2270,X
+	AND #$001F
+	
+// red 4 sub
+	SEC
+	SBC $32
+	SBC $32
+	SBC $32
+	SBC $32
+	BPL next_C
+	LDA #$0000
+next_C:
+
+// red to green part
+	STA $38
+	LDA $FD2270,X
+	AND #$03E0
+
+// green 4 sub
+	SEC
+	SBC $32
+	SBC $32
+	SBC $32
+	SBC $32
+	BPL next_D
+	LDA #$0000
+next_D:
+
+// green to blue part
+	TSB $38
+	LDA $FD2270,X
+	AND #$7C00
+
+
+// custom blue 4 sub
+	SEC
+	SBC $36
+	BMI clamp_blue
+	SBC $36
+	BMI clamp_blue
+	SBC $36
+	BMI clamp_blue
+	SBC $36
+	BPL next_E
+clamp_blue:
+	LDA #$0000
+next_E:
+
+// lastPart
+	ORA $38
+	STA $7E8014,X
+	INX
+	INX
+	CPX #$001E
+	BNE palette_color_update_loop
+
+// NOP part
+
+// very last part (is not overwriten by the patch)
+	LDA $2A
+	AND #$0020
+	BEQ $80D6D6
+	JSR $B0FE
+	AND #$0001
+	STA $7E8012
+	LDA $7E8012
+	BEQ $80D6DD
+	RTS

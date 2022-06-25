@@ -199,6 +199,63 @@ dkc2ldd.asm = (function(app=dkc2ldd){
             }else
                 return null;
         },
+
+        intructionSets : {
+            firstPart : 'hirom\norg $80D655\n\n\tLDA $2A \n\tASL\n\tAND #$003F\n\tBIT #$0020\n\tBEQ next_A\n\tEOR #$003F\nnext_A:\n\tCMP #$0020\n\tBCC next_B\n\tLDA #$0020\nnext_B:\n\tSTA $32\n\tASL\n\tASL\n\tXBA\n\tSTA $36\n\tXBA\n\tASL\n\tASL\n\tASL\n\tSTA $34\n\tLDX #$0000\npalette_color_update_loop:\n\tLDA $FD2270,X\n\tAND #$001F\n',
+            redSub : [
+                '', // zero sub
+                '\tSEC\n\tSBC $32\n\tBPL next_C\n\tLDA #$0000\nnext_C:\n',
+                '\tSEC\n\tSBC $32\n\tSBC $32\n\tBPL next_C\n\tLDA #$0000\nnext_C:\n',
+                '\tSEC\n\tSBC $32\n\tSBC $32\n\tSBC $32\n\tBPL next_C\n\tLDA #$0000\nnext_C:\n',
+                '\tSEC\n\tSBC $32\n\tSBC $32\n\tSBC $32\n\tSBC $32\n\tBPL next_C\n\tLDA #$0000\nnext_C:\n',
+            ],
+            redToGreen : '\tSTA $38\n\tLDA $FD2270,X\n\tAND #$03E0\n',
+            greenSub : [
+                '', // zero sub
+                '\tSEC\n\tSBC $34\n\tBPL next_D\n\tLDA #$0000\nnext_D:\n',
+                '\tSEC\n\tSBC $34\n\tSBC $34\n\tBPL next_D\n\tLDA #$0000\nnext_D:\n',
+                '\tSEC\n\tSBC $34\n\tSBC $34\n\tSBC $34\n\tBPL next_D\n\tLDA #$0000\nnext_D:\n',
+                '\tSEC\n\tSBC $34\n\tSBC $34\n\tSBC $34\n\tSBC $34\n\tBPL next_D\n\tLDA #$0000\nnext_D:\n',
+            ],
+            greenToBlue : '\tTSB $38\n\tLDA $FD2270,X\n\tAND #$7C00\n',
+            blueSub : [
+                '', // zero sub
+                '\tSEC\n\tSBC $36\n\tBPL next_E\n\tLDA #$0000\nnext_E:\n',
+                '\tSEC\n\tSBC $36\n\tBMI clamp_blue\n\tSBC $36\n\tBPL next_E\nclamp_blue:\n\tLDA #$0000\nnext_E:\n',
+                '\tSEC\n\tSBC $36\n\tBMI clamp_blue\n\tSBC $36\n\tBMI clamp_blue\n\tSBC $36\n\tBPL next_E\nclamp_blue:\n\tLDA #$0000\nnext_E:\n',
+                '\tSEC\n\tSBC $36\n\tBMI clamp_blue\n\tSBC $36\n\tBMI clamp_blue\n\tSBC $36\n\tBMI clamp_blue\n\tSBC $36\n\tBPL next_E\nclamp_blue:\n\tLDA #$0000\nnext_E:\n',
+            ],
+
+            lastPart : '\tORA $38\n\tSTA $7E8014,X\n\tINX\n\tINX\n\tCPX #$001E\n\tBNE palette_color_update_loop\n',
+
+            NOP : function(count){
+                let o = '';
+                for(let i=0; i<count; i++)
+                    o += '\tNOP\n';
+                return o;
+            },
+        },
+
+        AsarPatch : function(redSub=4, greenSub=4, blueSub=1){
+            let total = this.get_totalSize(redSub, greenSub, blueSub);
+
+            if(total > this.maxSize)
+                // wrong size
+                return null;
+            else{
+                // build
+                let nop = this.intructionSets.NOP(this.maxSize - total);
+                return ''
+                    + this.intructionSets.firstPart
+                    + this.intructionSets.redSub[redSub]
+                    + this.intructionSets.redToGreen
+                    + this.intructionSets.greenSub[greenSub]
+                    + this.intructionSets.greenToBlue
+                    + this.intructionSets.blueSub[blueSub]
+                    + this.intructionSets.lastPart
+                    + nop ;
+            }
+        },
     };
 
     o.noLimitSparklingPalette = {
