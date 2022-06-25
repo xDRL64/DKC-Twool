@@ -1871,8 +1871,6 @@
 			],
 		};
 
-
-		
 		
 		let test_waterSurface = {
 			// DATA_FD0910	lockjaws_locker_level_palette
@@ -1944,8 +1942,117 @@
 				},
 			],
 		}; test_waterSurface.tileset = test_waterSurface.bgtileset;
-
 		
+
+		let test_destroy_them_all = {	
+			// DATA_FD3DEE	palette_layer1_destroy_them_all_screen		
+			//DATA_FD3EAE    palette_layer1_collect_the_stars_screen
+			//DATA_FD3F6E    palette_layer1_find_the_token_screen
+			palette : [
+				{
+					name: 'select file palette',
+					address: 0x3D3C6E, size: 0x40, compressed: false,
+				},
+				{
+					name: 'palette',
+					address: 0x3D3DEE, size: 0xC0, compressed: false,
+				},
+			],
+			// DATA_ED9179    destroy_them_all_tiledata
+			bgtileset : [
+				{
+					name: 'anydata to add offset',
+
+					address: 0x2D9179, size: 0x14C0, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED9E72    destroy_them_all_8x8_tilemap
+			background : [
+				{
+					name: 'water_layer_3_8x8_tilemap',
+					address: 0x2D9E72, size: 0x8000, compressed: true,
+				},
+			],
+			
+		}; test_destroy_them_all.tileset = test_destroy_them_all.bgtileset;
+
+
+		let test_find_the_token = {	
+			// DATA_FD3DEE	palette_layer1_destroy_them_all_screen		
+			//DATA_FD3EAE    palette_layer1_collect_the_stars_screen
+			//DATA_FD3F6E    palette_layer1_find_the_token_screen
+			palette : [
+				{
+					name: 'select file palette',
+					address: 0x3D3C6E, size: 0x40, compressed: false,
+				},
+				{
+					name: 'palette',
+					address: 0x3D3F6E, size: 0xC0, compressed: false,
+				},
+			],
+			// DATA_ED8584    find_the_token_tiledata
+			bgtileset : [
+				{
+					name: 'n',
+
+					address: 0x2D8584, size: 0x14C0, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_ED9C9A    find_the_token_8x8_tilemap
+			background : [
+				{
+					name: 'n',
+					address: 0x2D9C9A, size: 0x8000, compressed: true,
+				},
+			],
+			
+		}; test_find_the_token.tileset = test_find_the_token.bgtileset;
+
+
+		let test_collect_the_stars = {	
+			// DATA_FD3DEE	palette_layer1_destroy_them_all_screen		
+			//DATA_FD3EAE    palette_layer1_collect_the_stars_screen
+			//DATA_FD3F6E    palette_layer1_find_the_token_screen
+			palette : [
+				{
+					name: 'select file palette',
+					address: 0x3D3C6E, size: 0x40, compressed: false,
+				},
+				{
+					name: 'palette',
+					address: 0x3D3EAE, size: 0xC0, compressed: false,
+				},
+			],
+			// DATA_ED78D3    collect_the_stars_tiledata
+			bgtileset : [
+				{
+					name: 'n',
+
+					address: 0x2D78D3, size: 0x14C0, compressed: true,
+					vram: {
+						bpp: 4, dstIndex: 0,
+					},
+				},
+			],
+			// DATA_EDA030    collect_the_stars_8x8_tilemap
+			background : [
+				{
+					name: 'n',
+					address: 0x2DA030, size: 0x8000, compressed: true,
+				},
+			],
+			
+		}; test_collect_the_stars.tileset = test_collect_the_stars.bgtileset;
+
+
+
 
 		let ROM = srcFilePanel.rom.fileData[0];
 		//let lvlRef = rareware;
@@ -1983,6 +2090,9 @@
 		//let lvlRef = test_selectFileBG;
 		//let lvlRef = test_selectFileSecretEnding;
 		//let lvlRef = test_waterSurface;
+		//let lvlRef = test_destroy_them_all;
+		//let lvlRef = test_find_the_token;
+		//let lvlRef = test_collect_the_stars;
 
 		let lvlRefMode00 = lvlRef;
 
