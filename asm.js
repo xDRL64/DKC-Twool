@@ -2,7 +2,7 @@ dkc2ldd.asm = (function(app=dkc2ldd){
 
     let o = {};
 
-    o.animPalBin = {
+    o.originalSparklingPalette = {
 
         firstPart : {
             code : [
@@ -237,6 +237,8 @@ dkc2ldd.asm = (function(app=dkc2ldd){
 
             A = (blueSub & 0xFF00) >> 8, B = (blueSub & 0x00FF);
             data.code[data.bBytePos] = B; data.code[data.bBytePos+1] = A;
+
+            return data.code;
         },
         get_hexStrArray : function(redSub, greenSub, blueSub){
             let built = this.build_bytecode(redSub, greenSub, blueSub);
@@ -247,6 +249,13 @@ dkc2ldd.asm = (function(app=dkc2ldd){
                 return o;
             }else
                 return null;
+        },
+
+        AsarPatch : function(redSub=4, greenSub=4, blueSub=1){
+            let _r = app.lib.get_fix0hexStr(redSub, 4);
+            let _g = app.lib.get_fix0hexStr(greenSub, 4);
+            let _b = app.lib.get_fix0hexStr(blueSub, 4);
+            return `hirom\norg $80D655\n\n\tBRA skip_subLoop\n\n; arg : A:channel, Y:subCount, $36:subFactor\nsubLoopStart:\n\tCLC\nsubLoop:\n\tSBC $36\n\tBPL continue\n\tLDA #$0000\n\tRTS\n    \ncontinue:\n\tDEY\n\tBNE subLoop\n\tRTS\n\nskip_subLoop:\n\tLDA $2A \n\tASL\n\tAND #$003F\n\tBIT #$0020\n\tBEQ next_A\n\tEOR #$003F\nnext_A:\n\tCMP #$0020\n\tBCC next_B\n\tLDA #$0020\nnext_B:\n\tSTA $36 ; subFactor\n\tLDX #$0000\n\t\npalette_color_update_loop:\n\tLDA $FD2270,X\n\tSTA $32 ; color\n\n; red channel\n\tAND #$001F ; A = red\n\tLDY #$${_r} ; ${redSub} substraction\n\tJSR subLoopStart\n\tSTA $34 ; write new red\n\n; green channel\n\tLDA $32\n\tAND #$03E0\n\tASL\n\tASL\n\tASL\n\tXBA ; A = green\n\tLDY #$${_g} ; ${greenSub} substraction\n\tJSR subLoopStart\n\tXBA\n\tLSR\n\tLSR\n\tLSR\n\tTSB $34 ; write new green\n    \n; blue channel\n\tLDA $32\n\tAND #$7C00\n\tXBA\n\tLSR\n\tLSR ; A = blue\n\tLDY #$${_b} ; ${blueSub} substraction\n\tJSR subLoopStart\n\tASL\n\tASL\n\tXBA\n\tORA $34 ; write new blue\n\n\tSTA $7E8014,X ; write new color\n\n\tINX        \n\tINX        \n\tCPX #$001E \n\tBNE palette_color_update_loop\n\n\tNOP\n\tNOP\n`;
         },
     };
 

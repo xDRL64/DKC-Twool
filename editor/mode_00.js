@@ -1820,6 +1820,7 @@
 				},
 			],
 		};
+
 		let test_selectFileSecretEnding = {
 			
 			// DATA_FD420E	secret_ending_screen_palette
@@ -1949,7 +1950,7 @@
 		let ROM = srcFilePanel.rom.fileData[0];
 		//let lvlRef = rareware;
 		//let lvlRef = wireframelogo;
-		//let lvlRef = flashBG3;
+		let lvlRef = flashBG3;
 		//let lvlRef = shipdeck;
 		//let lvlRef = shipmast;
 		//let lvlRef = hive_fg;
@@ -1981,7 +1982,7 @@
 		//let lvlRef = test_selectFileChoseGameStyle;
 		//let lvlRef = test_selectFileBG;
 		//let lvlRef = test_selectFileSecretEnding;
-		let lvlRef = test_waterSurface;
+		//let lvlRef = test_waterSurface;
 
 		let lvlRefMode00 = lvlRef;
 
