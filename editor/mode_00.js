@@ -781,6 +781,26 @@
 
 		};
 
+		let brambles_dataset = {
+			tilemap : [
+				{
+					// bramble_tilemap_32x32_1	24B767	2EE2	MAP	YES	
+					name:'tilemap32x32 1',
+					address: 0x24B767, size: 0x2EE2, compressed: true
+				},
+				{
+					// bramble_tilemap_32x32_2	24E649	10CB	MAP	YES
+					name:'tilemap32x32 1',
+					address: 0x24E649, size: 0x10CB, compressed: true
+				},
+				{
+					// bramble_tilemap_32x32_2	24E649	10CB	MAP	YES
+					name:'shiphold tilemap32x32',
+					address: 0x236F39 , size: 0x8000, compressed: true
+				},
+			],
+		};
+
 		// DATA_EAA94D	brambles_sky_bg_layer_3_tiledata
 		// DATA_DDFDBA	brambles_sky_bg_layer_3_8x8_tilemap
 		// DATA_EAB6F0	brambles_bg_layer_2_tiledata
@@ -1177,16 +1197,15 @@
 			// format=8x8 0 16 frame=64
 		};
 
-
-		// 352087 8x8
-		// 3526A7 32x32
-		// 352BA7 tiledata
-		// 3D0CD0 palette
+		
 		let H4v0c21_test_rigging = {
-			
+			// DATA_F52087 ship_deck_rigging_layer_3_8x8_tilemap
+			// DATA_F526A7 ship_deck_rigging_layer_3_32x32_tilemap
+			// DATA_F52BA7 ship_deck_rigging_layer_3_tiledata
+			// 3D0CD0 palette
 			palette : [
 				{
-					name: 'funky flights palette',
+					name: 'palette',
 					address: 0x3D0CD0, size: 0x1000, compressed: false,
 				},
 			],
@@ -2057,19 +2076,20 @@
 		let ROM = srcFilePanel.rom.fileData[0];
 		//let lvlRef = rareware;
 		//let lvlRef = wireframelogo;
-		let lvlRef = flashBG3;
+		//let lvlRef = flashBG3;
 		//let lvlRef = shipdeck;
 		//let lvlRef = shipmast;
 		//let lvlRef = hive_fg;
 		//let lvlRef = hive_bg;
 		//let lvlRef = brambles_sky;
+		//let lvlRef = brambles_dataset;
 		//let lvlRef = forest_bg;
 		//let lvlRef = forest_leaves;
 		//let lvlRef = forest_sunshine;
 		//let lvlRef = debugPaletteClass;
 		//let lvlRef = H4v0c21_$35FA80;
 		//let lvlRef = H4v0c21_test;
-		//let lvlRef = H4v0c21_test_rigging;
+		let lvlRef = H4v0c21_test_rigging;
 		//let lvlRef = mine_debris;
 		//let lvlRef = castle_lvl;
 		//let lvlRef = castle_bg;
@@ -2093,6 +2113,8 @@
 		//let lvlRef = test_destroy_them_all;
 		//let lvlRef = test_find_the_token;
 		//let lvlRef = test_collect_the_stars;
+		
+		
 
 		let lvlRefMode00 = lvlRef;
 
