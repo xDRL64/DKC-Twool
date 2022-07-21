@@ -398,7 +398,56 @@ dkc2ldd.editor = (function(app=dkc2ldd){
 		};
 	};
 	
-	// 2D cell list to border point list
+	// 2D cell list to bordered shape list :
+	//
+	// Converts :
+	//   from : some regular square/rect 2D cells of a kind of 2D grid having visual representation (such as tilemap, 2D box array, etc..)
+	//   to   : a bordered shape list, usable to draw selection shape, for example.
+	//
+	// Takes a list of 2D cell coord xy indexes, put in a simple array : _2D_cellList
+	//   _2D_cellList : [x,y, x,y, ...]
+	//   x y are not in pixel unit, but there are in index unit, that allows to the process to abstract width and height notion.
+	//
+	// Returns a list of bordered shape.
+	//   if the given _2D_cellList contains several separed 2D cell blocks, or if 2D cell block(s) contain(s) some empty space,
+	//   this will produce multiple bordered shapes in the output result, see :
+	//
+	//         0   1   2   3   4   5   6   7   9   10  11
+	//      X -------------------------------------------
+	//    Y                                              
+	//   0|   [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]  \  
+	//   1|   [ ] [O] [O] [O] [ ] [ ] [O] [O] [O] [ ] [ ]   |  this will produce 3 bordered shapes
+	//   2|   [ ] [O] [ ] [O] [ ] [ ] [O] [O] [O] [ ] [ ]   |    - the fisrt square outside bordered shape
+	//   3|   [ ] [O] [ ] [O] [ ] [ ] [O] [O] [O] [ ] [ ]   |    - the fisrt square inside bordered shape
+	//   4|   [ ] [O] [O] [O] [ ] [ ] [O] [O] [O] [ ] [ ]   |    - the second square outside bordered shape
+	//   5|   [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ] [ ]  /  
+	//
+	// Bordered shape are lists of cell coord xy index with one border side (top/right/bottom/left)
+	// One corner is 2 borders which are then 2 bordered shape list items with same xy but diffent border side.
+	// (outside corners are on the same one cell, inside corners are on 2 different cells.)
+	// (but this is just a process logic precision maybe "useless", so no worries, read next :)
+	// Bordered shape list items are stored in the correct order to follow the continuous logic of border path.
+	// Bordered shape list item format is : [cell x index, cell y index, cell border side] (number, number, 't'|'r'|'b'|'l')
+	// Each bordered shape item is made to be considered as a 'A' point of the border edge to draw,
+	// so it always needs the next one item to know the 'B' point, also,
+	// The last bordered shape item of each list is made to match perfectly with the first one of its list.
+	// The process will also fusion flat border of multiple cells closed to each other to make only one extended border,
+	// but in other words this means it will not store every multiple cells on same axis having the same border side,
+	// it will store only the first one that is found and simply skip the rest of them.
+	// This optimisation actually produces as many border as there are corners.
+	//
+	// To use in a border drawing let's take an example for 3 cells :
+	//
+	//         0   1   2   3   4 
+	//      X -------------------
+	//    Y                      
+	//   0|   [ ] [ ] [ ] [ ] [ ]
+	//   1|   [ ] [A] [B] [C] [ ]
+	//   2|   [ ] [ ] [ ] [ ] [ ]
+
+	// it will store in the bordered shape : [A] with 'top' ; [C] with 'right' ; [C] with 'bottom' ; [A] with 'left'
+	// bordered shape : [ [1,1,'t'], [3,1,'r'], [3,1,'b'], [1,1,'l'] ]
+
 	o.borderPoints = function(_2D_cellList){
 
 		let T = _2D_cellList;
@@ -486,10 +535,10 @@ dkc2ldd.editor = (function(app=dkc2ldd){
 
 					t=0; r=0; b=0; l=0;
 
-					// first point of top (LEFt to right)
+					// first point of top (LEFT to right)
 					o.push( [wOfst+c.x, hOfst+c.y, 't'] );
 
-					// look for extend top
+					// look for extended top
 					while(true){
 						c.t = 0;
 						if( !(c.t|c.b|c.l|c.r) ) c.bord = 0;
@@ -515,7 +564,7 @@ dkc2ldd.editor = (function(app=dkc2ldd){
 					// first point of right (TOP to bottom)
 					o.push( [wOfst+c.x+1, hOfst+c.y, 'r'] );
 
-					// look for extend top
+					// look for extended right
 					while(true){
 						c.r = 0;
 						if( !(c.t|c.b|c.l|c.r) ) c.bord = 0;
@@ -541,7 +590,7 @@ dkc2ldd.editor = (function(app=dkc2ldd){
 					// first point of botton (RIGHT to left)
 					o.push( [wOfst+c.x+1, hOfst+c.y+1, 'b'] );
 
-					// look for extend top
+					// look for extended bottom
 					while(true){
 						c.b = 0;
 						if( !(c.t|c.b|c.l|c.r) ) c.bord = 0;
@@ -567,7 +616,7 @@ dkc2ldd.editor = (function(app=dkc2ldd){
 					// first point of left (BOTTOM to top)
 					o.push( [wOfst+c.x, hOfst+c.y+1, 'l'] );
 
-					// look for extend top
+					// look for extended left
 					while(true){
 						c.l = 0;
 						if( !(c.t|c.b|c.l|c.r) ) c.bord = 0;
@@ -607,6 +656,7 @@ dkc2ldd.editor = (function(app=dkc2ldd){
 	};
 
 
+	// draw squared cell border with round corner
 	o.pathListToSvgPath = function(pathList, rayBord, cellSize){
 		let paths = pathList;
 		let r = rayBord;
