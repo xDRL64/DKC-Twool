@@ -29,6 +29,7 @@
 		// code ...
 		let lvlIndexNames = get_lvlIndexNames();
 		let ISD_names = get_ISD_names();
+		let PPU_registerRefs = get_PPU_registerRefs();
 		let levelIndexCount = 256;
 		let _levelIndex = 0;
 		let levelIndexList = wLib2.DropList('level index : \t');
@@ -57,14 +58,24 @@
 		let PPU_renderMethodListBank = 0x3D;
 		let PPU_renderMethodListPointer = 0x79E2;
 		let PPU_renderMethodListAddress = (PPU_renderMethodListBank<<16) + PPU_renderMethodListPointer;
-		let get_PPU_renderMethodAddress = function(methodIndex){    // multiply by 2
+		let get_PPU_renderMethodAddress = function(methodIndex){        // multiply by 2
 			let PPU_renderMethodOffset = PPU_renderMethodListAddress + (methodIndex << 1);
 			let PPU_renderMethodLowByte = ROM[PPU_renderMethodOffset];
 			let PPU_renderMethodHighByte = ROM[PPU_renderMethodOffset + 1];
 			return PPU_renderMethodListAddress + (PPU_renderMethodHighByte<<8) + PPU_renderMethodLowByte;
 		};
 		
-
+		// payloads
+		let payloadsListBank = 0x3D;
+		let payloadsListPointer = 0x819A;
+		let payloadsListAddress = (payloadsListBank<<16) + payloadsListPointer;
+		let get_payloadsAddress = function(payloadsIndex){ // multiply by 2
+			let payloadsOffset = payloadsListAddress + (payloadsIndex << 1);
+			let payloadsLowByte = ROM[payloadsOffset];
+			let payloadsHighByte = ROM[payloadsOffset + 1];
+			return payloadsListAddress + (payloadsHighByte<<8) + payloadsLowByte;
+		};
+		
 
 
 
@@ -95,7 +106,7 @@
 			};
 
 
-			let highByte, lowByte, binWord, correctVal;
+			let bankByte, highByte, lowByte, binWord, correctVal;
 
 			let make_mainLevelSettings = function(){
 
@@ -376,9 +387,9 @@
 				addNewLine_toDisplay('\n\nPPU Render Method List : ');
 				add_toDisplay( hex(PPU_renderMethodListBank)+':'+hex(PPU_renderMethodListPointer), 'Address : ' );
 				*/
-				
+
 				// PPU render method instruction list
-				addNewLine_toDisplay('\n\nPPU Render Method Instruction List : ');
+				addNewLine_toDisplay('\n\n[ PPU Render Method Instruction List ] : ');
 
 				// PPU render method instruction list address
 				add_toDisplay( hex(PPU_renderMethodListBank)+':'+hex(PPU_renderMethodAddress&0xFFFF), 'Address : ' );
@@ -386,6 +397,7 @@
 				let instructionMax = 256;
 				let valueByteCount = 0;
 				let instructionAddress;
+				let PPU_registerWrongRef = {name:'?',description:'---'}
 				for(let i=0; i<instructionMax; i++){
 
 					instructionAddress = PPU_renderMethodAddress + (i*2) + valueByteCount;
@@ -400,39 +412,106 @@
 
 					let instructionRomBytesStr = `${lowstr}, ${highstr}`;
 					if(binWord === 0x0000){
+						// instruction list end
 						add_toDisplay(`[${instructionRomBytesStr}]`, 'Instruction List End : ');
 						break;
 					}
 
-					
+					// instruction (any case : byte or word)
 					let instructionStr = wordstr;
+					let PPU_registers = [null, {name:'',description:''}];
 					let PPU_registersStr = ['','[$----=0x--]']
 					let valueRomByteStr = '';
 					lowByte = ROM[instructionAddress + 2];
 					lowstr = hex(lowByte);
+
 					if(highByte & 0x80){
+						// instruction word value case :
 						highByte = ROM[instructionAddress + 3];
 						highstr = hex(highByte);
-						PPU_registersStr[0] = `[$${hex(binWord&0x7FFF)}=0x${lowstr}]`;
-						PPU_registersStr[1] = `[$${hex((binWord&0x7FFF)+1)}=0x${highstr}]`;
+						let PPU_register = binWord&0x7FFF;
+						PPU_registers[0] = PPU_registerRefs[PPU_register] || PPU_registerWrongRef;
+						PPU_registers[1] = PPU_registerRefs[PPU_register + 1] || PPU_registerWrongRef;
+						PPU_registersStr[0] = `[$${hex(PPU_register)}=0x${lowstr}]`;
+						PPU_registersStr[1] = `[$${hex(PPU_register+1)}=0x${highstr}]`;
 						valueRomByteStr = `${lowstr}, ${highstr}`
 						valueByteCount += 2;
 					}else{
+						// instruction byte value case :
+						PPU_registers[0] = PPU_registerRefs[binWord] || PPU_registerWrongRef;
 						PPU_registersStr[0] = `[$${hex(binWord)}=0x${lowstr}]`;
 						valueRomByteStr = lowstr;
 						valueByteCount++;
 					}
 
-					add_toDisplay(`[${instructionRomBytesStr}, ${valueRomByteStr}]`, `PPU Registers ${PPU_registersStr[0]} ${PPU_registersStr[1]} : `);
+					let registersInfoTxt = `\n[${PPU_registers[0].name}] : ${PPU_registers[0].description}` +
+					                       `\n[${PPU_registers[1].name}] : ${PPU_registers[1].description}` ;
+					add_toDisplay(`[${instructionRomBytesStr}, ${valueRomByteStr}]`, `PPU Registers ${PPU_registersStr[0]} ${PPU_registersStr[1]} : ${registersInfoTxt}`, 512);
 
 				}
 			};
 
+			let make_payloads = function(){
+
+				let payloadsAddress = get_payloadsAddress(payloadsIndex);
+
+				// payloads data ref list
+				addNewLine_toDisplay('\n\n[ Payloads Data Reference List ] : ');
+
+				// payloads data ref list address
+				add_toDisplay( hex(payloadsListBank)+':'+hex(payloadsAddress&0xFFFF), 'Address : ' );
+
+				let payloadsMax = 32;
+				let payloadSize = /*address*/3 + /*vramAddr|zipFlag*/2 + /*zipSize*/2;
+				let payloadAddress;
+				for(let i=0; i<payloadsMax; i++){
+
+					payloadAddress = payloadsAddress + (i*payloadSize);
+
+					addNewLine_toDisplay(`\nPayload Data Ref Index ${i} (0x${hex(payloadAddress)}) : `);
+
+					bankByte = ROM[payloadAddress];
+					let bankstr = hex(bankByte);
+
+					if(bankByte === 0x00){
+						// payloads data ref list end
+						add_toDisplay(`[${bankByte}]`, 'Instruction List End : ');
+						break;
+					}
+
+					// source data address
+					lowByte = ROM[payloadAddress + 1];
+					highByte = ROM[payloadAddress + 2];
+					binWord = (highByte<<8) + lowByte;
+					let lowstr = hex(lowByte), highstr = hex(highByte);
+					let wordstr = highstr + lowstr;
+					add_toDisplay(`[${bankstr}, ${lowstr}, ${highstr}]`, `Data Address [${bankstr}:${wordstr}] : `);
+
+					// destination vram address and compressed flag
+					lowByte = ROM[payloadAddress + 3];
+					highByte = ROM[payloadAddress + 4];
+					binWord = (highByte<<8) + lowByte;
+					lowstr = hex(lowByte); highstr = hex(highByte);
+					let compressed = (highByte&0x80 ? 'compressed' : 'uncompressed');
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `VRAM Address [0x${hex(highByte&0x7F)+lowstr} | ${compressed}] : `, 288);
+
+					// data size
+					lowByte = ROM[payloadAddress + 5];
+					highByte = ROM[payloadAddress + 6];
+					binWord = (highByte<<8) + lowByte;
+					lowstr = hex(lowByte); highstr = hex(highByte);
+					wordstr = highstr + lowstr;
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Data Size 0x${wordstr} : `);
+
+				}
+
+			};
 
 			// //////////////////////////////////////////////////////////////////////////
 			let {ISD_pointer} = make_mainLevelSettings();
 			let {PPU_renderMethodIndex, payloadsIndex, themeIndex} = make_ISD_settings();
 			make_PPU_renderMethod();
+			make_payloads();
 			// //////////////////////////////////////////////////////////////////////////
 
 			return displayElem;
@@ -672,6 +751,83 @@
 				0x4BCD : `Barrel Bayou / Kudgel's Kontest`,
 			};
 		}
+
+		function get_PPU_registerRefs(){
+			return {
+				0x2100:{name:'INIDISP', description:'Screen Display Register'},
+				0x2101:{name:'OBSEL', description:'Object Size and Character Size Register'},
+				0x2102:{name:'OAMADDL', description:'OAM Address Registers (Low)'},
+				0x2103:{name:'OAMADDH', description:'OAM Address Registers (High)'},
+				0x2104:{name:'OAMDATA', description:'OAM Data Write Register'},
+				0x2105:{name:'BGMODE', description:'BG Mode and Character Size Register'},
+				0x2106:{name:'MOSAIC', description:'Mosaic Register'},
+				0x2107:{name:'BG1SC', description:'BG Tilemap Address Registers (BG1)'},
+				0x2108:{name:'BG2SC', description:'BG Tilemap Address Registers (BG2)'},
+				0x2109:{name:'BG3SC', description:'BG Tilemap Address Registers (BG3)'},
+				0x210A:{name:'BG4SC', description:'BG Tilemap Address Registers (BG4)'},
+				0x210B:{name:'BG12NBA', description:'BG Character Address Registers (BG1&2)'},
+				0x210C:{name:'BG34NBA', description:'BG Character Address Registers (BG3&4)'},
+				0x210D:{name:'BG1HOFS', description:'BG Scroll Registers (BG1)'},
+				0x210E:{name:'BG1VOFS', description:'BG Scroll Registers (BG1)'},
+				0x210F:{name:'BG2HOFS', description:'BG Scroll Registers (BG2)'},
+				0x2110:{name:'BG2VOFS', description:'BG Scroll Registers (BG2)'},
+				0x2111:{name:'BG3HOFS', description:'BG Scroll Registers (BG3)'},
+				0x2112:{name:'BG3VOFS', description:'BG Scroll Registers (BG3)'},
+				0x2113:{name:'BG4HOFS', description:'BG Scroll Registers (BG4)'},
+				0x2114:{name:'BG4VOFS', description:'BG Scroll Registers (BG4)'},
+				0x2115:{name:'VMAIN', description:'Video Port Control Register'},
+				0x2116:{name:'VMADDL', description:'VRAM Address Registers (Low)'},
+				0x2117:{name:'VMADDH', description:'VRAM Address Registers (High)'},
+				0x2118:{name:'VMDATAL', description:'VRAM Data Write Registers (Low)'},
+				0x2119:{name:'VMDATAH', description:'VRAM Data Write Registers (High)'},
+				0x211A:{name:'M7SEL', description:'Mode 7 Settings Register'},
+				0x211B:{name:'M7A', description:'Mode 7 Matrix Registers'},
+				0x211C:{name:'M7B', description:'Mode 7 Matrix Registers'},
+				0x211D:{name:'M7C', description:'Mode 7 Matrix Registers'},
+				0x211E:{name:'M7D', description:'Mode 7 Matrix Registers'},
+				0x211F:{name:'M7X', description:'Mode 7 Matrix Registers'},
+				0x2120:{name:'M7Y', description:'Mode 7 Matrix Registers'},
+				0x2121:{name:'CGADD', description:'CGRAM Address Register'},
+				0x2122:{name:'CGDATA', description:'CGRAM Data Write Register'},
+				0x2123:{name:'W12SEL', description:'Window Mask Settings Registers'},
+				0x2124:{name:'W34SEL', description:'Window Mask Settings Registers'},
+				0x2125:{name:'WOBJSEL', description:'Window Mask Settings Registers'},
+				0x2126:{name:'WH0', description:'Window Position Registers (WH0)'},
+				0x2127:{name:'WH1', description:'Window Position Registers (WH1)'},
+				0x2128:{name:'WH2', description:'Window Position Registers (WH2)'},
+				0x2129:{name:'WH3', description:'Window Position Registers (WH3)'},
+				0x212A:{name:'WBGLOG', description:'Window Mask Logic registers (BG)'},
+				0x212B:{name:'WOBJLOG', description:'Window Mask Logic registers (OBJ)'},
+				0x212C:{name:'TM', description:'Screen Destination Registers'},
+				0x212D:{name:'TS', description:'Screen Destination Registers'},
+				0x212E:{name:'TMW', description:'Window Mask Destination Registers'},
+				0x212F:{name:'TSW', description:'Window Mask Destination Registers'},
+				0x2130:{name:'CGWSEL', description:'Color Math Registers'},
+				0x2131:{name:'CGADSUB', description:'Color Math Registers'},
+				0x2132:{name:'COLDATA', description:'Color Math Registers'},
+				0x2133:{name:'SETINI', description:'Screen Mode Select Register'},
+				0x2134:{name:'MPYL', description:'Multiplication Result Registers'},
+				0x2135:{name:'MPYM', description:'Multiplication Result Registers'},
+				0x2136:{name:'MPYH', description:'Multiplication Result Registers'},
+				0x2137:{name:'SLHV', description:'Software Latch Register'},
+				0x2138:{name:'OAMDATAREAD', description:'OAM Data Read Register'},
+				0x2139:{name:'VMDATALREAD', description:'VRAM Data Read Register (Low)'},
+				0x213A:{name:'VMDATAHREAD', description:'VRAM Data Read Register (High)'},
+				0x213B:{name:'CGDATAREAD', description:'CGRAM Data Read Register'},
+				0x213C:{name:'OPHCT', description:'Scanline Location Registers (Horizontal)'},
+				0x213D:{name:'OPVCT', description:'Scanline Location Registers (Vertical)'},
+				0x213E:{name:'STAT77', description:'PPU Status Register'},
+				0x213F:{name:'STAT78', description:'PPU Status Register'},
+				0x2140:{name:'APUIO0', description:'APU IO Registers'},
+				0x2141:{name:'APUIO1', description:'APU IO Registers'},
+				0x2142:{name:'APUIO2', description:'APU IO Registers'},
+				0x2143:{name:'APUIO3', description:'APU IO Registers'},
+				0x2180:{name:'WMDATA', description:'WRAM Data Register'},
+				0x2181:{name:'WMADDL', description:'WRAM Address Registers'},
+				0x2182:{name:'WMADDM', description:'WRAM Address Registers'},
+				0x2183:{name:'WMADDH', description:'WRAM Address Registers'},
+			};
+		};
 	};
 
 })();
