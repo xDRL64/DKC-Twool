@@ -46,13 +46,24 @@
 		let lvlSettingsListBank = 0x3D;
 		let lvlSettingsListPointer = 0x0000;
 		let levelSettingsListAddress = (lvlSettingsListBank<<16) + lvlSettingsListPointer;
-
 		let get_lvlSettingsAddress = function(lvlIndex){        // multiply by 2
 			let lvlSettingsOffset = levelSettingsListAddress + (lvlIndex << 1); 
 			let lvlSettingsAddressLowByte   = ROM[lvlSettingsOffset];
 			let lvlSettingsAddressHightByte = ROM[lvlSettingsOffset + 1];
 			return levelSettingsListAddress + (lvlSettingsAddressHightByte<<8) + lvlSettingsAddressLowByte;
 		};
+
+		// ppu render method refs
+		let PPU_renderMethodListBank = 0x3D;
+		let PPU_renderMethodListPointer = 0x79E2;
+		let PPU_renderMethodListAddress = (PPU_renderMethodListBank<<16) + PPU_renderMethodListPointer;
+		let get_PPU_renderMethodAddress = function(methodIndex){    // multiply by 2
+			let PPU_renderMethodOffset = PPU_renderMethodListAddress + (methodIndex << 1);
+			let PPU_renderMethodLowByte = ROM[PPU_renderMethodOffset];
+			let PPU_renderMethodHighByte = ROM[PPU_renderMethodOffset + 1];
+			return PPU_renderMethodListAddress + (PPU_renderMethodHighByte<<8) + PPU_renderMethodLowByte;
+		};
+		
 
 
 
@@ -86,257 +97,343 @@
 
 			let highByte, lowByte, binWord, correctVal;
 
-			let lvlSettingsAddress = get_lvlSettingsAddress(lvlIndex);
+			let make_mainLevelSettings = function(){
 
-			// level settings
-			addNewLine_toDisplay(`\n\n[ Level Settings 0x${hex(lvlIndex)} ] : `);
-
-			// level settings address
-			add_toDisplay( hex(lvlSettingsListBank)+':'+hex(lvlSettingsAddress&0xFFFF), 'Address : ' );
-
-			addNewLine_toDisplay('\nMain Level Settings Header : ');
-
-			// room type (1 byte)
-			let roomType = ROM[lvlSettingsAddress];
-			add_toDisplay( hex(roomType), 'Room Type : ' );
-
-			// unknown (1 byte)
-			let unknown_header_byte = ROM[lvlSettingsAddress + 1];
-			add_toDisplay( hex(unknown_header_byte), 'Unknown Byte : ' );
-
-			// bonus room type (1 byte, optional)
-			let bonusRoomTypeOffset = (ROM[lvlSettingsAddress]===0x1 ? 1 : 0);
-			let bonusRoomType = ROM[lvlSettingsAddress + 2];
-			let bonusRoomTypeValTxt = bonusRoomTypeOffset ? hex(bonusRoomType) : 'none';
-			add_toDisplay( bonusRoomTypeValTxt, 'Bonus Type : ' );
-
-			// ISD pointer (2 bytes)
-			let ISD_pointerAddress = lvlSettingsAddress + 2 + bonusRoomTypeOffset
-			lowByte = ROM[ISD_pointerAddress];
-			highByte = ROM[ISD_pointerAddress+1];
-			binWord = (highByte<<8) + lowByte;
-			let ISD_pointer = binWord;
-			//let ISD_pointer = ROM[ISD_pointerAddress] + (ROM[ISD_pointerAddress+1]<<8);
-			add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `ISD Pointer 0x${hex(binWord)} [${ISD_names[binWord]||'?'}] : ` );
-
-			// room index (1 byte)
-			let roomIndex = ROM[lvlSettingsAddress + 4 + bonusRoomTypeOffset];
-			add_toDisplay( hex(roomIndex), 'Room Index : ' );
-			
-			// params (6 bytes)
-			addNewLine_toDisplay('\nLevel Parameters List : ');
-			let lvlSettingsParamListAdress = lvlSettingsAddress + 5 + bonusRoomTypeOffset;
-			for(let i=0; i<6; i++){
-				let paramValue = ROM[lvlSettingsParamListAdress + i];
-				add_toDisplay( hex(paramValue), 'Param '+i+' : ' );
-			}
-
-			// spawn point list (5 bytes by spawn point)
-			// minimum spawn point : 1 (5 bytes)
-			// 0xFF list terminate (1 byte)
-			addNewLine_toDisplay('\nLevel Spawn Point List :');
-			let lvlSettingsSpawnPointListAddress = lvlSettingsAddress + 11 + bonusRoomTypeOffset;
-			let spawnPointMax = 32;
-			let spawnPointCount = 0;
-			for(let i=0; i<spawnPointMax; i++){
-				let spawnPointOffset = i * 5;
-				let spawnPointAddress = lvlSettingsSpawnPointListAddress + spawnPointOffset;
-				// spawn point index
-				addNewLine_toDisplay('\nSpawn Point Index '+i+' :');
-
-				// spawn point # flags (1 byte)
-				let spawnPointFlags = ROM[spawnPointAddress];
-				//add_toDisplay( hex(spawnPointFlags), 'spawn point #'+i+' flags' );
-				if(spawnPointFlags === 0xFF){
-					// spawn point list end
-					add_toDisplay( hex(spawnPointFlags), 'Spawn Point List End : ' );
-					break;
+				let lvlSettingsAddress = get_lvlSettingsAddress(lvlIndex);
+	
+				// level settings
+				addNewLine_toDisplay(`\n\n[ Level Settings 0x${hex(lvlIndex)} ] : `);
+	
+				// level settings address
+				add_toDisplay( hex(lvlSettingsListBank)+':'+hex(lvlSettingsAddress&0xFFFF), 'Address : ' );
+	
+				addNewLine_toDisplay('\nMain Level Settings Header : ');
+	
+				// room type (1 byte)
+				let roomType = ROM[lvlSettingsAddress];
+				add_toDisplay( hex(roomType), 'Room Type : ' );
+	
+				// unknown (1 byte)
+				let unknown_header_byte = ROM[lvlSettingsAddress + 1];
+				add_toDisplay( hex(unknown_header_byte), 'Unknown Byte : ' );
+	
+				// bonus room type (1 byte, optional)
+				let bonusRoomTypeOffset = (ROM[lvlSettingsAddress]===0x1 ? 1 : 0);
+				let bonusRoomType = ROM[lvlSettingsAddress + 2];
+				let bonusRoomTypeValTxt = bonusRoomTypeOffset ? hex(bonusRoomType) : 'none';
+				add_toDisplay( bonusRoomTypeValTxt, 'Bonus Type : ' );
+	
+				// ISD pointer (2 bytes)
+				let ISD_pointerAddress = lvlSettingsAddress + 2 + bonusRoomTypeOffset
+				lowByte = ROM[ISD_pointerAddress];
+				highByte = ROM[ISD_pointerAddress+1];
+				binWord = (highByte<<8) + lowByte;
+				let ISD_pointer = binWord;
+				//let ISD_pointer = ROM[ISD_pointerAddress] + (ROM[ISD_pointerAddress+1]<<8);
+				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `ISD Pointer 0x${hex(binWord)} [${ISD_names[binWord]||'?'}] : ` );
+	
+				// room index (1 byte)
+				let roomIndex = ROM[lvlSettingsAddress + 4 + bonusRoomTypeOffset];
+				add_toDisplay( hex(roomIndex), 'Room Index : ' );
+				
+				// params (6 bytes)
+				addNewLine_toDisplay('\nLevel Parameters List : ');
+				let lvlSettingsParamListAdress = lvlSettingsAddress + 5 + bonusRoomTypeOffset;
+				for(let i=0; i<6; i++){
+					let paramValue = ROM[lvlSettingsParamListAdress + i];
+					add_toDisplay( hex(paramValue), 'Param '+i+' : ' );
 				}
-				add_toDisplay( hex(spawnPointFlags), 'Flags' );
-
-				// spawn point # X (+ 256) pixel position (2 bytes)
-				lowByte = ROM[spawnPointAddress + 1];
-				highByte = ROM[spawnPointAddress + 2];
-				binWord = (highByte<<8) + lowByte;
-				correctVal = binWord-0x100;
-				//add_toDisplay( `rom[${hex(lowByte)}, ${hex(highByte)}] val(${correctVal} ; 0x${hex(correctVal&0xFFFF)})`, 'spawn point #'+i+' X pix pos :      ' );
-				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `X Pix Pos ${correctVal} ; 0x${hex(correctVal&0xFFFF)} : `, 224 );
-
-				// spawn point # Y (+ 256) pixel position (2 bytes)
-				lowByte = ROM[spawnPointAddress + 3];
-				highByte = ROM[spawnPointAddress + 4];
-				binWord = (highByte<<8) + lowByte;
-				correctVal = binWord-0x100;
-				//add_toDisplay( `rom[${hex(lowByte)}, ${hex(highByte)}] val(${correctVal} ; 0x${hex(correctVal&0xFFFF)})`, 'spawn point #'+i+' Y pix pos :      ' );
-				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Y Pix Pos ${correctVal} ; 0x${hex(correctVal&0xFFFF)} : `, 224 );
-			//	addNewLine_toDisplay();
-
-				spawnPointCount++;
-			}
-
-			// level index of destination level List (2 bytes by destination level index)
-			// 0xFFFF list terminate (2 bytes)
-			addNewLine_toDisplay('\nLevel Index of Destination Level List : ');
-			let lvlSettingsDestinationListAddress = lvlSettingsAddress + 11 + (spawnPointCount*5)+1 + bonusRoomTypeOffset;
-			let destinationMax = 8;
-			let destinationCount = 0;
-			for(let i=0; i<destinationMax; i++){
-				let destinationOffset = i * 2;
-				let destinationAddress = lvlSettingsDestinationListAddress + destinationOffset;
-				// destination index
-				addNewLine_toDisplay('\nDestination Index '+i+' : ');
-				// destination level index
-				lowByte = ROM[destinationAddress];
-				highByte = ROM[destinationAddress + 1];
-				binWord = (highByte<<8) + lowByte;
-				if(binWord === 0xFFFF){
-					// destionation list end
-					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, 'Destination List End : ' );
-					break;
+	
+				// spawn point list (5 bytes by spawn point)
+				// minimum spawn point : 1 (5 bytes)
+				// 0xFF list terminate (1 byte)
+				addNewLine_toDisplay('\nLevel Spawn Point List :');
+				let lvlSettingsSpawnPointListAddress = lvlSettingsAddress + 11 + bonusRoomTypeOffset;
+				let spawnPointMax = 32;
+				let spawnPointCount = 0;
+				for(let i=0; i<spawnPointMax; i++){
+					let spawnPointOffset = i * 5;
+					let spawnPointAddress = lvlSettingsSpawnPointListAddress + spawnPointOffset;
+					// spawn point index
+					addNewLine_toDisplay('\nSpawn Point Index '+i+' :');
+	
+					// spawn point # flags (1 byte)
+					let spawnPointFlags = ROM[spawnPointAddress];
+					//add_toDisplay( hex(spawnPointFlags), 'spawn point #'+i+' flags' );
+					if(spawnPointFlags === 0xFF){
+						// spawn point list end
+						add_toDisplay( hex(spawnPointFlags), 'Spawn Point List End : ' );
+						break;
+					}
+					add_toDisplay( hex(spawnPointFlags), 'Flags' );
+	
+					// spawn point # X (+ 256) pixel position (2 bytes)
+					lowByte = ROM[spawnPointAddress + 1];
+					highByte = ROM[spawnPointAddress + 2];
+					binWord = (highByte<<8) + lowByte;
+					correctVal = binWord-0x100;
+					//add_toDisplay( `rom[${hex(lowByte)}, ${hex(highByte)}] val(${correctVal} ; 0x${hex(correctVal&0xFFFF)})`, 'spawn point #'+i+' X pix pos :      ' );
+					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `X Pix Pos ${correctVal} ; 0x${hex(correctVal&0xFFFF)} : `, 224 );
+	
+					// spawn point # Y (+ 256) pixel position (2 bytes)
+					lowByte = ROM[spawnPointAddress + 3];
+					highByte = ROM[spawnPointAddress + 4];
+					binWord = (highByte<<8) + lowByte;
+					correctVal = binWord-0x100;
+					//add_toDisplay( `rom[${hex(lowByte)}, ${hex(highByte)}] val(${correctVal} ; 0x${hex(correctVal&0xFFFF)})`, 'spawn point #'+i+' Y pix pos :      ' );
+					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Y Pix Pos ${correctVal} ; 0x${hex(correctVal&0xFFFF)} : `, 224 );
+				//	addNewLine_toDisplay();
+	
+					spawnPointCount++;
 				}
-				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
-
-				destinationCount++;
-			}
-
-			// level index of worldmap connection list (2 blank bytes of start + 4 bytes for each connection)
-			// 0xFFFF list terminate (2 bytes)
-			addNewLine_toDisplay('\nLevel Index of Worldmap Connection List : ');
-			let lvlSettingsWorldmapConnectionListAddress = lvlSettingsAddress + 11 + (spawnPointCount*5)+1 + (destinationCount*2)+2 + bonusRoomTypeOffset;
-
-			// worldmap connection list start (blank : 00 00) (2 bytes)
-			lowByte = ROM[lvlSettingsWorldmapConnectionListAddress];
-			highByte = ROM[lvlSettingsWorldmapConnectionListAddress + 1];
-			binWord = (highByte<<8) + lowByte;
-			add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, 'Worldmap Connection List Start : ' );
-
-			// worldmap connection list
-			lvlSettingsWorldmapConnectionListAddress += 2;
-			let worldmapConnectionMax = 32;
-			let worldmapConnectionCount = 0;
-			for(let i=0; i<worldmapConnectionMax; i++){
-				let worldmapConnectionOffset = i * 4;
-				let worldmapConnectionAddress = lvlSettingsWorldmapConnectionListAddress + worldmapConnectionOffset;
-				// worldmap connection index
-				addNewLine_toDisplay('\nWorldmap Connection Index '+i+' : ');
-
-				// level index START
-				lowByte = ROM[worldmapConnectionAddress];
-				highByte = ROM[worldmapConnectionAddress + 1];
-				binWord = (highByte<<8) + lowByte;
-				if(binWord === 0xFFFF){
-					// worldmap connection list end
-					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, 'Worldmap Connection List End : ' );
-					break;
+	
+				// level index of destination level List (2 bytes by destination level index)
+				// 0xFFFF list terminate (2 bytes)
+				addNewLine_toDisplay('\nLevel Index of Destination Level List : ');
+				let lvlSettingsDestinationListAddress = lvlSettingsAddress + 11 + (spawnPointCount*5)+1 + bonusRoomTypeOffset;
+				let destinationMax = 8;
+				let destinationCount = 0;
+				for(let i=0; i<destinationMax; i++){
+					let destinationOffset = i * 2;
+					let destinationAddress = lvlSettingsDestinationListAddress + destinationOffset;
+					// destination index
+					addNewLine_toDisplay('\nDestination Index '+i+' : ');
+					// destination level index
+					lowByte = ROM[destinationAddress];
+					highByte = ROM[destinationAddress + 1];
+					binWord = (highByte<<8) + lowByte;
+					if(binWord === 0xFFFF){
+						// destionation list end
+						add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, 'Destination List End : ' );
+						break;
+					}
+					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
+	
+					destinationCount++;
 				}
-				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index of START 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
-
-				// level index END
-				lowByte = ROM[worldmapConnectionAddress + 2];
-				highByte = ROM[worldmapConnectionAddress + 3];
+	
+				// level index of worldmap connection list (2 blank bytes of start + 4 bytes for each connection)
+				// 0xFFFF list terminate (2 bytes)
+				addNewLine_toDisplay('\nLevel Index of Worldmap Connection List : ');
+				let lvlSettingsWorldmapConnectionListAddress = lvlSettingsAddress + 11 + (spawnPointCount*5)+1 + (destinationCount*2)+2 + bonusRoomTypeOffset;
+	
+				// worldmap connection list start (blank : 00 00) (2 bytes)
+				lowByte = ROM[lvlSettingsWorldmapConnectionListAddress];
+				highByte = ROM[lvlSettingsWorldmapConnectionListAddress + 1];
 				binWord = (highByte<<8) + lowByte;
-				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index of END 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
+				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, 'Worldmap Connection List Start : ' );
+	
+				// worldmap connection list
+				lvlSettingsWorldmapConnectionListAddress += 2;
+				let worldmapConnectionMax = 32;
+				let worldmapConnectionCount = 0;
+				for(let i=0; i<worldmapConnectionMax; i++){
+					let worldmapConnectionOffset = i * 4;
+					let worldmapConnectionAddress = lvlSettingsWorldmapConnectionListAddress + worldmapConnectionOffset;
+					// worldmap connection index
+					addNewLine_toDisplay('\nWorldmap Connection Index '+i+' : ');
+	
+					// level index START
+					lowByte = ROM[worldmapConnectionAddress];
+					highByte = ROM[worldmapConnectionAddress + 1];
+					binWord = (highByte<<8) + lowByte;
+					if(binWord === 0xFFFF){
+						// worldmap connection list end
+						add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, 'Worldmap Connection List End : ' );
+						break;
+					}
+					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index of START 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
+	
+					// level index END
+					lowByte = ROM[worldmapConnectionAddress + 2];
+					highByte = ROM[worldmapConnectionAddress + 3];
+					binWord = (highByte<<8) + lowByte;
+					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index of END 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
+	
+					worldmapConnectionCount++;
+				}
 
-				worldmapConnectionCount++;
-			}
+				// export end step : output data
+				return {ISD_pointer};
+
+			};
+
+
+			let make_ISD_settings = function(){
+
+				let ISD_settingsAddress = (lvlSettingsListBank<<16) + ISD_pointer;
+				let ISD_readAddress = ISD_settingsAddress;
+				let MACRO_add_wordToDisplay = function(labelTxt, labelLowOnly){
+					lowByte = ROM[ISD_readAddress];
+					highByte = ROM[ISD_readAddress + 1];
+					binWord = (highByte<<8) + lowByte;
+					let lowstr = hex(lowByte), highstr = hex(highByte);
+					let wordstr = labelLowOnly ? lowstr : highstr+lowstr;
+					add_toDisplay( `[${lowstr}, ${highstr}]`, `${labelTxt} 0x${wordstr} : ` );
+					ISD_readAddress += 2;
+					//return binWord;
+				};
+
+				// level ISD settings
+				addNewLine_toDisplay(`\n\n[ Level ISD Settings 0x${hex(ISD_pointer)} : ${ISD_names[ISD_pointer]||'?'} ] : `);
+	
+				// level ISD settings address
+				add_toDisplay( hex(lvlSettingsListBank)+':'+hex(ISD_pointer), 'Address : ' );
+	
+				// special effect palette (2 bytes)
+				MACRO_add_wordToDisplay('Special Effect Palette', false);
+				let specialEffectPalette = binWord;
+	
+				// effect (2 bytes)
+				MACRO_add_wordToDisplay('Effect', false);
+				let effect = binWord;
+	
+				// music index (2 bytes)
+				MACRO_add_wordToDisplay('Music Index', true);
+				let musicIndex = binWord;
+	
+				// specific palette pointer (2 bytes)
+				MACRO_add_wordToDisplay('Specific Palette Pointer', false);
+				let specificPalettePointer = binWord;
+	
+				// pointer 1 (2 bytes)
+				MACRO_add_wordToDisplay('Pointer 1', false);
+				let pointer_1 = binWord;
+	
+				// pointer 2 (2 bytes)
+				MACRO_add_wordToDisplay('Pointer 2', false);
+				let pointer_2 = binWord;
+	
+				// PPU render method index (1 byte)
+				let PPU_renderMethodIndex = ROM[ISD_readAddress];
+				add_toDisplay( hex(PPU_renderMethodIndex), 'PPU Render Method Index : ' );
+				ISD_readAddress++;
+	
+				// payloads index (1 byte)
+				let payloadsIndex = ROM[ISD_readAddress];
+				add_toDisplay( hex(payloadsIndex), 'Payloads Index : ' );
+				ISD_readAddress++;
+	
+				// update screen
+				MACRO_add_wordToDisplay('Update Screen', false);
+				let updateScreen = binWord;
+	
+				// scrolling terrain
+				MACRO_add_wordToDisplay('Scrolling Terrain', false);
+				let scrollingTerrain = binWord;
+	
+				// theme index (1 byte)
+				let themeIndex = ROM[ISD_readAddress];
+				add_toDisplay( hex(themeIndex), 'Theme Index : ' );
+				ISD_readAddress++;
+	
+				// what view (1 byte)
+				let whatView = ROM[ISD_readAddress];
+				add_toDisplay( hex(whatView), 'What View : ' );
+				ISD_readAddress++;
+	
+				// special attributes (8 bits)
+				/* let specialAttributeNames = {
+					0x01:'Enable Hot Air Balloons',
+					0x02:'Enable Bambles',
+					0x04:'Unsused ?',
+					0x08:'Enable Honey',
+					0x10:'Enable Ice',
+					0x20:'Slippy Surfaces',
+					0x40:'Enable Tracks',
+					0x80:'Enable Wind',
+				}; */
+				let specialAttributeNames = {
+					0x01:'Enable Hot Air Balloons ',
+					0x02:'Enable Bambles          ',
+					0x04:'Unsused ?               ',
+					0x08:'Enable Honey            ',
+					0x10:'Enable Ice              ',
+					0x20:'Slippy Surfaces         ',
+					0x40:'Enable Tracks           ',
+					0x80:'Enable Wind             ',
+				};
+				let specialAttributes = ROM[ISD_readAddress];
+				add_toDisplay( hex(specialAttributes), 'Special Attributes : ' );
+				for(let i=0x01; i<0x100; i=i<<1){
+					addNewLine_toDisplay(`Bit Flag 0x${hex(i)} : ${specialAttributeNames[i]} [${(specialAttributes&i?'true':'false')}]`);
+				}
+	
+				ISD_readAddress++;
+
+				// export end step : output data
+				return {PPU_renderMethodIndex, payloadsIndex, themeIndex};
+
+			};
+
+
+			let make_PPU_renderMethod = function(){
+
+				let PPU_renderMethodAddress = get_PPU_renderMethodAddress(PPU_renderMethodIndex);
+
+				// PPU render method list
+				/*
+				addNewLine_toDisplay('\n\nPPU Render Method List : ');
+				add_toDisplay( hex(PPU_renderMethodListBank)+':'+hex(PPU_renderMethodListPointer), 'Address : ' );
+				*/
+				
+				// PPU render method instruction list
+				addNewLine_toDisplay('\n\nPPU Render Method Instruction List : ');
+
+				// PPU render method instruction list address
+				add_toDisplay( hex(PPU_renderMethodListBank)+':'+hex(PPU_renderMethodAddress&0xFFFF), 'Address : ' );
+
+				let instructionMax = 256;
+				let valueByteCount = 0;
+				let instructionAddress;
+				for(let i=0; i<instructionMax; i++){
+
+					instructionAddress = PPU_renderMethodAddress + (i*2) + valueByteCount;
+
+					lowByte = ROM[instructionAddress];
+					highByte = ROM[instructionAddress + 1];
+					binWord = (highByte<<8) + lowByte;
+					let lowstr = hex(lowByte), highstr = hex(highByte);
+					let wordstr = highstr + lowstr;
+
+					addNewLine_toDisplay(`\nInstruction Index ${i} : `);
+
+					let instructionRomBytesStr = `${lowstr}, ${highstr}`;
+					if(binWord === 0x0000){
+						add_toDisplay(`[${instructionRomBytesStr}]`, 'Instruction List End : ');
+						break;
+					}
+
+					
+					let instructionStr = wordstr;
+					let PPU_registersStr = ['','[$----=0x--]']
+					let valueRomByteStr = '';
+					lowByte = ROM[instructionAddress + 2];
+					lowstr = hex(lowByte);
+					if(highByte & 0x80){
+						highByte = ROM[instructionAddress + 3];
+						highstr = hex(highByte);
+						PPU_registersStr[0] = `[$${hex(binWord&0x7FFF)}=0x${lowstr}]`;
+						PPU_registersStr[1] = `[$${hex((binWord&0x7FFF)+1)}=0x${highstr}]`;
+						valueRomByteStr = `${lowstr}, ${highstr}`
+						valueByteCount += 2;
+					}else{
+						PPU_registersStr[0] = `[$${hex(binWord)}=0x${lowstr}]`;
+						valueRomByteStr = lowstr;
+						valueByteCount++;
+					}
+
+					add_toDisplay(`[${instructionRomBytesStr}, ${valueRomByteStr}]`, `PPU Registers ${PPU_registersStr[0]} ${PPU_registersStr[1]} : `);
+
+				}
+			};
+
 
 			// //////////////////////////////////////////////////////////////////////////
-
-			// level ISD settings
-			addNewLine_toDisplay(`\n\n[ Level ISD Settings 0x${hex(ISD_pointer)} : ${ISD_names[ISD_pointer]||'?'} ] : `);
-
-			// level ISD settings address
-			add_toDisplay( hex(lvlSettingsListBank)+':'+hex(ISD_pointer), 'Address : ' );
-
-			let ISD_settingsAddress = (lvlSettingsListBank<<16) + ISD_pointer;
-			let ISD_readAddress = ISD_settingsAddress;
-			let MACRO_add_wordToDisplay = function(labelTxt, labelLowOnly){
-				lowByte = ROM[ISD_readAddress];
-				highByte = ROM[ISD_readAddress + 1];
-				binWord = (highByte<<8) + lowByte;
-				let lowstr = hex(lowByte), highstr = hex(highByte);
-				let wordstr = labelLowOnly ? lowstr : highstr+lowstr;
-				add_toDisplay( `[${lowstr}, ${highstr}]`, `${labelTxt} 0x${wordstr} : ` );
-				ISD_readAddress += 2;
-			};
-
-			// special effect palette (2 bytes)
-			MACRO_add_wordToDisplay('Special Effect Palette', false);
-
-			// effect (2 bytes)
-			MACRO_add_wordToDisplay('Effect', false);
-
-			// music index (2 bytes)
-			MACRO_add_wordToDisplay('Music Index', true);
-
-			// specific palette pointer (2 bytes)
-			MACRO_add_wordToDisplay('Specific Palette Pointer', false);
-
-			// pointer 1 (2 bytes)
-			MACRO_add_wordToDisplay('Pointer 1', false);
-
-			// pointer 2 (2 bytes)
-			MACRO_add_wordToDisplay('Pointer 2', false);
-
-			// PPU render method index (1 byte)
-			let PPU_renderMethodIndex = ROM[ISD_readAddress];
-			add_toDisplay( hex(PPU_renderMethodIndex), 'PPU Render Method Index : ' );
-
-			ISD_readAddress++;
-
-			// payloads index (1 byte)
-			let payloadsIndex = ROM[ISD_readAddress];
-			add_toDisplay( hex(payloadsIndex), 'Payloads Index : ' );
-
-			ISD_readAddress++;
-
-			// update screen
-			MACRO_add_wordToDisplay('Update Screen', false);
-
-			// scrolling terrain
-			MACRO_add_wordToDisplay('Scrolling Terrain', false);
-
-			// theme index (1 byte)
-			let themeIndex = ROM[ISD_readAddress];
-			add_toDisplay( hex(themeIndex), 'Theme Index : ' );
-
-			ISD_readAddress++;
-
-			// what view (1 byte)
-			let whatView = ROM[ISD_readAddress];
-			add_toDisplay( hex(whatView), 'What View : ' );
-
-			ISD_readAddress++;
-
-			// special attributes (8 bits)
-			/* let specialAttributeNames = {
-				0x01:'Enable Hot Air Balloons',
-				0x02:'Enable Bambles',
-				0x04:'Unsused ?',
-				0x08:'Enable Honey',
-				0x10:'Enable Ice',
-				0x20:'Slippy Surfaces',
-				0x40:'Enable Tracks',
-				0x80:'Enable Wind',
-			}; */
-			let specialAttributeNames = {
-				0x01:'Enable Hot Air Balloons ',
-				0x02:'Enable Bambles          ',
-				0x04:'Unsused ?               ',
-				0x08:'Enable Honey            ',
-				0x10:'Enable Ice              ',
-				0x20:'Slippy Surfaces         ',
-				0x40:'Enable Tracks           ',
-				0x80:'Enable Wind             ',
-			};
-			let specialAttributes = ROM[ISD_readAddress];
-			add_toDisplay( hex(specialAttributes), 'Special Attributes : ' );
-			for(let i=0x01; i<0x100; i=i<<1){
-				addNewLine_toDisplay(`Bit Flag 0x${hex(i)} : ${specialAttributeNames[i]} [${(specialAttributes&i?'true':'false')}]`);
-			}
-
-			ISD_readAddress++;
-
+			let {ISD_pointer} = make_mainLevelSettings();
+			let {PPU_renderMethodIndex, payloadsIndex, themeIndex} = make_ISD_settings();
+			make_PPU_renderMethod();
+			// //////////////////////////////////////////////////////////////////////////
 
 			return displayElem;
 		};
