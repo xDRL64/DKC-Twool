@@ -542,22 +542,23 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 			// edit mode slot
 		
 			let slots = {
-				test_   : ["rom manager",                    'mode_',   null],
-				test0   : ["palette displayer",              'mode0',   ['wearethere','butalwaysnotused']],
-				test1   : ["tileset displayer",              'mode1',   null],
-				test2   : ["mapchip displayer",              'mode2',   null],
-				test3   : ["background displayer",           'mode3',   null],
-				test3b  : ["background displayer 2",         'mode3b',  null],
-				test4   : ["level tilemap displayer",        'mode4',   ['something','whatyouwant']],
-				test5   : ["test selection",                 'mode5',   null],
-				test6   : ["test collisionmap",              'mode6',   null],
-				test7   : ["test 4formatedTileset",          'mode7',   null],
-				test8   : ["test create_mapchipGfxBuffer",   'mode8',   null],
-				test9   : ["test animated background",       'mode9',   null],
-				test10  : ["test PALETTE type & ext func",   'mode10',  null],
-				test11  : ["test TILESET type",              'mode11',  null],
-				test12  : ["test types",                     'mode12',  null],
-				test13  : ["sparkling palette mods display", 'mode13',  null],
+				test_   : ["rom manager",                          'mode_',   null],
+				test0   : ["palette displayer",                    'mode0',   ['wearethere','butalwaysnotused']],
+				test1   : ["tileset displayer",                    'mode1',   null],
+				test2   : ["mapchip displayer",                    'mode2',   null],
+				test3   : ["background displayer",                 'mode3',   null],
+				test3b  : ["background displayer 2",               'mode3b',  null],
+				test4   : ["level tilemap displayer",              'mode4',   ['something','whatyouwant']],
+				test5   : ["test selection",                       'mode5',   null],
+				test6   : ["test collisionmap",                    'mode6',   null],
+				test7   : ["test 4formatedTileset",                'mode7',   null],
+				test8   : ["test create_mapchipGfxBuffer",         'mode8',   null],
+				test9   : ["test animated background",             'mode9',   null],
+				test10  : ["test PALETTE type & ext func",         'mode10',  null],
+				test11  : ["test TILESET type",                    'mode11',  null],
+				test12  : ["test types",                           'mode12',  null],
+				test13  : ["sparkling palette mods display",       'mode13',  null],
+				test14  : ["level loading settings display",       'mode14',  null],
 
 			};
 
@@ -672,6 +673,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 
 		// sparkling palette mods display 
 		workspace.list_generator['mode13'] = app.mode[13];
+
+		// level settings display
+		workspace.list_generator['mode14'] = app.mode[14];
 	};
 	
 	return o;
