@@ -28,6 +28,7 @@
 
 		// code ...
 		let lvlIndexNames = get_lvlIndexNames();
+		let ISD_names = get_ISD_names();
 		let levelIndexCount = 256;
 		let _levelIndex = 0;
 		let levelIndexList = wLib2.DropList('level index : \t');
@@ -116,7 +117,7 @@
 			binWord = (highByte<<8) + lowByte;
 			let ISD_pointer = binWord;
 			//let ISD_pointer = ROM[ISD_pointerAddress] + (ROM[ISD_pointerAddress+1]<<8);
-			add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `ISD Pointer 0x${hex(binWord)} : ` );
+			add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `ISD Pointer 0x${hex(binWord)} [${ISD_names[binWord]||'?'}] : ` );
 
 			// room index (1 byte)
 			let roomIndex = ROM[lvlSettingsAddress + 4 + bonusRoomTypeOffset];
@@ -193,7 +194,7 @@
 					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, 'Destination List End : ' );
 					break;
 				}
-				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index 0x${hex(lowByte)} : ${lvlIndexNames[lowByte]||'?'}`, 512 );
+				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
 
 				destinationCount++;
 			}
@@ -228,13 +229,13 @@
 					add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, 'Worldmap Connection List End : ' );
 					break;
 				}
-				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index of START 0x${hex(lowByte)} : ${lvlIndexNames[lowByte]||'?'}`, 512 );
+				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index of START 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
 
 				// level index END
 				lowByte = ROM[worldmapConnectionAddress + 2];
 				highByte = ROM[worldmapConnectionAddress + 3];
 				binWord = (highByte<<8) + lowByte;
-				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index of END 0x${hex(lowByte)} : ${lvlIndexNames[lowByte]||'?'}`, 512 );
+				add_toDisplay( `[${hex(lowByte)}, ${hex(highByte)}]`, `Level Index of END 0x${hex(lowByte)} [${lvlIndexNames[lowByte]||'?'}] : `, 512 );
 
 				worldmapConnectionCount++;
 			}
@@ -242,7 +243,7 @@
 			// //////////////////////////////////////////////////////////////////////////
 
 			// level ISD settings
-			addNewLine_toDisplay(`\n\n[ Level ISD Settings 0x${hex(ISD_pointer)} ] : `);
+			addNewLine_toDisplay(`\n\n[ Level ISD Settings 0x${hex(ISD_pointer)} : ${ISD_names[ISD_pointer]||'?'} ] : `);
 
 			// level ISD settings address
 			add_toDisplay( hex(lvlSettingsListBank)+':'+hex(ISD_pointer), 'Address : ' );
@@ -301,7 +302,7 @@
 
 			ISD_readAddress++;
 
-			// theme index (1 byte)
+			// what view (1 byte)
 			let whatView = ROM[ISD_readAddress];
 			add_toDisplay( hex(whatView), 'What View : ' );
 
@@ -354,7 +355,7 @@
 
 		// update
 		o.update = function(trigger){
-
+			ROM = srcFilePanel.rom.fileData[0];
 		};
 
 		// close
@@ -515,6 +516,63 @@
 				0xC1 : "Target Terror - Bonus 2",
 				0xC2 : "Haunted Hall - Bonus 2",
 				0xC3 : "Rickety Race - Bonus 1",
+			};
+		}
+
+		function get_ISD_names(){
+			return {
+				0x479E : `Klobber Karnage / Jungle Jinx Bonus 1`,
+				0x47B3 : `Jungle Jinx / Klobber Karnage Bonus 1`,
+				0x47C8 : `Krochead Klamber`,
+				0x47DD : `Mudhole Marsh`,
+				0x47F2 : `Animal Antics - Rambi/Squitter/Rattly Section`,
+				0x4807 : `Arctic Abyss / Clapper's Cavern / Animal Antics - Enguarde Section`,
+				0x481C : `Clapper's Cavern Bonus 1 / Arctic Abyss Bonus 1 / Black Ice Battle Bonus 1`,
+				0x4831 : `Black Ice Battle`,
+				0x4846 : `Chain Link Chamber`,
+				0x485B : `Stronghold Showdown`,
+				0x4870 : `Toxic Tower`,
+				0x4885 : `Castle Crush`,
+				0x489A : `K.Rool Duel`,
+				0x48AF : `Krocodile Kore`,
+				0x48C4 : `Web Woods (Unused)`,
+				0x48D9 : `Web Woods`,
+				0x48EE : `Ghostly Grove`,
+				0x4903 : `Gusty Glade`,
+				0x4918 : `Lockjaw's Locker`,
+				0x492D : `Lava Lagoon`,
+				0x4942 : `Glimmer's Galleon`,
+				0x4957 : `Rambi Rumble / Hornet Hole / Parrot Chute Panic Bonuses`,
+				0x496C : `King Zing Sting`,
+				0x4981 : `Parrot Chute Panic / Hornet Hole Bonus 2 / Rambi Rumle Bonus 1`,
+				0x4996 : `Pirate Panic`,
+				0x49AB : `Gangplank Galley`,
+				0x49C0 : `Rattle Battle / Glimmer's Galleon Exit Room`,
+				0x49D5 : `Hot-Head Hop / Kleever's Kiln`,
+				0x49EA : `Fiery Furnace`,
+				0x49FF : `Red-Hot Ride`,
+				0x4A14 : `Slime Climb`,
+				0x4A29 : `(Unused)(?)`,
+				0x4A3E : `Topsail Trouble`,
+				0x4A53 : `Krow's Nest`,
+				0x4A68 : `Mainbrace Mayhem`,
+				0x4A7D : `Kreepy Krow`,
+				0x4A92 : `Target Terror / Rickety Race`,
+				0x4AA7 : `Target Terror Exit Room / Target Terror Bonus 2 / Rickety Race Exit Room / Rickety Race Bonus 1`,
+				0x4ABC : `Haunted Hall`,
+				0x4AD1 : `Haunted Hall Bonus 1`,
+				0x4AE6 : `Windy Well`,
+				0x4AFB : `Kannon's Klaim`,
+				0x4B10 : `Squawk's Shaft`,
+				0x4B25 : `Bramble Blast / Animal Antics Bonus 1`,
+				0x4B3A : `Screech's Sprint / Fiery Furnace Bonus 1`,
+				0x4B4F : `Bramble Scramble`,
+				0x4B64 : `Animal Antics - Squawks Section`,
+				0x4B79 : `Bramble Blast Bonuses / Toxic Tower Bonus 1`,
+				0x4B8E : `Target Terror Bonus 1 / Bramble Scramble Bonus 1 / Web Woods Bonus 1 / Windy Well Bonus 2`,
+				0x4BA3 : `Screech's Sprint Bonus 1`,
+				0x4BB8 : `K.Rool's Kabin / Rattle Battle "Rattly Room" / Gangplank Galley Bonus 1`,
+				0x4BCD : `Barrel Bayou / Kudgel's Kontest`,
 			};
 		}
 	};
