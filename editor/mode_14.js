@@ -30,6 +30,7 @@
 		let lvlIndexNames = get_lvlIndexNames();
 		let ISD_names = get_ISD_names();
 		let PPU_registerRefs = get_PPU_registerRefs();
+		let themeNames = get_themeNames();
 		let levelIndexCount = 256;
 		let _levelIndex = 0;
 		let levelIndexList = wLib2.DropList('level index : \t');
@@ -76,15 +77,46 @@
 			return payloadsListAddress + (payloadsHighByte<<8) + payloadsLowByte;
 		};
 		
+		// theme settings
+		let themeSettingsBank = 0x35;
+		let themeSettingsRefs = {
+			tilemapList               : {pointer:0xBAEF, itemSize:3, name:'tilemapAddress'},
+			mapchipList               : {pointer:0xBB2E, itemSize:3, name:'mapchipAddress'},
+			vramAddressList           : {pointer:0xBB6D, itemSize:2, name:'vramAddress'},
+			collisionMapchipList      : {pointer:0xBB97, itemSize:3, name:'collisionMapchipAddress'},
+			collisionMapchipSizeList  : {pointer:0xBBD6, itemSize:2, name:'collisionMapchipSize'},
+			scrollControlList         : {pointer:0xBC00, itemSize:2, name:'scrollControl'},
+			defaultPaletteList        : {pointer:0xBC2A, itemSize:2, name:'defaultPalettePointer'},
+			tilemapTypeList           : {pointer:0xBC54, itemSize:2, name:'tilemapType'},
+			roomDimensionSettingsList : {pointer:0xBC7E, itemSize:2, name:'roomDimensionSettingsPointer'},
+		};
+		let get_themeSettings = function(themeIndex){
+			let o = {};
+			for(let listName in themeSettingsRefs){
+				let listItem = themeSettingsRefs[listName];
+				let itemSize = listItem.itemSize;
+				let address = (themeSettingsBank<<16) + listItem.pointer;
+				let offset = address + (themeIndex*itemSize);
+				let lowByte = ROM[offset];
+				let highByte = ROM[offset + 1];
+				let bankByte = (itemSize===3 ? ROM[offset + 2] : null);
+				o[listItem.name] = {lowByte, highByte, bankByte};
+			}
+			return o;
+		};
 
-
+		// room dimension settings
+		let roomDimSettingsBank = 0x35;
+		let get_roomDinSettingsAddress = function(roomDimensionSettingsPointer){
+			return (roomDimSettingsBank<<16) + roomDimensionSettingsPointer;
+		};
 
 		let make_lvlSettingsDisplay = function(lvlIndex){
 			
 			let make_valueDisplayer = function(value, label, width){
 				let w = width || 48;
 				let mrg = 4;
-				let labelElem = Elem('span', {bgCol:'transparent', wtsPre, margin:'0 '+mrg, txtCnt:label});
+				let labelElem = Elem('span', {bgCol:'transparent', disBlk, wtsPre, margin:'0 '+mrg, txtCnt:label});
 				let valueElem = Elem('span', {bgCol:'white', disBlk, margin:mrg, txtCnt:value});
 				let elem = Elem('span', {bgCol:'transparent', bxszbb, disInb, w, margin:mrg});
 				elem.style.border = '1px solid';
@@ -265,7 +297,7 @@
 				}
 
 				// export end step : output data
-				return {ISD_pointer};
+				return {ISD_pointer, roomIndex};
 
 			};
 
@@ -389,7 +421,7 @@
 				*/
 
 				// PPU render method instruction list
-				addNewLine_toDisplay('\n\n[ PPU Render Method Instruction List ] : ');
+				addNewLine_toDisplay(`\n\n[ PPU Render Method 0x${hex(PPU_renderMethodIndex)} Instruction List ] : `);
 
 				// PPU render method instruction list address
 				add_toDisplay( hex(PPU_renderMethodListBank)+':'+hex(PPU_renderMethodAddress&0xFFFF), 'Address : ' );
@@ -456,13 +488,13 @@
 				let payloadsAddress = get_payloadsAddress(payloadsIndex);
 
 				// payloads data ref list
-				addNewLine_toDisplay('\n\n[ Payloads Data Reference List ] : ');
+				addNewLine_toDisplay(`\n\n[ Payloads Data Reference 0x${hex(payloadsIndex)} List ] : `);
 
 				// payloads data ref list address
 				add_toDisplay( hex(payloadsListBank)+':'+hex(payloadsAddress&0xFFFF), 'Address : ' );
 
 				let payloadsMax = 32;
-				let payloadSize = /*address*/3 + /*vramAddr|zipFlag*/2 + /*zipSize*/2;
+				let payloadSize = /*address*/3 + /*vramAddr|zipFlag*/2 + /*size*/2;
 				let payloadAddress;
 				for(let i=0; i<payloadsMax; i++){
 
@@ -475,7 +507,7 @@
 
 					if(bankByte === 0x00){
 						// payloads data ref list end
-						add_toDisplay(`[${bankByte}]`, 'Instruction List End : ');
+						add_toDisplay(`${hex(bankByte)}`, 'Payloads Data Ref List End : ');
 						break;
 					}
 
@@ -507,11 +539,157 @@
 
 			};
 
+			let make_themeSettings = function(){
+
+				let themeSettings = get_themeSettings(themeIndex);
+
+				// theme settings
+				addNewLine_toDisplay(`\n\n[ Level Theme Settings 0x${hex(themeIndex)} : ${themeNames[themeIndex]}] : `);
+
+				let lowstr, highstr, bankstr, romBankstr;
+
+				// tilemap address
+				addNewLine_toDisplay(`\nTilemap List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.tilemapList.pointer)}`);
+				({lowByte, highByte, bankByte} = themeSettings.tilemapAddress);
+				lowstr=hex(lowByte); highstr=hex(highByte); bankstr=hex(bankByte), romBankstr=hex(bankByte&0x3F);
+				add_toDisplay(`[${lowstr}, ${highstr}, ${bankstr}]`, `Tilemap Address [${romBankstr}:${highstr}${lowstr}] : `, 384);
+
+				// mapchip address
+				addNewLine_toDisplay(`\nMapchip List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.mapchipList.pointer)}`);
+				({lowByte, highByte, bankByte} = themeSettings.mapchipAddress);
+				lowstr=hex(lowByte); highstr=hex(highByte); bankstr=hex(bankByte), romBankstr=hex(bankByte&0x3F);
+				add_toDisplay(`[${lowstr}, ${highstr}, ${bankstr}]`, `Mapchip Address [${romBankstr}:${highstr}${lowstr}] : `, 384);
+				
+				// vram address
+				addNewLine_toDisplay(`\nVRAM Address List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.vramAddressList.pointer)}`);
+				({lowByte, highByte} = themeSettings.vramAddress);
+				lowstr=hex(lowByte); highstr=hex(highByte);
+				add_toDisplay(`[${lowstr}, ${highstr}]`,`VRAM Address [${highstr}${lowstr}] : `, 384);
+				
+				// collision mapchip address
+				addNewLine_toDisplay(`\nCollision Mapchip List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.collisionMapchipList.pointer)}`);
+				({lowByte, highByte, bankByte} = themeSettings.collisionMapchipAddress);
+				lowstr=hex(lowByte); highstr=hex(highByte); bankstr=hex(bankByte), romBankstr=hex(bankByte&0x3F);
+				add_toDisplay(`[${lowstr}, ${highstr}, ${bankstr}]`,`Collision Mapchip Address [${romBankstr}:${highstr}${lowstr}] : `, 384);
+				
+				// collision mapchip size
+				addNewLine_toDisplay(`\ncollision Mapchip Size List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.collisionMapchipSizeList.pointer)}`);
+				({lowByte, highByte} = themeSettings.collisionMapchipSize);
+				lowstr=hex(lowByte); highstr=hex(highByte);
+				add_toDisplay(`[${lowstr}, ${highstr}]`,`Collision Mapchip Size [${highstr}${lowstr}] : `, 384);
+				
+				// scroll control
+				addNewLine_toDisplay(`\nScroll Control List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.scrollControlList.pointer)}`);
+				({lowByte, highByte} = themeSettings.scrollControl);
+				lowstr=hex(lowByte); highstr=hex(highByte);
+				add_toDisplay(`[${lowstr}, ${highstr}]`,`Scroll Control [${highstr}${lowstr}] : `, 384);
+				
+				// defaultPalettePointer
+				addNewLine_toDisplay(`\nDefault Palette Pointer List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.defaultPaletteList.pointer)}`);
+				({lowByte, highByte} = themeSettings.defaultPalettePointer);
+				lowstr=hex(lowByte); highstr=hex(highByte);
+				add_toDisplay(`[${lowstr}, ${highstr}]`,`Default Palette Pointer [${highstr}${lowstr}] : `, 384);
+				
+				// tilemapType
+				addNewLine_toDisplay(`\nTilemap Type List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.tilemapTypeList.pointer)}`);
+				({lowByte, highByte} = themeSettings.tilemapType);
+				lowstr=hex(lowByte); highstr=hex(highByte);
+				add_toDisplay(`[${lowstr}, ${highstr}]`,`Tilemap Type [${highstr}${lowstr}] : `, 384);
+				
+				// roomDimensionSettingsPointer
+				addNewLine_toDisplay(`\nRoom Dimension Settings Pointer List Address ${hex(themeSettingsBank)}:${hex(themeSettingsRefs.roomDimensionSettingsList.pointer)}`);
+				({lowByte, highByte} = themeSettings.roomDimensionSettingsPointer);
+				lowstr=hex(lowByte); highstr=hex(highByte);
+				let roomDimensionSettingsPointer = (highByte<<8) + lowByte;
+				add_toDisplay(`[${lowstr}, ${highstr}]`,`Room Dimension Settings Pointer [${highstr}${lowstr}] : `, 384);
+
+				return {roomDimensionSettingsPointer};
+			};
+
+			let make_roomDimenstionSettings = function(){
+
+				let roomDimSettingsAddress = get_roomDinSettingsAddress(roomDimensionSettingsPointer);
+
+
+				// room dimension settings 
+				addNewLine_toDisplay(`\n\n[ Room Dimension Settings 0x${hex(themeIndex)} : ${themeNames[themeIndex]}] : `);
+
+				let lowstr, highstr, wordstr;
+
+				// address
+				add_toDisplay(`${hex(roomDimSettingsBank)}:${hex(roomDimensionSettingsPointer)}`, `Address : `);
+
+				// width (2 bytes)
+				lowByte = ROM[roomDimSettingsAddress];
+				highByte = ROM[roomDimSettingsAddress + 1];
+				binWord = (highByte<<8) + lowByte;
+				lowstr = hex(lowByte); highstr = hex(highByte);
+				add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Width ${binWord} ; 0x${hex(binWord)} : \nOnly on Vertical Level (32x32Tile Width Max)`);
+
+				// height (2 bytes)
+				lowByte = ROM[roomDimSettingsAddress + 2];
+				highByte = ROM[roomDimSettingsAddress + 3];
+				binWord = (highByte<<8) + lowByte;
+				lowstr = hex(lowByte); highstr = hex(highByte);
+				add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Height ${binWord} ; 0x${hex(binWord)} : \nOnly on Horizontal Level (32x32Tile Height Max)`);
+
+				let roomListAddress = roomDimSettingsAddress + 4;
+
+				// room : (left / right / top / bottom)
+				let roomMax = 256;
+				let roomByteSize = /*left*/2 + /*right*/2 + /*top*/2 + /*bottom*/2 + /*end*/2 ;
+				for(let i=0; i<roomMax; i++){ // for(let i=0; i<roomMax; i++)
+
+					let isCurrentRoom = (i===roomIndex ? true : false);
+					addNewLine_toDisplay(`\nRoom Index ${i} (0x${hex(i)}) ${(isCurrentRoom?'[Current Level Room] : ':': ')}`);
+
+					let roomAddress = roomListAddress + (i * roomByteSize);
+
+					// left
+					lowByte = ROM[roomAddress];
+					highByte = ROM[roomAddress + 1];
+					binWord = (highByte<<8) + lowByte;
+					lowstr = hex(lowByte); highstr = hex(highByte);
+					if(binWord === 0xFFFF){
+						// room list end
+						add_toDisplay(`[${lowstr}, ${highstr}]`, `Room List End Word 0x${lowstr+highstr} : `);
+						break;
+					}
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Left ${binWord} ; 0x${hex(binWord)} : `, 224);
+					// right
+					lowByte = ROM[roomAddress + 2];
+					highByte = ROM[roomAddress + 3];
+					binWord = (highByte<<8) + lowByte;
+					lowstr = hex(lowByte); highstr = hex(highByte);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Right ${binWord} ; 0x${hex(binWord)} : `, 224);
+					// top
+					lowByte = ROM[roomAddress + 4];
+					highByte = ROM[roomAddress + 5];
+					binWord = (highByte<<8) + lowByte;
+					lowstr = hex(lowByte); highstr = hex(highByte);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Top ${binWord} ; 0x${hex(binWord)} : `, 224);
+					// bottom
+					lowByte = ROM[roomAddress + 6];
+					highByte = ROM[roomAddress + 7];
+					binWord = (highByte<<8) + lowByte;
+					lowstr = hex(lowByte); highstr = hex(highByte);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Bottom ${binWord} ; 0x${hex(binWord)} : `, 224);
+					// coordinate system
+					lowByte = ROM[roomAddress + 8];
+					highByte = ROM[roomAddress + 9];
+					lowstr = hex(lowByte); highstr = hex(highByte);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Coordinate System 0x${lowstr+highstr} : `, 224);
+					
+				}
+			};
+
 			// //////////////////////////////////////////////////////////////////////////
-			let {ISD_pointer} = make_mainLevelSettings();
+			let {ISD_pointer, roomIndex} = make_mainLevelSettings();
 			let {PPU_renderMethodIndex, payloadsIndex, themeIndex} = make_ISD_settings();
 			make_PPU_renderMethod();
 			make_payloads();
+			let {roomDimensionSettingsPointer} = make_themeSettings();
+			make_roomDimenstionSettings();
 			// //////////////////////////////////////////////////////////////////////////
 
 			return displayElem;
@@ -826,6 +1004,32 @@
 				0x2181:{name:'WMADDL', description:'WRAM Address Registers'},
 				0x2182:{name:'WMADDM', description:'WRAM Address Registers'},
 				0x2183:{name:'WMADDH', description:'WRAM Address Registers'},
+			};
+		};
+
+		function get_themeNames(){
+			return {
+				0x00 : 'Forest',
+				0x01 : 'Underwater',
+				0x02 : 'Beehive (A)',
+				0x03 : 'Ship Deck',
+				0x04 : 'Ship Mast',
+				0x05 : 'Funfair (A)',
+				0x06 : 'Lava',
+				0x07 : 'Beehive (B)',
+				0x08 : 'Mine',
+				0x09 : 'Swamp',
+				0x0A : 'Bramble (A)',
+				0x0B : 'Tower (A)',
+				0x0C : 'Lost K.Rool ?',
+				0x0D : 'K.Rool ?',
+				0x0E : 'Ice (A)',
+				0x0F : 'Jungle',
+				0x10 : '?',
+				0x11 : 'Ice (B)',
+				0x12 : 'Bramble (B)',
+				0x13 : 'Funfair (B)',
+				0x14 : 'Tower (B)',
 			};
 		};
 	};
