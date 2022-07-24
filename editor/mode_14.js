@@ -28,9 +28,12 @@
 
 		// code ...
 		let lvlIndexNames = get_lvlIndexNames();
+		let lvlTypeNames = get_levelTypeNames();
+		let bonusTypeNames = get_bonusTypeNames();
 		let ISD_names = get_ISD_names();
 		let PPU_registerRefs = get_PPU_registerRefs();
 		let themeNames = get_themeNames();
+		let coordinateSystemNames = get_coordinateSystemNames();
 		let levelIndexCount = 256;
 		let _levelIndex = 0;
 		let levelIndexList = wLib2.DropList('level index : \t');
@@ -154,7 +157,7 @@
 	
 				// room type (1 byte)
 				let roomType = ROM[lvlSettingsAddress];
-				add_toDisplay( hex(roomType), 'Room Type : ' );
+				add_toDisplay( hex(roomType), `Room Type [0x${hex(roomType)} : ${lvlTypeNames[roomType]}] : ` );
 	
 				// unknown (1 byte)
 				let unknown_header_byte = ROM[lvlSettingsAddress + 1];
@@ -164,7 +167,8 @@
 				let bonusRoomTypeOffset = (ROM[lvlSettingsAddress]===0x1 ? 1 : 0);
 				let bonusRoomType = ROM[lvlSettingsAddress + 2];
 				let bonusRoomTypeValTxt = bonusRoomTypeOffset ? hex(bonusRoomType) : 'none';
-				add_toDisplay( bonusRoomTypeValTxt, 'Bonus Type : ' );
+				let bonusRoomTypeLabelTxt = bonusRoomTypeOffset ? `0x${hex(bonusRoomType)} : ${bonusTypeNames[bonusRoomType]}` : 'Not Bonus Room'
+				add_toDisplay( bonusRoomTypeValTxt, `Bonus Type [${bonusRoomTypeLabelTxt}] : ` );
 	
 				// ISD pointer (2 bytes)
 				let ISD_pointerAddress = lvlSettingsAddress + 2 + bonusRoomTypeOffset
@@ -655,30 +659,31 @@
 						add_toDisplay(`[${lowstr}, ${highstr}]`, `Room List End Word 0x${lowstr+highstr} : `);
 						break;
 					}
-					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Left ${binWord} ; 0x${hex(binWord)} : `, 224);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Left : \n[${binWord} ; 0x${hex(binWord)}]`, 128);
 					// right
 					lowByte = ROM[roomAddress + 2];
 					highByte = ROM[roomAddress + 3];
 					binWord = (highByte<<8) + lowByte;
 					lowstr = hex(lowByte); highstr = hex(highByte);
-					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Right ${binWord} ; 0x${hex(binWord)} : `, 224);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Right : \n[${binWord} ; 0x${hex(binWord)}]`, 128);
 					// top
 					lowByte = ROM[roomAddress + 4];
 					highByte = ROM[roomAddress + 5];
 					binWord = (highByte<<8) + lowByte;
 					lowstr = hex(lowByte); highstr = hex(highByte);
-					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Top ${binWord} ; 0x${hex(binWord)} : `, 224);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Top : \n[${binWord} ; 0x${hex(binWord)}]`, 128);
 					// bottom
 					lowByte = ROM[roomAddress + 6];
 					highByte = ROM[roomAddress + 7];
 					binWord = (highByte<<8) + lowByte;
 					lowstr = hex(lowByte); highstr = hex(highByte);
-					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Bottom ${binWord} ; 0x${hex(binWord)} : `, 224);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Pixel Bottom : \n[${binWord} ; 0x${hex(binWord)}]`, 128);
 					// coordinate system
 					lowByte = ROM[roomAddress + 8];
 					highByte = ROM[roomAddress + 9];
+					binWord = (highByte<<8) + lowByte;
 					lowstr = hex(lowByte); highstr = hex(highByte);
-					add_toDisplay(`[${lowstr}, ${highstr}]`, `Coordinate System 0x${lowstr+highstr} : `, 224);
+					add_toDisplay(`[${lowstr}, ${highstr}]`, `Coordinate System : \n[0x${lowstr+highstr} : ${coordinateSystemNames[binWord]||'?'}]`, 224);
 					
 				}
 			};
@@ -873,6 +878,27 @@
 			};
 		}
 
+		function get_levelTypeNames(){
+			return {
+				0x00 : 'Normal',
+				0x01 : 'Bonus',
+				0x02 : 'Small Room',
+				0x03 : 'Boss',
+				0x04 : 'Unused',
+				0x05 : 'Unused',
+				0x06 : 'Destination Area',
+			};
+		}
+
+		function get_bonusTypeNames(){
+			return {
+				0x00 : 'None',
+				0x01 : 'Destroy Them All',
+				0x02 : 'Collect The Stars',
+				0x03 : 'Find The Token',
+			};
+		}
+
 		function get_ISD_names(){
 			return {
 				0x479E : `Klobber Karnage / Jungle Jinx Bonus 1`,
@@ -1005,7 +1031,7 @@
 				0x2182:{name:'WMADDM', description:'WRAM Address Registers'},
 				0x2183:{name:'WMADDH', description:'WRAM Address Registers'},
 			};
-		};
+		}
 
 		function get_themeNames(){
 			return {
@@ -1031,7 +1057,18 @@
 				0x13 : 'Funfair (B)',
 				0x14 : 'Tower (B)',
 			};
-		};
+		}
+
+		function get_coordinateSystemNames(){
+			return {
+				0x0000 : 'Horizontal (Standard)',
+				0x0004 : 'Vertical (Wide)',
+				0x0005 : 'Vertical (Narrow)',
+				0x0006 : 'Vertical (Square)',
+				0x0007 : 'Vertical (Square)',
+				0x0008 : 'Horizontal (Narrow)',
+			};
+		}
 	};
 
 })();
