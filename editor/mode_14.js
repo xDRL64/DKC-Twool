@@ -548,7 +548,7 @@
 				let themeSettings = get_themeSettings(themeIndex);
 
 				// theme settings
-				addNewLine_toDisplay(`\n\n[ Level Theme Settings 0x${hex(themeIndex)} : ${themeNames[themeIndex]}] : `);
+				addNewLine_toDisplay(`\n\n[ Level Theme Settings 0x${hex(themeIndex)} : ${themeNames[themeIndex]} ] : `);
 
 				let lowstr, highstr, bankstr, romBankstr;
 
@@ -616,7 +616,7 @@
 
 
 				// room dimension settings 
-				addNewLine_toDisplay(`\n\n[ Room Dimension Settings 0x${hex(themeIndex)} : ${themeNames[themeIndex]}] : `);
+				addNewLine_toDisplay(`\n\n[ Room Dimension Settings 0x${hex(themeIndex)} : ${themeNames[themeIndex]} ] : `);
 
 				let lowstr, highstr, wordstr;
 
