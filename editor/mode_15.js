@@ -258,14 +258,17 @@
 	
 			let sprite = get_sprite(spriteAddress_table[_spriteIndex]);
 			let tileCount = sprite.tiles.length;
-			let viewport = wLib.create_preview(tileCount*8, 8, 2);
+			let tilesetViewport = wLib.create_preview(tileCount*8, 8, 2);
 	
-			app.gfx.fast.draw_formatedTileset(sprite.tiles, pal[0], hFlip=0,vFlip=0, tileCount, viewport.ctx);
-	
-			displayArea.appendChild(viewport.elem);
-			displayArea.appendChild(Elem('div'),{margin:8});
+			app.gfx.fast.draw_formatedTileset(sprite.tiles, pal[0], hFlip=0,vFlip=0, tileCount, tilesetViewport.ctx);
 	
 			let spriteRender = wLib.create_preview(256,256, 2);
+			displayArea.appendChild(spriteRender.elem);
+			displayArea.appendChild(Elem('div',{margin:8}));
+			
+			displayArea.appendChild(tilesetViewport.elem);
+			displayArea.appendChild(Elem('div',{margin:8}));
+	
 			for(let i=0; i<sprite.blocks.length; i++){
 				let block = sprite.blocks[i];
 				let indexes = block.tileIndexes;
@@ -292,17 +295,19 @@
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[0]]], pal[0], hFlip=0,vFlip=0, 1, spriteRender.ctx, block.x,block.y);
 				}
 				displayArea.appendChild(blockViewport.elem);
-				displayArea.appendChild(Elem('div',{margin:8}));
+				displayArea.appendChild(Elem('span',{margin:8}));
 			}
 	
-			displayArea.appendChild(spriteRender.elem);
+			
 		};
 		
 
 		// update
 		o.update = function(trigger){
 			
-			spriteIndexList.elem.children[0x9C0].selected = true;
+			paletteIndexInput.value = 56;
+			paletteIndexInput.onchange();
+			spriteIndexList.elem.children[0x9D0].selected = true;
 			spriteIndexList.elem.onchange();
 		};
 
