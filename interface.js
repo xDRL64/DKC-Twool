@@ -559,6 +559,7 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 				test12  : ["test types",                           'mode12',  null],
 				test13  : ["sparkling palette mods display",       'mode13',  null],
 				test14  : ["level loading settings display",       'mode14',  null],
+				test15  : ["test sprite display",                  'mode15',  null],
 
 			};
 
@@ -676,6 +677,9 @@ dkc2ldd.interface = (function(app=dkc2ldd){
 
 		// level settings display
 		workspace.list_generator['mode14'] = app.mode[14];
+
+		// sprite display
+		workspace.list_generator['mode15'] = app.mode[15];
 	};
 	
 	return o;
