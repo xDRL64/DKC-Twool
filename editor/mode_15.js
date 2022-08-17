@@ -68,9 +68,6 @@
 
 		};
 
-
-
-
 		let get_sprite = function(address){
 			
 			// GET SPRITE SETTINGS DATA
@@ -210,16 +207,16 @@
 			};
 		};
 
-
 		extract_sprite_table();
 		//spriteAddress_table.forEach( (e)=>console.log(hex(e)) );
 
+		let _sprite;
 		let _spriteIndex = 0; // default
 		let spriteNames = [];
 		let spriteIndexList = wLib2.DropList('sprite gfx index : \t');
 		for(let i=0; i<spriteCount; i++)
 				spriteIndexList.generate_item(`${hex(i,'0x')} : ${spriteNames[i]||'?name'}`, i);
-			Elem.Set(spriteIndexList.elem, { margin:'8 0', _value:0x9D7});
+			Elem.Set(spriteIndexList.elem, { margin:'8 0', _value:0x0});
 			spriteIndexList.elem.children[0].setAttribute('selected', true);
 			spriteIndexList.elem.style.fontFamily = 'monospace';
 
@@ -230,6 +227,8 @@
 		let _paletteIndex = 0; // default
 		let spritePalettesTableAddress = 0x3D5FEE;
 		let paletteIndexInput = Elem('input', {_type:'number', _min:0, _max:0x80, _value:0});
+		let paletteIndexInputLabel = Elem('label',{txtCnt:'palette index number : \t', wtsPre});
+		paletteIndexInputLabel.style.fontFamily = 'monospace';
 
 		let make_palette = function(defBGcolor=[0x00,0x7C]){
 			let dataOfst = spritePalettesTableAddress + (_paletteIndex*2);
@@ -238,7 +237,7 @@
 			pal =  app.gfx.fast.snespalTo24bits(pal, 4);
 		};
 
-		// hard palette (debug)
+		// hard palettes (debug)
 			let diddy_pal = [
 				0x00,0x7C, 0x66,0x04, 0x8A,0x08, 0xCD,0x0C, 0x12,0x0D, 0x56,0x11, 0x52,0x1D, 0xD9,0x2D,
 				0x7F,0x3A, 0xDF,0x46, 0x5F,0x4F, 0x55,0x04, 0x7A,0x08, 0xDF,0x10, 0xEF,0x3D, 0xFF,0x7F
@@ -247,14 +246,19 @@
 				0x80,0x7D,0x00,0x00,0x69,0x00,0x52,0x0D,0x72,0x5E,0xCE,0x39,0xA4,0x1C,0x15,0x7F,
 				0x45,0x35,0xAF,0x7F,0xE8,0x00,0xF2,0x01,0xF9,0x1A,0xFF,0x2F,0xFF,0x57,0xFF,0x7F
 			];
-			pal = zing_pal;
-			pal = app.gfx.fast.snespalTo24bits(pal, 4);
+			//pal = zing_pal;
+			//pal = app.gfx.fast.snespalTo24bits(pal, 4);
 		
 		make_palette();
 
 		// html elements
-		mode_15.appendChild(spriteIndexList.elem);
+		mode_15.appendChild(spriteIndexList.board);
+		mode_15.appendChild(Elem('div',{margin:8}));
+
+		mode_15.appendChild(paletteIndexInputLabel);
 		mode_15.appendChild(paletteIndexInput);
+		mode_15.appendChild(Elem('div',{margin:8}));
+
 		mode_15.appendChild(displayArea);
 		workspace.elem.appendChild(mode_15);
 
@@ -262,11 +266,10 @@
 		//
 		spriteIndexList.elem.onchange = function(){
 			_spriteIndex = parseInt(this.value);
-
+			update_sprite();
 			display_sprite();
 		};
 
-		
 		// on palette select
 		//
 		paletteIndexInput.onchange = function(){
@@ -276,23 +279,33 @@
 			display_sprite();
 		};
 
+		let update_sprite = function(){
+			_sprite = get_sprite(spriteAddress_table[_spriteIndex]);
+		};
 
+		// display : sprite / tileset / 16x16 blocks / 8x8 blocks
 		let display_sprite = function(){
+			let mainPreviewScale = 1;
+
 			displayArea.innerHTML = '';
 	
-			let sprite = get_sprite(spriteAddress_table[_spriteIndex]);
-			let tileCount = sprite.tiles.length;
-			let tilesetViewport = wLib.create_preview(tileCount*8, 8, 2);
-	
-			app.gfx.fast.draw_formatedTileset(sprite.tiles, pal[0], hFlip=0,vFlip=0, tileCount, tilesetViewport.ctx);
-	
-			let spriteRender = wLib.create_preview(256,256, 2);
+			let spriteRender = wLib.create_preview(256,256, mainPreviewScale);
 			displayArea.appendChild(spriteRender.elem);
-			displayArea.appendChild(Elem('div',{margin:8}));
+			spriteRender.elem.style.border = '1px solid black';
 			
+			let spriteSettingsPanel = get_spriteSettingsPanel();
+			displayArea.appendChild(spriteSettingsPanel);
+			displayArea.appendChild(Elem('div',{margin:8}));
+
+			let sprite = _sprite
+			let tileCount = sprite.tiles.length;
+
+			let tilesetViewport = wLib.create_preview(tileCount*8, 8, mainPreviewScale);
+			app.gfx.fast.draw_formatedTileset(sprite.tiles, pal[0], hFlip=0,vFlip=0, tileCount, tilesetViewport.ctx);
 			displayArea.appendChild(tilesetViewport.elem);
 			displayArea.appendChild(Elem('div',{margin:8}));
 	
+			let step = 'in16x16';
 			for(let i=0; i<sprite.blocks.length; i++){
 				let block = sprite.blocks[i];
 				let indexes = block.tileIndexes;
@@ -300,7 +313,7 @@
 				// 16x16 block render
 				if(indexes.length === 4){
 					// block by block render
-					blockViewport =  wLib.create_preview(16,16, 2);
+					blockViewport =  wLib.create_preview(16,16, mainPreviewScale);
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[0]]], pal[0], hFlip=0,vFlip=0, 1, blockViewport.ctx, 0,0);
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[1]]], pal[0], hFlip=0,vFlip=0, 1, blockViewport.ctx, 8,0);
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[2]]], pal[0], hFlip=0,vFlip=0, 1, blockViewport.ctx, 0,8);
@@ -310,25 +323,52 @@
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[1]]], pal[0], hFlip=0,vFlip=0, 1, spriteRender.ctx, block.x+8,block.y+0);
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[2]]], pal[0], hFlip=0,vFlip=0, 1, spriteRender.ctx, block.x+0,block.y+8);
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[3]]], pal[0], hFlip=0,vFlip=0, 1, spriteRender.ctx, block.x+8,block.y+8);
+				}
 				// 8x8 block render
-				}else{
+				else{
+					step = ((step === 'in16x16') ? 'first8x8' : 'in8x8');
 					// block by block render
-					blockViewport =  wLib.create_preview(8,8, 2);
+					blockViewport =  wLib.create_preview(8,8, mainPreviewScale);
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[0]]], pal[0], hFlip=0,vFlip=0, 1, blockViewport.ctx, 0,0);
 					// sprite render
 					app.gfx.fast.draw_formatedTileset([sprite.tiles[indexes[0]]], pal[0], hFlip=0,vFlip=0, 1, spriteRender.ctx, block.x,block.y);
 				}
+
+				if(step === 'first8x8')
+					displayArea.appendChild(Elem('div'));
+
+				blockViewport.elem.appendChild(Elem('div',{wtsPre,txtCnt:`x:${block.x}\ny:${block.y}`}));
+				blockViewport.elem.style.fontFamily = 'monospace';
+				blockViewport.elem.style.fontSize = 12;
 				displayArea.appendChild(blockViewport.elem);
+				blockViewport.elem.style.marginTop = 8;
 				displayArea.appendChild(Elem('span',{margin:8}));
 			}
 	
 			
 		};
 		
+		let get_spriteSettingsPanel = function(){
+			let data = _sprite.settings;
+			let txt = `16x16 count         : ${data._16x16_count}\n\n`
+			        + `8x8 groupe 1 count  : ${data.grp1_count}\n`
+			        + `8x8 groupe 1 offset : ${data.grp1_ofst}\n\n`
+			        + `8x8 groupe 2 count  : ${data.grp2_count}\n`
+			        + `8x8 groupe 2 offset : ${data.grp2_ofst}\n\n`
+			        + `8x8 groupe 3 count  : ${data.grp3_count}\n`
+			        + `8x8 groupe 3 offset : ${data.grp3_ofst}\n`
+			        + `8x8 groupe 3 vram   : ${data.vram}\n`
+					;
+			let elem = Elem('span',{disInb, wtsPre, txtCnt:txt});
+			elem.style.fontFamily = 'monospace';
+			return elem;
+		};
+
 
 		// update
 		o.update = function(trigger){
-			
+			// default sprite preview (debug)
+			update_sprite();
 			paletteIndexInput.value = 56;
 			paletteIndexInput.onchange();
 			spriteIndexList.elem.children[0x9D0].selected = true;
