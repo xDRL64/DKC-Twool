@@ -93,51 +93,75 @@
 
 			// GET BLOCK POSITION DATA
 
-			let block_count = _16x16_count + grp1_count + grp2_count;
+			let b16x16_count, block_count, iBlock, start, end, tileIndexes, b16x16_offset;
 
-			let blocks = new Array(block_count);
+			block_count = _16x16_count + grp1_count + grp2_count;
+			start = address + 8;
+			end = start + (block_count * 2);
+			b16x16_count = _16x16_count;
+			b16x16_offset = 0;
+			
+			let _8first_16x16_only = []
+			if(_16x16_count > 8){
+				
+				_8first_16x16_only = new Array(8);
+				iBlock = 0;
+				let end = start+16;
+				for(let i=start; i<end; i+=2){
+					tileIndexes = new Uint8Array(4);
+					tileIndexes[0] = iBlock * 2;
+					tileIndexes[1] = (iBlock * 2) + 1;
+					tileIndexes[2] = 16 + (iBlock * 2);
+					tileIndexes[3] = 16 + (iBlock * 2) + 1;
+					_8first_16x16_only[iBlock] = {x:ROM[i], y:ROM[i+1], tileIndexes};
+					iBlock++;
+				}
+				
+				start = end;
+				b16x16_count = _16x16_count - 8;
+				b16x16_offset = 32;
 
-			let iBlock = 0;
-			let start = address + 8;
-			let end = start + (block_count * 2);
+			}
 
-			let tileIndexes;
-			let step = '16x16';
+
+			iBlock = 0;
+			let blocks = new Array(b16x16_count + grp1_count + grp2_count);
 
 			for(let i=start; i<end; i+=2){
 
 				// 16x16 block
-				if(iBlock<_16x16_count){
+				if(iBlock<b16x16_count){
 					tileIndexes = new Uint8Array(4);
+
 					// top of block
-						tileIndexes[0] = iBlock * 2;
-						tileIndexes[1] = (iBlock * 2) + 1;
+						tileIndexes[0] = b16x16_offset + (iBlock * 2);
+						tileIndexes[1] = b16x16_offset + (iBlock * 2) + 1;
 
 					// bottom of block
-						let ofst;
+						let ofst = b16x16_offset;
 						// use the groupe 3 as ref for 16x16 bottom
 						if(grp3_count){
 							ofst = grp3_ofst + (iBlock * 2);
 						}
 						// use group 1 offset as ref for 16x16 bottom
-						else if(grp1_ofst<(_16x16_count * 4)){
-							ofst = (_16x16_count * 2) + grp1_count + (iBlock * 2);
+						else if( (grp1_ofst-b16x16_offset) < (b16x16_count * 4) ){
+							ofst += (b16x16_count * 2) + grp1_count + (iBlock * 2);
 						}
 						// use what follows 16x16 top as ref for 16x16 bottom
 						else{
-							ofst = (_16x16_count * 2) + (iBlock * 2);
+							ofst += (b16x16_count * 2) + (iBlock * 2);
 						}
 
 						tileIndexes[2] = ofst;
 						tileIndexes[3] = ofst + 1;
-
+				}
 				// 8x8 block
-				}else{
+				else{
 					tileIndexes = new Uint8Array(1);
 					
 					// determine step and calc ofst
-					let ofst = iBlock - _16x16_count;
-					step = ofst<grp1_count ? '8x8_grp1' : '8x8_grp2';
+					let ofst = iBlock - b16x16_count;
+					let step = ofst<grp1_count ? '8x8_grp1' : '8x8_grp2';
 					if(ofst<grp1_count){
 						step = '8x8_grp1';
 					}
@@ -159,11 +183,11 @@
 					}
 				}
 
-
-
 				blocks[iBlock] = {x:ROM[i], y:ROM[i+1], tileIndexes};
 				iBlock++;
 			}
+
+			blocks = _8first_16x16_only.concat(blocks);
 
 			// GET TILES
 
@@ -195,7 +219,7 @@
 		let spriteIndexList = wLib2.DropList('sprite gfx index : \t');
 		for(let i=0; i<spriteCount; i++)
 				spriteIndexList.generate_item(`${hex(i,'0x')} : ${spriteNames[i]||'?name'}`, i);
-			Elem.Set(spriteIndexList.elem, { margin:'8 0', _value:0x9C0});
+			Elem.Set(spriteIndexList.elem, { margin:'8 0', _value:0x9D7});
 			spriteIndexList.elem.children[0].setAttribute('selected', true);
 			spriteIndexList.elem.style.fontFamily = 'monospace';
 
